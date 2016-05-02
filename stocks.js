@@ -5304,15 +5304,34 @@ var tickers = [
 
 ];
 
+function init() {
 
-var symbols = module.exports = {};
+	var symbols = module.exports.symbols = {};
+	var sectors = module.exports.sectors = {};
 
-for (var i = 0; i < tickers.length; i++) {
-	var ticker = tickers[i];
+	// Clean up errors
+	for (var i = 0; i < tickers.length; i++) {
+		tickers[i].symbol = tickers[i].symbol.trim();;
+		tickers[i].sector = tickers[i].sector.trim();;
+	}
+	 
+	for (var i = 0; i < tickers.length; i++) {
+		var ticker = tickers[i];
+		symbols[ticker.symbol] = ticker;
+	}	
+
+	for (var i = 0; i < tickers.length; i++) {
+		var ticker = tickers[i];
+
+		if (sectors[ticker.sector] == undefined)
+			sectors[ticker.sector] = {};
+			
+		sectors[ticker.sector][ticker.symbol] = ticker;
+			
+	}	
+
 	
-	// Trim spaces from symbols
-	ticker.symbol = ticker.symbol.trim();
+	
+}
 
-	symbols[ticker.symbol] = ticker;
-}	
-
+init();
