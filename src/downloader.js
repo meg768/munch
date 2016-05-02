@@ -1,12 +1,13 @@
 
-var Gopher = require('./scripts/gopher.js');
 var jsonfile = require('jsonfile');
-var sprintf = require('./scripts/sprintf.js');
-var fs = require('fs');
-var utils = require('./scripts/utils.js');
-var Promise = require('bluebird');
-var Path = require('path');
+var fs       = require('fs');
+var Promise  = require('bluebird');
+var Path     = require('path');
 var schedule = require('node-schedule');
+
+var Gopher  = require('../lib/gopher.js');
+var sprintf = require('../lib/sprintf.js');
+var utils   = require('../lib/utils.js');
 
 
 
@@ -70,6 +71,7 @@ var Downloader = module.exports = function(stocks) {
 				var timestamp = timestamps[index++];
 				
 				if (timestamp != undefined) {
+					console.log(timestamp.timestamp);
 					var stock = stocks[timestamp.symbol];					
 					console.log(sprintf('Fetching "%s" (%d/%d)...', stock.symbol, index, size));
 					fetchQuote(stock);
@@ -96,9 +98,10 @@ var Downloader = module.exports = function(stocks) {
 		for (var symbol in stocks) {
 			var stock = stocks[symbol];
 			
-			var stockFile = sprintf('./%s/%s/%s/%s.json', _quotesFolder, stock.sector, stock.symbol, stock.symbol);
+			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
 
 			if (!fileExists(stockFile)) {
+				console.log(stockFile);
 				timestamps.push({symbol:stock.symbol, timestamp:new Date(0)});
 			}
 			else {
@@ -118,14 +121,13 @@ var Downloader = module.exports = function(stocks) {
 		
 		request.then(function(quotes) {
 			
-			mkdir(sprintf('./%s/%s', _quotesFolder, stock.sector));
-			mkdir(sprintf('./%s/%s/%s', _quotesFolder, stock.sector, stock.symbol));
+			mkdir(sprintf('%s/%s', _quotesFolder, stock.symbol));
 		
-			var stockFile = sprintf('./%s/%s/%s/%s.json', _quotesFolder, stock.sector, stock.symbol, stock.symbol);
+			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
 			fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
 			
 			for (var key in quotes) {
-				var quoteFile = sprintf('./%s/%s/%s/%s.json', _quotesFolder, stock.sector, stock.symbol, key);
+				var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, key);
 				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 			}
 			
