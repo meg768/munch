@@ -1,0 +1,44 @@
+{
+	"12:13": {
+		"close": 3,
+		"high": 3,
+		"low": 3,
+		"open": 3,
+		"volume": 4400
+	},
+	"12:58": {
+		"close": 3,
+		"high": 3,
+		"low": 2.99,
+		"open": 2.99,
+		"volume": 222
+	},
+	"13:26": {
+		"close": 3,
+		"high": 3,
+		"low": 3,
+		"open": 3,
+		"volume": 1500
+	},
+	"13:32": {
+		"close": 3,
+		"high": 3,
+		"low": 3,
+		"open": 3,
+		"volume": 100
+	},
+	"14:25": {
+		"close": 3,
+		"high": 3,
+		"low": 3,
+		"open": 3,
+		"volume": 100
+	},
+	"15:45": {
+		"close": 3,
+		"high": 3,
+		"low": 2.99,
+		"open": 3,
+		"volume": 1000
+	}
+}

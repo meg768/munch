@@ -1,0 +1,576 @@
+{
+	"09:30": {
+		"close": 12.85,
+		"high": 12.95,
+		"low": 12.85,
+		"open": 12.95,
+		"volume": 600
+	},
+	"10:19": {
+		"close": 12.97,
+		"high": 12.97,
+		"low": 12.97,
+		"open": 12.97,
+		"volume": 100
+	},
+	"10:21": {
+		"close": 12.9999,
+		"high": 12.9999,
+		"low": 12.9999,
+		"open": 12.9999,
+		"volume": 200
+	},
+	"11:23": {
+		"close": 12.931,
+		"high": 12.931,
+		"low": 12.931,
+		"open": 12.931,
+		"volume": 100
+	},
+	"11:27": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"11:33": {
+		"close": 12.91,
+		"high": 12.9999,
+		"low": 12.91,
+		"open": 12.9999,
+		"volume": 1100
+	},
+	"11:40": {
+		"close": 12.96,
+		"high": 12.96,
+		"low": 12.96,
+		"open": 12.96,
+		"volume": 100
+	},
+	"11:50": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"12:02": {
+		"close": 12.96,
+		"high": 13,
+		"low": 12.96,
+		"open": 13,
+		"volume": 200
+	},
+	"12:07": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"12:20": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"12:31": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:03": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:17": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:34": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:47": {
+		"close": 12.995,
+		"high": 13,
+		"low": 12.995,
+		"open": 13,
+		"volume": 3450
+	},
+	"13:49": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:50": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"13:54": {
+		"close": 12.995,
+		"high": 12.995,
+		"low": 12.995,
+		"open": 12.995,
+		"volume": 100
+	},
+	"14:03": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 300
+	},
+	"14:04": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 800
+	},
+	"14:11": {
+		"close": 12.994,
+		"high": 12.995,
+		"low": 12.994,
+		"open": 12.995,
+		"volume": 500
+	},
+	"14:14": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"14:17": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"14:20": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"14:24": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 700
+	},
+	"14:25": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"14:31": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"14:44": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"14:57": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:02": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:03": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 300
+	},
+	"15:04": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:06": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:07": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:08": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:10": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 300
+	},
+	"15:14": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:16": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:17": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:18": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:19": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:20": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:22": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:23": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:24": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:25": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:26": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:27": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:28": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:29": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:30": {
+		"close": 13,
+		"high": 13,
+		"low": 12.99,
+		"open": 12.995,
+		"volume": 700
+	},
+	"15:31": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:32": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:33": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:34": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:35": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:36": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:37": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:38": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:39": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:40": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:41": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:42": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:43": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:44": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 300
+	},
+	"15:45": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 662
+	},
+	"15:46": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 400
+	},
+	"15:47": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:48": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 100
+	},
+	"15:49": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 500
+	},
+	"15:50": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:51": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:52": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 500
+	},
+	"15:53": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 200
+	},
+	"15:54": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 300
+	},
+	"15:55": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 500
+	},
+	"15:56": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 600
+	},
+	"15:57": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 500
+	},
+	"15:58": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 800
+	},
+	"15:59": {
+		"close": 13,
+		"high": 13,
+		"low": 13,
+		"open": 13,
+		"volume": 500
+	},
+	"16:00": {
+		"close": 13,
+		"high": 13.06,
+		"low": 13,
+		"open": 13,
+		"volume": 1941
+	}
+}

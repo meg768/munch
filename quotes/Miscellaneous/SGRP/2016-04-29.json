@@ -1,0 +1,86 @@
+{
+	"13:45": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 400
+	},
+	"13:47": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 100
+	},
+	"13:48": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 200
+	},
+	"13:54": {
+		"close": 1.02,
+		"high": 1.02,
+		"low": 1.02,
+		"open": 1.02,
+		"volume": 200
+	},
+	"13:57": {
+		"close": 1.03,
+		"high": 1.03,
+		"low": 1.03,
+		"open": 1.03,
+		"volume": 100
+	},
+	"13:59": {
+		"close": 1,
+		"high": 1.01,
+		"low": 1,
+		"open": 1.01,
+		"volume": 300
+	},
+	"14:03": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 200
+	},
+	"14:08": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 100
+	},
+	"14:11": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 100
+	},
+	"14:30": {
+		"close": 1,
+		"high": 1,
+		"low": 1,
+		"open": 1,
+		"volume": 200
+	},
+	"15:02": {
+		"close": 1,
+		"high": 1,
+		"low": 0.96,
+		"open": 0.97,
+		"volume": 1100
+	},
+	"16:00": {
+		"close": 1,
+		"high": 1,
+		"low": 0.9802,
+		"open": 0.9802,
+		"volume": 200
+	}
+}

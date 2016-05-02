@@ -1,0 +1,30 @@
+{
+  "name": "munch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meg768/munch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/meg768/munch/issues"
+  },
+  "dependencies": {
+    "bluebird": "^3.3.5",
+    "client-request": "^1.0.1",
+    "events": "^1.1.0",
+    "jsonfile": "^2.3.0",
+    "moment": "^2.10.2",
+    "node-rsa": "^0.3.2",
+    "node-schedule": "^1.1.0",
+    "ursa": "^0.9.3",
+    "ursa-purejs": "0.0.3"
+  },
+  "devDependencies": {}
+}

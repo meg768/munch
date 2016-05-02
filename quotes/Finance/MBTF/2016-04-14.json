@@ -1,0 +1,807 @@
+{
+	"09:30": {
+		"close": 8.05,
+		"high": 8.05,
+		"low": 8.05,
+		"open": 8.05,
+		"volume": 100
+	},
+	"09:33": {
+		"close": 8.05,
+		"high": 8.05,
+		"low": 8.05,
+		"open": 8.05,
+		"volume": 200
+	},
+	"09:34": {
+		"close": 8.05,
+		"high": 8.05,
+		"low": 8.05,
+		"open": 8.05,
+		"volume": 1300
+	},
+	"09:35": {
+		"close": 8.05,
+		"high": 8.05,
+		"low": 8.05,
+		"open": 8.05,
+		"volume": 200
+	},
+	"09:36": {
+		"close": 8.05,
+		"high": 8.19,
+		"low": 8.05,
+		"open": 8.19,
+		"volume": 200
+	},
+	"09:37": {
+		"close": 8.0599,
+		"high": 8.0599,
+		"low": 8.05,
+		"open": 8.05,
+		"volume": 200
+	},
+	"09:38": {
+		"close": 8.17,
+		"high": 8.17,
+		"low": 8.17,
+		"open": 8.17,
+		"volume": 100
+	},
+	"09:39": {
+		"close": 8,
+		"high": 8.01,
+		"low": 8,
+		"open": 8.01,
+		"volume": 1200
+	},
+	"09:55": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.97,
+		"open": 7.97,
+		"volume": 200
+	},
+	"10:02": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:03": {
+		"close": 8,
+		"high": 8,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 200
+	},
+	"10:04": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:05": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:08": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"10:09": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 1000
+	},
+	"10:10": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 500
+	},
+	"10:12": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 1000
+	},
+	"10:13": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"10:16": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"10:17": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:20": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:21": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:22": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"10:23": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:24": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:28": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:29": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:30": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"10:34": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"10:37": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:39": {
+		"close": 8,
+		"high": 8,
+		"low": 7.995,
+		"open": 7.995,
+		"volume": 200
+	},
+	"10:50": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"10:51": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"10:59": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:01": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"11:09": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"11:10": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:12": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:13": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"11:14": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 100
+	},
+	"11:16": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:23": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:24": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"11:25": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 600
+	},
+	"11:26": {
+		"close": 8,
+		"high": 8,
+		"low": 7.995,
+		"open": 7.995,
+		"volume": 300
+	},
+	"11:29": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 1000
+	},
+	"11:31": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:33": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 400
+	},
+	"11:38": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"11:40": {
+		"close": 8.005,
+		"high": 8.005,
+		"low": 8.005,
+		"open": 8.005,
+		"volume": 100
+	},
+	"11:44": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:47": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"11:51": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"11:52": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:00": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:02": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:03": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"12:04": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:06": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:09": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:19": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:20": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:21": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:23": {
+		"close": 7.99,
+		"high": 7.995,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 2865
+	},
+	"12:40": {
+		"close": 7.995,
+		"high": 7.995,
+		"low": 7.995,
+		"open": 7.995,
+		"volume": 100
+	},
+	"12:41": {
+		"close": 8,
+		"high": 8,
+		"low": 7.999,
+		"open": 7.999,
+		"volume": 478
+	},
+	"12:51": {
+		"close": 8,
+		"high": 8,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 700
+	},
+	"12:54": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"12:58": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 100
+	},
+	"13:01": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 200
+	},
+	"13:04": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:05": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 200
+	},
+	"13:06": {
+		"close": 7.995,
+		"high": 7.995,
+		"low": 7.995,
+		"open": 7.995,
+		"volume": 100
+	},
+	"13:10": {
+		"close": 8,
+		"high": 8,
+		"low": 7.995,
+		"open": 7.995,
+		"volume": 200
+	},
+	"13:22": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:24": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:27": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"13:28": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:35": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:41": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"13:43": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"13:44": {
+		"close": 7.99,
+		"high": 8,
+		"low": 7.99,
+		"open": 8,
+		"volume": 1454
+	},
+	"14:02": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:11": {
+		"close": 7.99,
+		"high": 7.99,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 100
+	},
+	"14:16": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:23": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:27": {
+		"close": 7.9999,
+		"high": 7.9999,
+		"low": 7.9999,
+		"open": 7.9999,
+		"volume": 800
+	},
+	"14:31": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 600
+	},
+	"14:39": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:45": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 300
+	},
+	"14:54": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:56": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"14:59": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:00": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:07": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:10": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:15": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:18": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:23": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:24": {
+		"close": 8,
+		"high": 8,
+		"low": 7.99,
+		"open": 7.99,
+		"volume": 300
+	},
+	"15:25": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:35": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:38": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:39": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:42": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:43": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:45": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:46": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:48": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"15:50": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:52": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:56": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 200
+	},
+	"15:57": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 216
+	},
+	"15:59": {
+		"close": 8,
+		"high": 8,
+		"low": 8,
+		"open": 8,
+		"volume": 100
+	},
+	"16:00": {
+		"close": 7.99,
+		"high": 8,
+		"low": 7.98,
+		"open": 8,
+		"volume": 2245
+	}
+}

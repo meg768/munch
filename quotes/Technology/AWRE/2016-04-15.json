@@ -1,0 +1,177 @@
+{
+	"09:30": {
+		"close": 3.9,
+		"high": 3.9,
+		"low": 3.9,
+		"open": 3.9,
+		"volume": 100
+	},
+	"11:37": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"11:53": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"11:55": {
+		"close": 3.9701,
+		"high": 3.9701,
+		"low": 3.9701,
+		"open": 3.9701,
+		"volume": 200
+	},
+	"11:56": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 224
+	},
+	"12:11": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"12:16": {
+		"close": 3.9773,
+		"high": 3.9773,
+		"low": 3.9773,
+		"open": 3.9773,
+		"volume": 1276
+	},
+	"12:32": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"12:39": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"12:56": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 133
+	},
+	"13:20": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 1350
+	},
+	"13:22": {
+		"close": 3.9958,
+		"high": 3.9958,
+		"low": 3.9958,
+		"open": 3.9958,
+		"volume": 1500
+	},
+	"13:39": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"14:10": {
+		"close": 3.98,
+		"high": 4,
+		"low": 3.98,
+		"open": 4,
+		"volume": 200
+	},
+	"14:11": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"14:14": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"14:18": {
+		"close": 3.946,
+		"high": 3.946,
+		"low": 3.941,
+		"open": 3.941,
+		"volume": 948
+	},
+	"14:56": {
+		"close": 3.99,
+		"high": 3.99,
+		"low": 3.99,
+		"open": 3.99,
+		"volume": 200
+	},
+	"15:17": {
+		"close": 3.97,
+		"high": 3.97,
+		"low": 3.97,
+		"open": 3.97,
+		"volume": 100
+	},
+	"15:25": {
+		"close": 4,
+		"high": 4,
+		"low": 3.99,
+		"open": 3.99,
+		"volume": 405
+	},
+	"15:31": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 231
+	},
+	"15:40": {
+		"close": 4,
+		"high": 4,
+		"low": 4,
+		"open": 4,
+		"volume": 100
+	},
+	"15:51": {
+		"close": 3.98,
+		"high": 3.99,
+		"low": 3.98,
+		"open": 3.99,
+		"volume": 1267
+	},
+	"15:58": {
+		"close": 3.95,
+		"high": 3.95,
+		"low": 3.95,
+		"open": 3.95,
+		"volume": 100
+	},
+	"16:00": {
+		"close": 3.91,
+		"high": 3.91,
+		"low": 3.91,
+		"open": 3.91,
+		"volume": 1512
+	}
+}
