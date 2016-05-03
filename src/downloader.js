@@ -17,7 +17,6 @@ var Downloader = module.exports = function(stocks, folder) {
 		
 	// Make sure the quotes folder exists
 	mkdir(_quotesFolder);
-	mkdir(sprintf('%s/%s', _quotesFolder, 'logs'));
 
 
 	this.scheduleDownload = function() {
