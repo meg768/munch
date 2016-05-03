@@ -8,6 +8,7 @@ var schedule = require('node-schedule');
 var Gopher  = require('../lib/gopher.js');
 var sprintf = require('../lib/sprintf.js');
 var utils   = require('../lib/utils.js');
+var extend  = require('../lib/extend.js');
 
 
 var Downloader = module.exports = function(stocks, folder) {
@@ -16,6 +17,7 @@ var Downloader = module.exports = function(stocks, folder) {
 		
 	// Make sure the quotes folder exists
 	mkdir(_quotesFolder);
+	mkdir(sprintf('%s/%s', _quotesFolder, 'logs'));
 
 
 	this.scheduleDownload = function() {
@@ -123,10 +125,14 @@ var Downloader = module.exports = function(stocks, folder) {
 				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 			}
 
+			var stockHeader = {};
+			extend(stockHeader, stock, {updated: new Date()});
+
 			// Update the stock header file after all quotes have been saved
 			// The timestamp matters...
 			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
-			fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
+			
+			fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
 			
 			
 		});
