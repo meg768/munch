@@ -122,7 +122,7 @@ var Downloader = module.exports = function(stocks, folder) {
 				var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, key);
 				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 			}
-			
+olga();			
 			// Update the stock header file after all quotes have been saved
 			// The timestamp matters...
 			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
