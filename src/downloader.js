@@ -10,9 +10,9 @@ var sprintf = require('../lib/sprintf.js');
 var utils   = require('../lib/utils.js');
 
 
-var Downloader = module.exports = function(stocks) {
+var Downloader = module.exports = function(stocks, folder) {
 
-	var _quotesFolder = './quotes';
+	var _quotesFolder = folder;
 		
 	// Make sure the quotes folder exists
 	mkdir(_quotesFolder);

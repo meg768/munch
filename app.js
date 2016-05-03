@@ -5,7 +5,7 @@ var fs         = require('fs');
 var App = function() {
 
 	this.scheduleDownload = function() {
-		var downloader = new Downloader(require('./src/stocks.js').symbols);
+		var downloader = new Downloader(require('./src/stocks.js').symbols, './quotes');
 		downloader.scheduleDownload();
 		
 	};
