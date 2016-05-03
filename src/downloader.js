@@ -118,13 +118,14 @@ var Downloader = module.exports = function(stocks) {
 			
 			mkdir(sprintf('%s/%s', _quotesFolder, stock.symbol));
 		
-			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
-			fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
-			
 			for (var key in quotes) {
 				var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, key);
 				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 			}
+
+			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
+			fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
+			
 			
 		});
 
