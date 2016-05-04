@@ -18,7 +18,7 @@ var Downloader = module.exports = function(stocks, folder) {
 
 	this.scheduleDownload = function() {
 		
-		console.log('Started...');
+		log('Started...');
 		
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
@@ -31,12 +31,17 @@ var Downloader = module.exports = function(stocks, folder) {
 			
 		
 	}
+
+	function log(message) {
+		var date = new Date();
+		console.log(sprintf('%04d-%02d-%02d %02d:%02d:%02d: %s', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), message));
+	}	
 	
 	function fetch(blockSize) {
 		var rule = new schedule.RecurrenceRule();	
 		rule.second = new schedule.Range(0, 59, 1);
 
-		console.log('Checking if anything to fetch.');
+		log('Checking if anything to fetch...');
 		
 		var date = new Date();
 		date.setDate(date.getDate() - 1);
@@ -68,11 +73,11 @@ var Downloader = module.exports = function(stocks, folder) {
 				
 				if (timestamp != undefined) {
 					var stock = stocks[timestamp.symbol];					
-					console.log(sprintf('Fetching "%s" (%d/%d)...', stock.symbol, index, size));
+					log(sprintf('Fetching "%s" (%d/%d)...', stock.symbol, index, size));
 					fetchQuote(stock);
 				}
 				else {
-					console.log('Done.');
+					log('Done.');
 					job.cancel();
 					
 				}
@@ -80,7 +85,7 @@ var Downloader = module.exports = function(stocks, folder) {
 			
 		}
 		else {
-			console.log('Nothing to fetch');
+			log('Nothing to fetch');
 		}
 		
 	}
@@ -134,8 +139,8 @@ var Downloader = module.exports = function(stocks, folder) {
 		});
 
 		request.catch(function(error, response, body) {
-			console.log(response);
-			console.log('Failed loading', stock.symbol);
+			console.error(response);
+			log(sprintf('Failed loading %s', stock.symbol));
 		});
 		
 	}
