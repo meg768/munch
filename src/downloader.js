@@ -27,8 +27,6 @@ var Downloader = module.exports = function(stocks, folder) {
 			fetch(10);			
 		});
 		
-		fetch(10);	
-			
 		
 	}
 
