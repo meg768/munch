@@ -16,7 +16,7 @@ var Downloader = module.exports = function(stocks, folder) {
 	var _quotesFolder = folder;
 		
 	mkdir(sprintf('%s/intraday', _quotesFolder));
-	mkdir(sprintf('%s/stocks', _quotesFolder));
+	mkdir(sprintf('%s/tickers', _quotesFolder));
 
 	this.scheduleDownload = function() {
 		
@@ -96,7 +96,7 @@ var Downloader = module.exports = function(stocks, folder) {
 		for (var symbol in stocks) {
 			var stock = stocks[symbol];
 			
-			var stockFile = sprintf('%s/stocks/%s.json', _quotesFolder, stock.symbol);
+			var stockFile = sprintf('%s/tickers/%s.json', _quotesFolder, stock.symbol);
 
 			if (!fileExists(stockFile)) {
 				timestamps.push({symbol:stock.symbol, timestamp:new Date(0)});
@@ -131,7 +131,7 @@ var Downloader = module.exports = function(stocks, folder) {
 
 			// Update the stock header file after all quotes have been saved
 			// The timestamp matters...
-			var stockFile = sprintf('%s/stocks/%s.json', _quotesFolder, stock.symbol);
+			var stockFile = sprintf('%s/tickers/%s.json', _quotesFolder, stock.symbol);
 			
 			fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
 			
