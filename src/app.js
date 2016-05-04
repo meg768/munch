@@ -1,4 +1,4 @@
-var Downloader = require('./downloader.js');
+var Downloader = require('./downloader-II.js');
 var fs         = require('fs');
 
 var App = module.exports = function() {
