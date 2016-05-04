@@ -3,7 +3,6 @@ var fs         = require('fs');
 
 var App = module.exports = function(args, config) {
 
-
 	// Remember me!
 	var _this = this;
 	
