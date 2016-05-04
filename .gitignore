@@ -1,7 +1,6 @@
-output
 config.json
-app.config.json
 tmp
+stocks
 
 # Logs
 logs
