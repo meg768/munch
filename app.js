@@ -21,6 +21,20 @@ var App = module.exports = function() {
 
 function main() {
 	var app = new App();
+
+	if (args.stderr == undefined) {
+		if (app.config.logs && app.config.logs.stderr) {
+			args.stderr = app.config.logs.stderr;			
+		}		
+	}
+
+	if (args.stdout == undefined) {
+		if (app.config.logs && app.config.logs.stdout) {
+			args.stdout = app.config.logs.stdout;			
+		}		
+	}
+
+
 	
 	// Redirect stdout?
 	if (args.stdout) {
@@ -45,7 +59,7 @@ function main() {
 	if (args.download) {
 
 		if (args.folder == undefined) {
-			args.folder = app.config.quoteFolder;
+			args.folder = app.config.stockFolder;
 		}
 
 		if (args.folder == undefined) {
