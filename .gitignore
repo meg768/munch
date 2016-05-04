@@ -1,4 +1,6 @@
 output
+config.json
+app.config.json
 
 # Logs
 logs

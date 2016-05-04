@@ -2,13 +2,21 @@ var Downloader = require('./src/downloader.js');
 var args       = require('minimist')(process.argv.slice(2));
 var fs         = require('fs');
 
-var App = function() {
+var App = module.exports = function() {
 
-	this.scheduleDownload = function(folder) {
+	var _this = this;
+	
+	_this.config = JSON.parse(fs.readFileSync('./config.json'));
+	
+	_this.scheduleDownload = function(folder) {
 		var downloader = new Downloader(require('./src/stocks.js').symbols, folder);
 		downloader.scheduleDownload();
 		
 	};
+	
+	function init() {
+		
+	}
 }
 
 function main() {
@@ -35,6 +43,10 @@ function main() {
 	}
 
 	if (args.download) {
+
+		if (args.folder == undefined) {
+			args.folder = app.config.quoteFolder;
+		}
 
 		if (args.folder == undefined) {
 			console.error('The --folder option must be specified.');

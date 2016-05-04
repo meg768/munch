@@ -18,7 +18,7 @@ var Downloader = module.exports = function(stocks, folder) {
 
 	this.scheduleDownload = function() {
 		
-		log('Started...');
+		log(sprintf('Started downloading quotes to \'%s\'...', _quotesFolder));
 		
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
