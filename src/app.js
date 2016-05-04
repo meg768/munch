@@ -1,11 +1,14 @@
 var Downloader = require('./downloader-II.js');
 var fs         = require('fs');
 
-var App = module.exports = function() {
+var App = module.exports = function(args, config) {
 
-	var _this = app = this;
+
+	// Remember me!
+	var _this = this;
 	
-	_this.config = JSON.parse(fs.readFileSync('./config.json'));
+	// Remember my configs
+	_this.config = config;
 	
 
 	_this.scheduleDownload = function(folder) {
@@ -14,17 +17,17 @@ var App = module.exports = function() {
 		
 	};
 	
-	_this.run = function(args) {
+	_this.run = function() {
 	
 		if (args.stderr == undefined) {
-			if (app.config.logs && app.config.logs.stderr) {
+			if (_this.config.logs && _this.config.logs.stderr) {
 				args.stderr = app.config.logs.stderr;			
 			}		
 		}
 	
 		if (args.stdout == undefined) {
-			if (app.config.logs && app.config.logs.stdout) {
-				args.stdout = app.config.logs.stdout;			
+			if (_this.config.logs && _this.config.logs.stdout) {
+				args.stdout = _this.config.logs.stdout;			
 			}		
 		}
 	
@@ -53,14 +56,14 @@ var App = module.exports = function() {
 		if (args.download) {
 	
 			if (args.folder == undefined) {
-				args.folder = app.config.stockFolder;
+				args.folder = _this.config.stockFolder;
 			}
 	
 			if (args.folder == undefined) {
 				console.error('The --folder option must be specified.');
 			}
 			else {
-				app.scheduleDownload(args.folder);
+				_this.scheduleDownload(args.folder);
 				
 			}
 		}		
