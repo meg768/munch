@@ -24,6 +24,7 @@ var Module = module.exports = function() {
 		return false;		
 	}
 	
+	
 	_this.getQuotes = function(date) {
 		
 		var quotes = {};
@@ -118,7 +119,7 @@ var Module = module.exports = function() {
 		_this.sectors = sectors;
 
 		console.log('Done.');
-
+		
 	}
 
 	init();
