@@ -1,28 +1,29 @@
 
 {
 	"config": {
-		"rpi": {
+		"default": {
 			"folders": {
-				"logs":"./stocks/logs",
-				"stocks":"./stocks/stocks",
-				"quotes":"./stocks/quotes"
+				"logs":"./data/logs",
+				"stocks":"./data/stocks",
+				"quotes":"./data/quotes"
 			}
 			
 		},
-		"meg": {
+
+		"rpi": {
 			"folders": {
-				"logs":"./stocks/logs",
-				"stocks":"./stocks/stocks",
-				"quotes":"./stocks/quotes"
+				"logs":"./data/logs",
+				"stocks":"./data/stocks",
+				"quotes":"./data/quotes"
 			}
 			
 		},
 
 		"wd": {
 			"folders": {
-				"logs":"/Volumes/QUOTES/logs",
-				"stocks":"/Volumes/QUOTES/stocks",
-				"quotes":"/Volumes/QUOTES/quotes"
+				"logs":"/Volumes/DATA/logs",
+				"stocks":"/Volumes/DATA/stocks",
+				"quotes":"/Volumes/DATA/quotes"
 			}
 			
 		}
