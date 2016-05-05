@@ -19,18 +19,6 @@ var App = module.exports = function(args, config) {
 	
 	_this.run = function() {
 	
-		if (args.stderr == undefined) {
-			if (_this.config.logs && _this.config.logs.stderr) {
-				args.stderr = app.config.logs.stderr;			
-			}		
-		}
-	
-		if (args.stdout == undefined) {
-			if (_this.config.logs && _this.config.logs.stdout) {
-				args.stdout = _this.config.logs.stdout;			
-			}		
-		}
-	
 
 		// Redirect stdout?
 		if (args.log) {
@@ -42,26 +30,6 @@ var App = module.exports = function(args, config) {
 			
 		}
 	
-		
-		// Redirect stdout?
-		if (args.stdout) {
-			var access = fs.createWriteStream(args.stdout);
-			process.stdout.write = access.write.bind(access);
-			
-		}
-	
-		// Redirect stderr?
-		if (args.stderr) {
-			var access = fs.createWriteStream(args.stderr);
-			process.stderr.write = access.write.bind(access);
-		
-			// Make sure we catch uncaught exceptions
-			process.on('uncaughtException', function(err) {
-				console.error((err && err.stack) ? err.stack : err);
-			});
-			
-	
-		}
 	
 		if (args.download) {
 	
