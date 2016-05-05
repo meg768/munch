@@ -26,7 +26,7 @@ var Downloader = module.exports = function(stocks, folder) {
 		rule.minute = new schedule.Range(0, 59, 1);
 
 		schedule.scheduleJob(rule, function() {
-			fetch(40);	
+			fetch(10);	
 		});
 	}
 
@@ -113,8 +113,7 @@ var Downloader = module.exports = function(stocks, folder) {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, 50, 60);
-
+		var request = requestQuotes(stock.symbol, 5, 60);
 
 		request.then(function(quotes) {
 			
