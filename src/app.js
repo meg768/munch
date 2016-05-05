@@ -14,7 +14,7 @@ var App = module.exports = function(args, config) {
 	
 
 	function scheduleDownload(folder) {
-		var downloader = new Downloader(require('./stocks.js').symbols, folder);
+		var downloader = new Downloader(require('./stocks.js').symbols, config.folders.stocks, config.folders.quotes);
 		downloader.scheduleDownload();
 		
 	};
@@ -29,7 +29,7 @@ var App = module.exports = function(args, config) {
 
 		if (args.log) {
 			var date = new Date();
-			var logFile = sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.logFolder, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
+			var logFile = sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
 			var access = fs.createWriteStream(logFile);
 
 			process.stderr.write = process.stdout.write = access.write.bind(access);
@@ -43,17 +43,7 @@ var App = module.exports = function(args, config) {
 	
 		if (args.download) {
 	
-			if (args.folder == undefined) {
-				args.folder = _this.config.stockFolder;
-			}
-	
-			if (args.folder == undefined) {
-				console.error('The --folder option must be specified.');
-			}
-			else {
-				scheduleDownload(args.folder);
-				
-			}
+			scheduleDownload();
 		}		
 	};
 };

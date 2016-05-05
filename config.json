@@ -1,5 +1,32 @@
 
 {
-	"logFolder": "./stocks/logs",
-	"stockFolder": "./stocks"
+	"config": {
+		"rpi": {
+			"folders": {
+				"logs":"./stocks/logs",
+				"stocks":"./stocks/stocks",
+				"quotes":"./stocks/quotes"
+			}
+			
+		},
+		"meg": {
+			"folders": {
+				"logs":"./stocks/logs",
+				"stocks":"./stocks/stocks",
+				"quotes":"./stocks/quotes"
+			}
+			
+		},
+
+		"test": {
+			"folders": {
+				"logs":"/Volumes/QUOTES/logs",
+				"stocks":"/Volumes/QUOTES/stocks",
+				"quotes":"/Volumes/QUOTES/quotes"
+			}
+			
+		}
+		
+		
+	}
 }

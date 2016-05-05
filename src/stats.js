@@ -30,7 +30,7 @@ var Module = module.exports = function(folder) {
 
 
 	function getStock(symbol) {
-		var path = sprintf('%s/tickers/%s.json', folder, symbol);
+		var path = sprintf('%s/stocks/%s.json', folder, symbol);
 		var stock = JSON.parse(fs.readFileSync(path));
 
 		return stock;
@@ -38,7 +38,7 @@ var Module = module.exports = function(folder) {
 
 	function getSymbols() {
 
-		var path = sprintf('%s/tickers', folder);		
+		var path = sprintf('%s/stocks', folder);		
 		var files = fs.readdirSync(path);
 		var symbols = [];
 		
