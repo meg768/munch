@@ -14,6 +14,9 @@ function run() {
 	}
 
 	var config = configs.config[args.config];
+
+	if (config == undefined)
+		config = configs.config['default'];
 	
 	if (config == undefined) {
 		console.error(sprintf('Configuration \'%s\' not found.', args.config));

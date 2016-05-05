@@ -18,7 +18,7 @@
 			
 		},
 
-		"test": {
+		"wd": {
 			"folders": {
 				"logs":"/Volumes/QUOTES/logs",
 				"stocks":"/Volumes/QUOTES/stocks",
