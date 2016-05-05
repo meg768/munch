@@ -20,9 +20,7 @@ var App = module.exports = function(args, config) {
 	_this.run = function() {
 	
 
-		// Redirect stdout?
 		if (args.log) {
-			console.log(config);
 			var date = new Date();
 			var logFile = sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.logFolder, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
 			var access = fs.createWriteStream(logFile);
