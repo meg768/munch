@@ -18,6 +18,7 @@ var Server = module.exports = function(config) {
 		app.get('/symbols', function(request, result) {
 			result.status(200).send(JSON.stringify(_store.symbols));
 		}); 
+		
 		app.get('/stock/:id', function(request, result) {
 			
 			var symbol = request.params.id;
