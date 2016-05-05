@@ -2,12 +2,13 @@ var fs         = require('fs');
 var express    = require('express');
 var sprintf    = require('../lib/sprintf.js');
 var Store      = require('./store.js');
+var config     = require('./config.js');
 
-var Server = module.exports = function(config) {
+var Server = module.exports = function() {
 
 	// Remember me!
 	var _this = this;
-	var _store = new Store(config);
+	var _store = new Store();
 	
 	_this.app = undefined;
 	_this.server = undefined;
@@ -60,7 +61,7 @@ var Server = module.exports = function(config) {
 		}, 10*1000);
 	}
 
-	function init() {
+	_this.run = function() {
 		var app = express();
 		
 		configureRoutes(app);
@@ -97,8 +98,6 @@ var Server = module.exports = function(config) {
 		_this.app = app;
 		_this.server = server;
 	}
-	
-	init();
 
 
 };

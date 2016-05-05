@@ -1,6 +1,6 @@
 
 
-var tickers = [
+var data = [
 	
 	{symbol:"AXU", name:"Alexco Resource Corp", sector:"Basic Industries", industry: "Precious Metals", exchange: "AMEX", volume: "$85.9M"},
 	{symbol:"AAU", name:"Almaden Minerals, Ltd.", sector:"Basic Industries", industry: "Precious Metals", exchange: "AMEX", volume: "$91.33M"},
@@ -5301,36 +5301,21 @@ var tickers = [
 	{symbol:"WERN", name:"Werner Enterprises, Inc.", sector:"Transportation", industry: "Trucking Freight/Courier Services", exchange: "NASDAQ", volume: "$1.85B"},
 	{symbol:"YRCW", name:"YRC Worldwide, Inc.", sector:"Transportation", industry: "Trucking Freight/Courier Services", exchange: "NASDAQ", volume: "$305.57M"}
 
-
-
-
 ];
 
 function init() {
 
-	var symbols = module.exports.symbols = {};
-	var sectors = module.exports.sectors = {};
+	var stocks = {};
+	
+	data.forEach(function(item) {
+		item.symbol = item.symbol.trim();
+		item.sector = item.sector.trim();
+		
+		stocks[item.symbol] = item;
+	});
 
-	// Clean up errors
-	for (var i = 0; i < tickers.length; i++) {
-		tickers[i].symbol = tickers[i].symbol.trim();;
-		tickers[i].sector = tickers[i].sector.trim();;
-	}
-	 
-	for (var i = 0; i < tickers.length; i++) {
-		var ticker = tickers[i];
-		symbols[ticker.symbol] = ticker;
-	}	
-
-	for (var i = 0; i < tickers.length; i++) {
-		var ticker = tickers[i];
-
-		if (sectors[ticker.sector] == undefined)
-			sectors[ticker.sector] = {};
-			
-		sectors[ticker.sector][ticker.symbol] = ticker;
-			
-	}	
+	module.exports = stocks;
+		 
 		
 }
 

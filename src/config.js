@@ -9,7 +9,7 @@ var extend  = require('../lib/extend.js');
 	var config  = {};
 	
 	if (configs == undefined) {
-		console.error('No \'configs\' specified.');
+		console.error('No \'configs\' specified in \'config.json\'.');
 		process.exit(-1);
 	}
 	
@@ -23,6 +23,9 @@ var extend  = require('../lib/extend.js');
 		extend(config, configs[args.config]);
 	}
 	
+	if (config == undefined)
+		config = {};
+		
 	module.exports = config;	
 
 }());

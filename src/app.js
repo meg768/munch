@@ -11,24 +11,10 @@ var App = module.exports = function() {
 
 	// Remember me!
 	var _this = this;
-	var _server = undefined;
-	
-	function scheduleDownload() {
-		var downloader = new Downloader(require('./stocks.js').symbols);
-		downloader.scheduleDownload();
-		
-	};
+
 
 	
 	_this.run = function() {
-	
-
-		if (args.server) {
-			_server = new Server(config);
-		}
-		
-		if (args.test) {
-		}
 
 		if (args.log) {
 			var date = new Date();
@@ -43,10 +29,18 @@ var App = module.exports = function() {
 			
 		}
 	
-	
+
+		if (args.server) {
+			var server = new Server();
+			server.run();
+		}
+		
+		if (args.test) {
+		}
+
 		if (args.download) {
-	
-			scheduleDownload();
+			var downloader = new Downloader();
+			downloader.run();
 		}		
 	};
 };

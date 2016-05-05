@@ -11,9 +11,9 @@ var utils   = require('../lib/utils.js');
 var extend  = require('../lib/extend.js');
 
 var config  = require('./config.js');
+var stocks  = require('./stocks.js');
 
-
-var Downloader = module.exports = function(stocks) {
+var Downloader = module.exports = function() {
 
 	var _stockFolder = config.folders.stocks;
 	var _quoteFolder = config.folders.quotes;
@@ -21,7 +21,7 @@ var Downloader = module.exports = function(stocks) {
 	mkdir(_stockFolder);
 	mkdir(_quoteFolder);
 	
-	this.scheduleDownload = function() {
+	this.run = function() {
 		
 		log(sprintf('Started downloading quotes to \'%s\'...', _quoteFolder));
 

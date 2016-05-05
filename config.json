@@ -3,6 +3,7 @@
 	"configs": {
 		"default": {
 			"foo": "bar",
+			
 			"folders": {
 				"logs":"./data/logs",
 				"stocks":"./data/stocks",
