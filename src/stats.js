@@ -6,8 +6,9 @@ var Module = module.exports = function(folder) {
 
 	var _this = this;
 	
-	_this.symbols = {};
+	_this.stocks = {};
 	_this.sectors = {};
+	_this.symbols = [];
 
 
 	_this.getQuotes = function(symbol) {
@@ -28,29 +29,56 @@ var Module = module.exports = function(folder) {
 	}
 
 
+	function getStock(symbol) {
+		var path = sprintf('%s/tickers/%s.json', folder, symbol);
+		var stock = JSON.parse(fs.readFileSync(path));
+
+		return stock;
+	}
+
+	function getSymbols() {
+
+		var path = sprintf('%s/tickers', folder);		
+		var files = fs.readdirSync(path);
+		var symbols = [];
+		
+		for (var index in files) {
+			var file = files[index];
+			var match = file.match('^([A-Za-z0-9]+).json$');
+			
+			if (match) {
+				symbols.push(match[1]);
+			}
+		}
+		
+		return symbols;
+	}
+
 	function init() {
 		console.log('Loading quotes...');
-		
-		var symbols = fs.readdirSync(folder).filter(function(item) {
-			return item[0] != '.';
-		});
 
+		var symbols = getSymbols();
+		var stocks = {};
+		var sectors = {};
+		
 		for (var index in symbols) {
 			var symbol = symbols[index];
-			
-			var stockFile = sprintf('%s/%s/%s.json', folder, symbol, symbol);
-			var content = fs.readFileSync(stockFile, {encoding:'UTF8'})
-			var stock   = JSON.parse(content);
-			
-			_this.symbols[symbol] = stock;
-
-			if (_this.sectors[stock.sector] == undefined) {
-				_this.sectors[stock.sector] = {};
-			};
-			
-			_this.sectors[stock.sector][stock.symbol] = stock;
-			
+			stocks[symbol] = getStock(symbol);	
 		}
+		
+		for (var key in stocks) {
+			var stock = stocks[key];
+			
+			if (sectors[stock.sector] == undefined)
+				sectors[stock.sector] = {};
+			
+			sectors[stock.sector][stock.symbol] = stock;
+
+		}
+		_this.symbols = symbols;
+		_this.stocks = stocks;
+		_this.sectors = sectors;
+
 		console.log('Done.');
 
 	}
@@ -59,13 +87,11 @@ var Module = module.exports = function(folder) {
 }
 
 
-	var module = new Module('/Volumes/QUOTES/quotes');
-	console.log(module.getQuotes('TSLA'));
+	var module = new Module('./stocks');
+	//console.log(module.getQuotes('TSLA'));
 	
-	for (var key in module.sectors) {
-		console.log(key);
-	}
-	console.log(module.sectors['Finance']);
+
+	console.log(module.sectors);
 	//console.log(module.symbols);
 
 
