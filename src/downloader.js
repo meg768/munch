@@ -48,7 +48,7 @@ var Downloader = module.exports = function(stocks, stocksFolder, quotesFolder) {
 		date.setDate(date.getDate() - 1);
 		
 		// Get all timestamps
-		timestamps = getTimeStamps();
+		var timestamps = getTimeStamps();
 		
 		// Keep only the older ones
 		timestamps = timestamps.filter(function(timestamp) {
