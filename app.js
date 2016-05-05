@@ -5,25 +5,25 @@ var App     = require('./src/app.js');
 
 
 function run() {
+	console.log('************************************************************************************');
 	var configs = JSON.parse(fs.readFileSync('./config.json'));
 	
-
-	if (args.config == undefined) {
-		console.error('Must specify configuration using --config.');
-		process.exit(-1);
-	}
 
 	var config = configs.config[args.config];
 
 	if (config == undefined)
 		config = configs.config['default'];
-	
+
 	if (config == undefined) {
-		console.error(sprintf('Configuration \'%s\' not found.', args.config));
+		if (args.config == undefined)
+			console.error(sprintf('No configuration available.'));
+		else
+			console.error(sprintf('Configuration \'%s\' not found.', args.config));
+		
 		process.exit(-1);
 	}
-		
-	var app = new App(args, config);	
+
+	var app = module.exports = new App(args, config);	
 	app.run();
 }	
 

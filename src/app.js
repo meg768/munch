@@ -3,6 +3,7 @@ var fs         = require('fs');
 var sprintf    = require('../lib/sprintf.js');
 var Server     = require('./server.js');
 
+
 var App = module.exports = function(args, config) {
 
 	// Remember me!
@@ -24,7 +25,10 @@ var App = module.exports = function(args, config) {
 	
 
 		if (args.server) {
-			_server = new Server();
+			_server = new Server(config);
+		}
+		
+		if (args.test) {
 		}
 
 		if (args.log) {

@@ -1,19 +1,43 @@
 var fs         = require('fs');
-var sprintf    = require('../lib/sprintf.js');
 var express    = require('express');
+var sprintf    = require('../lib/sprintf.js');
+var Store      = require('./store.js');
 
-var Server = module.exports = function() {
+var Server = module.exports = function(config) {
 
 	// Remember me!
 	var _this = this;
-
+	var _store = new Store(config);
 	
 	_this.app = undefined;
 	_this.server = undefined;
 	
 	function configureRoutes(app) {
-		app.get('/inputs/:id', function(request, result) {
-			result.status(200).send('OK');
+
+
+		app.get('/symbols', function(request, result) {
+			result.status(200).send(JSON.stringify(_store.symbols));
+		}); 
+		app.get('/stock/:id', function(request, result) {
+			
+			var symbol = request.params.id;
+			var stock  = _store.stocks[symbol];
+			
+			if (stock == undefined)
+				stock = {};
+				
+			result.status(200).send(JSON.stringify(stock));
+		}); 
+
+		app.get('/quotes/:date', function(request, result) {
+			
+			var date   = request.params.date;
+			var quotes = _store.getQuotes(date);
+			
+			if (quotes == undefined)
+				quotes = [];
+				
+			result.status(200).send(JSON.stringify(quotes));
 		}); 
 		
 	}

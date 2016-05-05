@@ -1,28 +1,51 @@
 var fs = require('fs');
 var sprintf = require('../lib/sprintf.js');
 
-var Module = module.exports = function(folder) {
+
+var Module = module.exports = function(config) {
 	
 
 	var _this = this;
+
+	var _stockFolder = config.folders.stocks;
+	var _quoteFolder = config.folders.quotes;
 	
 	_this.stocks = {};
 	_this.sectors = {};
 	_this.symbols = [];
 
+	function fileExists(path) {
+		try {
+			fs.accessSync(path);		
+			return true;
+		}
+		catch (error) {
+		}
 
-	_this.getQuotes = function(symbol) {
+		return false;		
+	}
+	
+	_this.getQuotes = function(date) {
 		
-		var quotes = [];
-		var path = sprintf('%s/%s', folder, symbol);
-		var files = fs.readdirSync(path);
+		var quotes = {};
+		var path = sprintf('%s/%s', _quoteFolder, date);
 		
-		for (var index in files) {
-			var match = files[index].match('^([0-9]{4}-[0-9]{2}-[0-9]{2}).json$');
+		if (fileExists(path)) {
+			var files = fs.readdirSync(path);
 			
-			if (match)
-				quotes.push(match[1]);
-
+			for (var index in files) {
+				var file  = files[index];
+				var match = file.match('^([0-9A-Za-z]+).json$');
+				
+				if (match) {
+					var symbol = match[1]; 
+					var path = sprintf('%s/%s/%s', _quoteFolder, date, file);
+					var quote = JSON.parse(fs.readFileSync(path));
+					
+					quotes[symbol] = quote;
+					
+				}
+			}
 		}
 
 		return quotes;
@@ -30,7 +53,7 @@ var Module = module.exports = function(folder) {
 
 
 	function getStock(symbol) {
-		var path = sprintf('%s/stocks/%s.json', folder, symbol);
+		var path = sprintf('%s/%s.json', _stockFolder, symbol);
 		var stock = JSON.parse(fs.readFileSync(path));
 
 		return stock;
@@ -38,7 +61,7 @@ var Module = module.exports = function(folder) {
 
 	function getSymbols() {
 
-		var path = sprintf('%s/stocks', folder);		
+		var path = sprintf('%s', _stockFolder);		
 		var files = fs.readdirSync(path);
 		var symbols = [];
 		
@@ -85,13 +108,5 @@ var Module = module.exports = function(folder) {
 
 	init();
 }
-
-
-	var module = new Module('./stocks');
-	//console.log(module.getQuotes('TSLA'));
-	
-
-	console.log(module.sectors);
-	//console.log(module.symbols);
 
 
