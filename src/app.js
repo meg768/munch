@@ -1,21 +1,20 @@
-var Downloader = require('./downloader.js');
 var fs         = require('fs');
-var sprintf    = require('../lib/sprintf.js');
+var args       = require('minimist')(process.argv.slice(2));
+
+var Downloader = require('./downloader.js');
 var Server     = require('./server.js');
 
+var sprintf    = require('../lib/sprintf.js');
+var config     = require('./config.js');
 
-var App = module.exports = function(args, config) {
+var App = module.exports = function() {
 
 	// Remember me!
 	var _this = this;
 	var _server = undefined;
 	
-	// Remember my configs
-	_this.config = config;
-	
-
-	function scheduleDownload(folder) {
-		var downloader = new Downloader(require('./stocks.js').symbols, config.folders.stocks, config.folders.quotes);
+	function scheduleDownload() {
+		var downloader = new Downloader(require('./stocks.js').symbols);
 		downloader.scheduleDownload();
 		
 	};

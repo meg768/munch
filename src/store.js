@@ -1,16 +1,15 @@
-var fs = require('fs');
+var fs      = require('fs');
 var sprintf = require('../lib/sprintf.js');
+var config  = require('./config.js');
 
-
-var Module = module.exports = function(config) {
+var Module = module.exports = function() {
 	
-
 	var _this = this;
 
 	var _stockFolder = config.folders.stocks;
 	var _quoteFolder = config.folders.quotes;
 	
-	_this.stocks = {};
+	_this.stocks  = {};
 	_this.sectors = {};
 	_this.symbols = [];
 
@@ -58,7 +57,37 @@ var Module = module.exports = function(config) {
 
 		return stock;
 	}
+	
+	function getStocks(symbols) {
+		
+		var stocks = {};
+		
+		for (var index in symbols) {
+			var symbol = symbols[index];
+			stocks[symbol] = getStock(symbol);	
+		}		
+		
+		return stocks;
+	}
 
+	function getSectors(stocks) {
+	
+		var sectors = {};
+
+		for (var key in stocks) {
+			var stock = stocks[key];
+			
+			if (sectors[stock.sector] == undefined)
+				sectors[stock.sector] = {};
+			
+			sectors[stock.sector][stock.symbol] = stock;
+
+		}
+		
+		return sectors;
+		
+	}
+	
 	function getSymbols() {
 
 		var path = sprintf('%s', _stockFolder);		
@@ -80,26 +109,12 @@ var Module = module.exports = function(config) {
 	function init() {
 		console.log('Loading quotes...');
 
-		var symbols = getSymbols();
-		var stocks = {};
-		var sectors = {};
+		var symbols   = getSymbols();
+		var stocks    = getStocks(symbols);
+		var sectors   = getSectors(stocks);
 		
-		for (var index in symbols) {
-			var symbol = symbols[index];
-			stocks[symbol] = getStock(symbol);	
-		}
-		
-		for (var key in stocks) {
-			var stock = stocks[key];
-			
-			if (sectors[stock.sector] == undefined)
-				sectors[stock.sector] = {};
-			
-			sectors[stock.sector][stock.symbol] = stock;
-
-		}
 		_this.symbols = symbols;
-		_this.stocks = stocks;
+		_this.stocks  = stocks;
 		_this.sectors = sectors;
 
 		console.log('Done.');
