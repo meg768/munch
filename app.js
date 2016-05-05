@@ -6,10 +6,9 @@ var App     = require('./src/app.js');
 
 function run() {
 	console.log('************************************************************************************');
-	var configs = JSON.parse(fs.readFileSync('./config.json'));
-	
 
-	var config = configs.config[args.config];
+	var configs = JSON.parse(fs.readFileSync('./config.json'));
+	var config  = configs.config[args.config];
 
 	if (config == undefined)
 		config = configs.config['default'];

@@ -11,20 +11,25 @@ var utils   = require('../lib/utils.js');
 var extend  = require('../lib/extend.js');
 
 
-var Downloader = module.exports = function(stocks, folder) {
+var Downloader = module.exports = function(stocks, stocksFolder, quotesFolder) {
 
-	var _quotesFolder = folder;
-		
 
+	mkdir(stocksFolder);
+	mkdir(quotesFolder);
+	
 	this.scheduleDownload = function() {
 		
-		log(sprintf('Started downloading quotes to \'%s\'...', _quotesFolder));
+		log(sprintf('Started downloading quotes to \'%s\'...', quotesFolder));
+
+		log(sprintf('Warming up...'));
+		getTimeStamps();
+		log(sprintf('Done.'));
 		
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
 
 		schedule.scheduleJob(rule, function() {
-			fetch(5);	
+			fetch(10);	
 		});
 	}
 
@@ -94,7 +99,7 @@ var Downloader = module.exports = function(stocks, folder) {
 		for (var symbol in stocks) {
 			var stock = stocks[symbol];
 			
-			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
+			var stockFile = sprintf('%s/%s.json', stocksFolder, stock.symbol);
 
 			if (!fileExists(stockFile)) {
 				timestamps.push({symbol:stock.symbol, timestamp:new Date(0)});
@@ -111,14 +116,15 @@ var Downloader = module.exports = function(stocks, folder) {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, 50, 60);
+		var request = requestQuotes(stock.symbol, 5, 60);
 
 		request.then(function(quotes) {
 			
-			mkdir(sprintf('%s/%s', _quotesFolder, stock.symbol));
 		
 			for (var key in quotes) {
-				var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, key);
+				mkdir(sprintf('%s/%s', quotesFolder, key));
+				
+				var quoteFile = sprintf('%s/%s/%s.json', quotesFolder, key, stock.symbol);
 				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 			}
 
@@ -127,7 +133,7 @@ var Downloader = module.exports = function(stocks, folder) {
 
 			// Update the stock header file after all quotes have been saved
 			// The timestamp matters...
-			var stockFile = sprintf('%s/%s/%s.json', _quotesFolder, stock.symbol, stock.symbol);
+			var stockFile = sprintf('%s/%s.json', stocksFolder, stock.symbol);
 			
 			fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
 			

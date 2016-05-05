@@ -1,4 +1,4 @@
-var Downloader = require('./downloader-II.js');
+var Downloader = require('./downloader.js');
 var fs         = require('fs');
 var sprintf    = require('../lib/sprintf.js');
 var Server     = require('./server.js');
