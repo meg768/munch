@@ -39,8 +39,7 @@ var Downloader = module.exports = function() {
 	}
 
 	function log(message) {
-		var date = new Date();
-		console.log(sprintf('%04d-%02d-%02d %02d:%02d:%02d: %s', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), message));
+		console.log(message);
 	}	
 
 	
