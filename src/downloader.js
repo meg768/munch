@@ -35,12 +35,14 @@ var Downloader = module.exports = function() {
 		schedule.scheduleJob(rule, function() {
 			fetch(10);	
 		});
+
 	}
 
 	function log(message) {
 		var date = new Date();
 		console.log(sprintf('%04d-%02d-%02d %02d:%02d:%02d: %s', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), message));
 	}	
+
 	
 	function fetch(blockSize) {
 		var rule = new schedule.RecurrenceRule();	
@@ -80,9 +82,7 @@ var Downloader = module.exports = function() {
 				var timestamp = timestamps[index++];
 				
 				if (timestamp != undefined) {
-					var stock = stocks[timestamp.symbol];					
-					log(sprintf('Fetching "%s" (%d/%d)...', stock.symbol, index, size));
-					fetchQuote(stock);
+					fetchQuote(stocks[timestamp.symbol]);
 				}
 				else {
 					log('Done.');
@@ -123,27 +123,36 @@ var Downloader = module.exports = function() {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, 3, 60);
+		var request = requestQuotes(stock.symbol, 50, 60);
 
 		request.then(function(quotes) {
-			
-		
-			for (var key in quotes) {
-				mkdir(sprintf('%s/%s', _quoteFolder, key));
+			try {
+				var quotesUpdated = 0;
 				
-				var quoteFile = sprintf('%s/%s/%s.json', _quoteFolder, key, stock.symbol);
-				fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
+				for (var key in quotes) {
+					mkdir(sprintf('%s/%s', _quoteFolder, key));
+					
+					var quoteFile = sprintf('%s/%s/%s.json', _quoteFolder, key, stock.symbol);
+					fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
+					quotesUpdated++;
+				}
+	
+				var date = new Date();
+				
+				var stockHeader = {};
+				extend(stockHeader, stock, {updated: date});
+				
+				// Update the stock header file after all quotes have been saved
+				// The timestamp matters...
+				var stockFile = sprintf('%s/%s.json', _stockFolder, stock.symbol);
+				
+				fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
+				log(sprintf('Updated %s with %d days of data.', stock.symbol, quotesUpdated));			
+				
 			}
-
-			var stockHeader = {};
-			extend(stockHeader, stock, {updated: new Date()});
-
-			// Update the stock header file after all quotes have been saved
-			// The timestamp matters...
-			var stockFile = sprintf('%s/%s.json', _stockFolder, stock.symbol);
-			
-			fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
-			
+			catch(error) {
+				console.error('Request failed.', error);				
+			}
 			
 		});
 
@@ -188,10 +197,17 @@ var Downloader = module.exports = function() {
 			var request = gopher.request('GET', 'getprices', params);
 			
 			request.then(function(result) {
-				resolve(parseQuotes(symbol, result));
+				try {
+					resolve(parseQuotes(symbol, result));
+					
+				}
+				catch (error) {
+					reject(error);
+					
+				};
 			});
-			request.catch(function() {
-				reject();
+			request.catch(function(error) {
+				reject(error);
 			});
 			
 		});
