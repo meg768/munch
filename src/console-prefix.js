@@ -2,7 +2,9 @@ var prefix = module.exports = function(fn) {
 	
 	var funcs = {
 		log: console.log,
-		error: console.error
+		error: console.error,
+		warn: console.warn,
+		info: console.info
 	};
 	
 	for (var key in funcs) {

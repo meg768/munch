@@ -122,7 +122,7 @@ var Downloader = module.exports = function() {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, 50, 60);
+		var request = requestQuotes(stock.symbol, 5, 60);
 
 		request.then(function(quotes) {
 			try {

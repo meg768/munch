@@ -20,15 +20,12 @@ var App = module.exports = function() {
 	_this.run = function() {
 
 		if (args.log) {
-			var date = new Date();
-			var logFile = sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
-			var access = fs.createWriteStream(logFile);
 
-			process.stderr.write = process.stdout.write = access.write.bind(access);
+			require('./console-redirect.js')(function() {
+				var date = new Date();
+				return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
+			});
 			
-			process.on('uncaughtException', function(err) {
-				console.error((err && err.stack) ? err.stack : err);
-			});			
 			
 		}
 	
