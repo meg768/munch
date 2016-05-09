@@ -14,21 +14,19 @@ var stocks  = require('../scripts/stocks.js');
 
 var Exporter = module.exports = function(args) {
 
-	var _stockFolder  = config.folders.stocks;
-	var _quoteFolder  = config.folders.quotes;
-	var _outputFolder = args.output;
+	var _downloadFolder  = config.export.downloadFolder;
+	var _exportFolder    = config.export.exportFolder;
 
 	if (typeof args.date != 'string') {
 		throw new Error('Must specify --date');
 		
 	}	
-	if (typeof args.output != 'string') {
-		throw new Error('Must specify --output');
+
+	if (!fileExists(_downloadFolder)) {
+		throw new Error('The download folder does not exist');
 	}
 
-	mkdir(_stockFolder);
-	mkdir(_quoteFolder);
-	mkdir(_outputFolder);
+	mkdir(_exportFolder);
 	
 	function mkdir(path) {
 		if (!fileExists(path)) {
@@ -53,7 +51,7 @@ var Exporter = module.exports = function(args) {
 		var quote = {};
 		quote.symbol = symbol;
 		
-		var fileName = sprintf('%s/%s/%s.json', _quoteFolder, date, symbol);
+		var fileName = sprintf('%s/%s/%s.json', _downloadFolder, date, symbol);
 		
 		if (!fileExists(fileName))
 			return undefined;
@@ -91,11 +89,12 @@ var Exporter = module.exports = function(args) {
 		}
 
 		if (quotes != undefined) {
-			var path = sprintf('%s/%s', _outputFolder, date);
+			var path = sprintf('%s/%s', _exportFolder, date);
 			var fileName = sprintf('%s/%02d.%02d.json', path, parseInt(time.split(':')[0]), parseInt(time.split(':')[1]));
 			
 			mkdir(path);
 			
+			console.log(sprintf('Exporting %s %s to %s.', date, time, fileName));
 			fs.writeFileSync(fileName, JSON.stringify(quotes, null, '\t'));
 		}
 
@@ -104,7 +103,7 @@ var Exporter = module.exports = function(args) {
 	
 	function convertDate(date) {
 
-		var path = sprintf('%s/%s', _quoteFolder, date);
+		var path = sprintf('%s/%s', _downloadFolder, date);
 		
 		if (fileExists(path)) {
 			var startTime = new Date();
@@ -118,7 +117,6 @@ var Exporter = module.exports = function(args) {
 				var timeOfDay = new Date(startTime.getTime() + 1000 * i * 60);
 				var time = sprintf('%02d:%02d', timeOfDay.getHours(), timeOfDay.getMinutes());
 				
-				console.log(sprintf('Exporting %s %s...', date, time));
 				convertDateTime(date, time);
 			}
 			
@@ -131,18 +129,20 @@ var Exporter = module.exports = function(args) {
 	
 	this.run = function() {
 		
-		console.log(sprintf('Exporting %s to \'%s\'...', args.date, _outputFolder));
+		console.log(sprintf('Exporting %s to \'%s\'...', args.date, _exportFolder));
 
-		convertDate(args.date);
-/*
-		var dates = fs.readdirSync(_quoteFolder).filter(function(file) {
-			return file.match('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
-		});
+		var dates = [args.date];
 		
+		if (args.date == 'all') {
+			dates = fs.readdirSync(_downloadFolder).filter(function(file) {
+				return file.match('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+			});
+		}
+
 		dates.forEach(function(date) {
-			console.log(date);			
+			convertDate(date);
 		});
-		*/
+
 		console.log('Done.');
 	}
 

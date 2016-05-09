@@ -15,7 +15,7 @@ var App = module.exports = function(args) {
 	function redirectLogs() {
 		require('./scripts/console-redirect.js')(function() {
 			var date = new Date();
-			return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
+			return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.logFolder, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
 		});
 		
 	}	

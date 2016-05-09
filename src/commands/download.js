@@ -15,15 +15,21 @@ var stocks  = require('../scripts/stocks.js');
 
 var Downloader = module.exports = function(args) {
 
-	var _stockFolder = config.folders.stocks;
-	var _quoteFolder = config.folders.quotes;
+	var _stocksFolder   = config.download.stocksFolder;
+	var _downloadFolder = config.download.downloadFolder;
 	
-	mkdir(_stockFolder);
-	mkdir(_quoteFolder);
+	mkdir(_stocksFolder);
+	mkdir(_downloadFolder);
+	
+	
+	if (config.download.numberOfDays == undefined) {
+		console.warn('Number of days to download is not specified. Assuming 3 days.');
+		config.download.numberOfDays = 3;	
+	}
 	
 	this.run = function() {
 		
-		log(sprintf('Started downloading quotes to \'%s\'...', _quoteFolder));
+		log(sprintf('Started downloading quotes to \'%s\'...', _downloadFolder));
 
 		log(sprintf('Warming up...'));
 		getTimeStamps();
@@ -105,7 +111,7 @@ var Downloader = module.exports = function(args) {
 		for (var symbol in stocks) {
 			var stock = stocks[symbol];
 			
-			var stockFile = sprintf('%s/%s.json', _stockFolder, stock.symbol);
+			var stockFile = sprintf('%s/%s.json', _stocksFolder, stock.symbol);
 
 			if (!fileExists(stockFile)) {
 				timestamps.push({symbol:stock.symbol, timestamp:new Date(0)});
@@ -122,16 +128,16 @@ var Downloader = module.exports = function(args) {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, 5, 60);
+		var request = requestQuotes(stock.symbol, config.download.numberOfDays, 60);
 
 		request.then(function(quotes) {
 			try {
 				var quotesUpdated = 0;
 				
 				for (var key in quotes) {
-					mkdir(sprintf('%s/%s', _quoteFolder, key));
+					mkdir(sprintf('%s/%s', _downloadFolder, key));
 					
-					var quoteFile = sprintf('%s/%s/%s.json', _quoteFolder, key, stock.symbol);
+					var quoteFile = sprintf('%s/%s/%s.json', _downloadFolder, key, stock.symbol);
 					fs.writeFileSync(quoteFile, JSON.stringify(quotes[key], null, '\t'));
 					quotesUpdated++;
 				}
@@ -143,7 +149,7 @@ var Downloader = module.exports = function(args) {
 				
 				// Update the stock header file after all quotes have been saved
 				// The timestamp matters...
-				var stockFile = sprintf('%s/%s.json', _stockFolder, stock.symbol);
+				var stockFile = sprintf('%s/%s.json', _stocksFolder, stock.symbol);
 				
 				fs.writeFileSync(stockFile, JSON.stringify(stockHeader, null, '\t'));
 				log(sprintf('Updated %s with %d days of data.', stock.symbol, quotesUpdated));			

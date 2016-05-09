@@ -2,32 +2,27 @@
 {
 	"configs": {
 		"default": {
-			"foo": "bar",
+			"logFolder": "./data/logs",
 			
-			"folders": {
-				"logs":"./data/logs",
-				"stocks":"./data/stocks",
-				"quotes":"./data/quotes"
-			}			
-		},
-
-		"rpi": {
-			"folders": {
-				"logs":"./data/logs",
-				"stocks":"./data/stocks",
-				"quotes":"./data/quotes"
+			"download": {
+				"downloadFolder" : "./data/downloads",
+				"stocksFolder"   : "./data/stocks",
+				"numberOfDays"   : 3
+			},
+			
+			"export": {
+				"downloadFolder" : "./data/downloads",
+				"exportFolder"   : "./data/exports"
+				
 			}
-			
 		},
-
-		"wd": {
-			"folders": {
-				"logs":"/Volumes/DATA/logs",
-				"stocks":"/Volumes/DATA/stocks",
-				"quotes":"/Volumes/DATA/quotes"
-			}
-			
+		
+		"meg": {
+			"foo": "./data/foo"
 		}
+		
+		
+
 		
 		
 	}
