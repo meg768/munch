@@ -7,14 +7,23 @@
 			"download": {
 				"downloadFolder" : "./data/downloads",
 				"stocksFolder"   : "./data/stocks",
-				"numberOfDays"   : 3
+				"numberOfDays"   : 3,
+				"chunkSize"      : 10
 			},
 			
 			"export": {
 				"downloadFolder" : "./data/downloads",
 				"exportFolder"   : "./data/exports"
 				
+			},
+			
+			"server": {
+				"quotesFolder"   : "./data/exports",
+				"stocksFolder"   : "./data/stocks",
+				"port"           : 3000
+				
 			}
+
 		},
 		
 		"meg": {

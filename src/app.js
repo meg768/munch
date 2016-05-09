@@ -5,11 +5,10 @@ var config     = require('./scripts/config.js');
 var App = module.exports = function(args) {
 
 	function prefixLogs() {
-		require('./scripts/console-prefix.js')(function() {
+			require('./scripts/console-prefix.js')(function() {
 			var date = new Date();
 			return sprintf('%04d-%02d-%02d %02d:%02d.%02d: ', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
 		});
-		
 	}
 
 	function redirectLogs() {

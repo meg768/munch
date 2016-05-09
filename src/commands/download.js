@@ -17,7 +17,11 @@ var Downloader = module.exports = function(args) {
 
 	var _stocksFolder   = config.download.stocksFolder;
 	var _downloadFolder = config.download.downloadFolder;
+	var _chunkSize      = config.download.chunkSize;
 	
+	if (_chunkSize == undefined)
+		_chunkSize = 10;
+		
 	mkdir(_stocksFolder);
 	mkdir(_downloadFolder);
 	
@@ -39,7 +43,7 @@ var Downloader = module.exports = function(args) {
 		rule.minute = new schedule.Range(0, 59, 1);
 
 		schedule.scheduleJob(rule, function() {
-			fetch(10);	
+			fetch(40);	
 		});
 
 	}
@@ -49,7 +53,7 @@ var Downloader = module.exports = function(args) {
 	}	
 
 	
-	function fetch(blockSize) {
+	function fetch() {
 		var rule = new schedule.RecurrenceRule();	
 		rule.second = new schedule.Range(0, 59, 1);
 
@@ -75,7 +79,7 @@ var Downloader = module.exports = function(args) {
 			log(sprintf('%d stocks needs an update...', timestamps.length));
 				
 		// Only picks the first ones
-		timestamps = timestamps.slice(0, blockSize);
+		timestamps = timestamps.slice(0, _chunkSize);
 		
 		if (timestamps.length > 0) {
 			

@@ -1,29 +1,85 @@
+/*
+	
+	To kill all node instances run
+	$ killall -9 node
+	
+*/
+
 var fs         = require('fs');
 var express    = require('express');
 var sprintf    = require('../../lib/sprintf.js');
-var Store      = require('../scripts/store.js');
 var config     = require('../scripts/config.js');
 
-var Server = module.exports = function() {
+var Server = module.exports = function(args) {
 
+	if (config.server == undefined)
+		throw new Error('No configuration for server!');
+		
 	// Remember me!
 	var _this = this;
-	var _store = new Store();
+	var _stocksFolder = config.server.stocksFolder;
+	var _quotesFolder = config.server.quotesFolder;
+
+	var _stocks = {};
+	var _symbols = [];
 	
 	_this.app = undefined;
 	_this.server = undefined;
+	
+	function getSymbols() {
+
+		var symbols = [];
+		var path = sprintf('%s', _stocksFolder);
+		
+		fs.readdirSync(path).forEach(function(file) {
+			var match = file.match('^(.+).json$');
+			
+			if (match) {
+				symbols.push(match[1]);
+			}
+			
+		});	
+		
+		return symbols;
+	}
+
+	function getStocks(symbols) {
+	
+		var stocks = {};
+		
+		symbols.forEach(function(symbol) {
+			var fileName = sprintf('%s/%s.json', _stocksFolder, symbol);		
+			var stock    = JSON.parse(fs.readFileSync(fileName));
+			
+			stocks[symbol] = stock;	
+		});	
+		
+		return stocks;
+		
+	};	
+	
+	
+	function init() {
+		if (config.server.port == undefined) {
+			config.server.port = 3000;
+			console.log(sprintf('No port specified. Assuming port %d', config.server.port));
+		}
+
+		_symbols = getSymbols();	
+		_stocks  = getStocks(_symbols);
+	}
 	
 	function configureRoutes(app) {
 
 
 		app.get('/symbols', function(request, result) {
-			result.status(200).send(JSON.stringify(_store.symbols));
+			result.status(200).send(JSON.stringify(_symbols));
 		}); 
 		
 		app.get('/stock/:id', function(request, result) {
 			
 			var symbol = request.params.id;
-			var stock  = _store.stocks[symbol];
+			var stock  = _stocks[symbol];
 			
 			if (stock == undefined)
 				stock = {};
@@ -31,15 +87,23 @@ var Server = module.exports = function() {
 			result.status(200).send(JSON.stringify(stock));
 		}); 
 
-		app.get('/quotes/:date', function(request, result) {
+		app.get('/quotes/:date/:time', function(request, result) {
 			
 			var date   = request.params.date;
-			var quotes = _store.getQuotes(date);
+			var time   = request.params.time;
+			var path   = sprintf('%s/%s/%s.json', _quotesFolder, date, time);
+
+			var quote = {};
 			
-			if (quotes == undefined)
-				quotes = [];
+			try {
+				quote = JSON.parse(fs.readFileSync(path));
 				
-			result.status(200).send(JSON.stringify(quotes));
+			}
+			catch (error) {
+				
+			}
+
+			result.status(200).send(JSON.stringify(quote));
 		}); 
 		
 	}
@@ -62,6 +126,7 @@ var Server = module.exports = function() {
 	}
 
 	_this.run = function() {
+
 		var app = express();
 		
 		configureRoutes(app);
@@ -81,10 +146,8 @@ var Server = module.exports = function() {
 			}
 		}); 
 		
-		console.log('Listening to port 3000...');
-		
-		var server = app.listen(3000);
-
+		console.log(sprintf('Listening to port %s...', '' + config.server.port + ''));
+		var server = app.listen(config.server.port);
 
 		process.on('uncaughtException', shutDown);
 		
@@ -99,5 +162,5 @@ var Server = module.exports = function() {
 		_this.server = server;
 	}
 
-
+	init();
 };
