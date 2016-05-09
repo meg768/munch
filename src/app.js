@@ -66,14 +66,7 @@ var App = module.exports = function(args) {
 			}
 
 			if (args.run == undefined) {
-				
-				var commands = [];
-				
-				for (var cmd in getCommands()) {
-					commands.push(cmd);		
-				}
-				
-				console.log(sprintf('No --run command specified. Choose one of [%s].', commands.join(', ')));
+				console.log(sprintf('No --run command specified. Choose one of [%s].', Object.keys(getCommands()).join(', ')));
 			}
 
 
