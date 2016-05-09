@@ -5,15 +5,15 @@ var Promise  = require('bluebird');
 var Path     = require('path');
 var schedule = require('node-schedule');
 
-var Gopher  = require('../lib/gopher.js');
-var sprintf = require('../lib/sprintf.js');
-var utils   = require('../lib/utils.js');
-var extend  = require('../lib/extend.js');
+var Gopher  = require('../../lib/gopher.js');
+var sprintf = require('../../lib/sprintf.js');
+var utils   = require('../../lib/utils.js');
+var extend  = require('../../lib/extend.js');
 
-var config  = require('./config.js');
-var stocks  = require('./stocks.js');
+var config  = require('../scripts/config.js');
+var stocks  = require('../scripts/stocks.js');
 
-var Downloader = module.exports = function() {
+var Downloader = module.exports = function(args) {
 
 	var _stockFolder = config.folders.stocks;
 	var _quoteFolder = config.folders.quotes;

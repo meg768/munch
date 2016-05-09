@@ -1,7 +1,7 @@
 var args    = require('minimist')(process.argv.slice(2));
 var fs      = require('fs');
-var sprintf = require('../lib/sprintf.js');
-var extend  = require('../lib/extend.js');
+var sprintf = require('../../lib/sprintf.js');
+var extend  = require('../../lib/extend.js');
 
 (function () {
 

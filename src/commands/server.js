@@ -1,8 +1,8 @@
 var fs         = require('fs');
 var express    = require('express');
-var sprintf    = require('../lib/sprintf.js');
-var Store      = require('./store.js');
-var config     = require('./config.js');
+var sprintf    = require('../../lib/sprintf.js');
+var Store      = require('../scripts/store.js');
+var config     = require('../scripts/config.js');
 
 var Server = module.exports = function() {
 

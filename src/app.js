@@ -1,46 +1,85 @@
 var fs         = require('fs');
-var args       = require('minimist')(process.argv.slice(2));
-
-var Downloader = require('./downloader.js');
-var Server     = require('./server.js');
-
 var sprintf    = require('../lib/sprintf.js');
-var config     = require('./config.js');
+var config     = require('./scripts/config.js');
 
-var App = module.exports = function() {
+var App = module.exports = function(args) {
 
-	// Remember me!
-	var _this = this;
-
-	require('./console-prefix.js')(function() {
-		var date = new Date();
-		return sprintf('%04d-%02d-%02d %02d:%02d.%02d: ', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
-	});
-	
-	_this.run = function() {
-
-		if (args.log) {
-
-			require('./console-redirect.js')(function() {
-				var date = new Date();
-				return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
-			});
-			
-			
-		}
-	
-
-		if (args.server) {
-			var server = new Server();
-			server.run();
-		}
+	function prefixLogs() {
+		require('./scripts/console-prefix.js')(function() {
+			var date = new Date();
+			return sprintf('%04d-%02d-%02d %02d:%02d.%02d: ', date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+		});
 		
-		if (args.test) {
-		}
+	}
 
-		if (args.download) {
-			var downloader = new Downloader();
-			downloader.run();
-		}		
+	function redirectLogs() {
+		require('./scripts/console-redirect.js')(function() {
+			var date = new Date();
+			return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.folders.logs, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
+		});
+		
+	}	
+	
+	function getCommands() {
+		
+		var commands = {};
+		
+		fs.readdirSync('./src/commands').forEach(function(fileName) {
+			var match = fileName.match('^(.*).js');
+			
+			if (match)
+				commands[match[1]] = {fileName:sprintf('./commands/%s', fileName)};
+		});
+		
+		return commands;
+		
+	}
+	
+	function runCommand(cmd) {
+		
+		var commands = getCommands();
+
+		if (commands[cmd] == undefined)
+			throw new Error(sprintf('Undefined command \'%s\'.', cmd));
+			
+		var Module = require(commands[cmd].fileName);
+		var module = new Module(args);
+		
+		// Execute 'run' method if it has one
+		if (typeof module.run == 'function')
+			module.run();
+	}
+	
+	this.run = function() {
+
+		try {
+			if (!args.noprefix) {
+				prefixLogs();
+			}
+			
+			if (args.log) {
+				redirectLogs();
+			}
+
+			if (typeof args.run == 'string') {
+				runCommand(args.run);
+			}
+
+			if (args.run == undefined) {
+				
+				var commands = [];
+				
+				for (var cmd in getCommands()) {
+					commands.push(cmd);		
+				}
+				
+				console.log(sprintf('No --run command specified. Choose one of [%s].', commands.join(', ')));
+			}
+
+
+		}
+		catch (error) {
+			console.error((error && error.stack) ? error.stack : error);
+		};
 	};
 };
