@@ -31,8 +31,12 @@
 
 		},
 		
-		"meg": {
-			"foo": "./data/foo"
+		"wd": {
+			"transform": {
+				"downloadFolder" : "/Volumes/DATA/downloads",
+				"quotesFolder"   : "/Volumes/DATA/quotes"
+				
+			}
 		}
 		
 		
