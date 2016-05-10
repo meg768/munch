@@ -66,7 +66,14 @@ var Transformer = module.exports = function(args) {
 	
 	function convertDateTime(date, time) {
 
-		var quotes = undefined;
+		var quotes   = undefined;
+		var path     = sprintf('%s/%s', _quotesFolder, date);
+		var fileName = sprintf('%s/%02d.%02d.json', path, parseInt(time.split(':')[0]), parseInt(time.split(':')[1]));
+		
+		if (args.update) {
+			if (fileExists(fileName))
+				return;
+		}
 		
 		for (var symbol in stocks) {
 			var quote = readQuote(date, time, symbol);
@@ -81,12 +88,9 @@ var Transformer = module.exports = function(args) {
 		}
 
 		if (quotes != undefined) {
-			var path = sprintf('%s/%s', _quotesFolder, date);
-			var fileName = sprintf('%s/%02d.%02d.json', path, parseInt(time.split(':')[0]), parseInt(time.split(':')[1]));
-			
-			mkdir(path);
-			
 			console.log(sprintf('Transforming %s %s to %s.', date, time, fileName));
+
+			mkdir(path);			
 			fs.writeFileSync(fileName, JSON.stringify(quotes, null, '\t'));
 		}
 
