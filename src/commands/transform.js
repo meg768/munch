@@ -88,10 +88,10 @@ var Transformer = module.exports = function(args) {
 		}
 
 		if (quotes != undefined) {
-			console.log(sprintf('Transforming %s %s to %s.', date, time, fileName));
-
 			mkdir(path);			
+
 			fs.writeFileSync(fileName, JSON.stringify(quotes, null, '\t'));
+			console.log(sprintf('Transforming %s %s to %s.', date, time, fileName));
 		}
 
 	}
