@@ -1,4 +1,3 @@
-
 var fs        = require('fs');
 var sprintf   = require('../../lib/sprintf.js');
 var extend    = require('../../lib/extend.js');

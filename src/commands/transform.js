@@ -18,6 +18,7 @@ var Transformer = module.exports = function(args) {
 	var _downloadFolder  = config.transform.downloadFolder;
 	var _quotesFolder    = config.transform.quotesFolder;
 
+
 	if (typeof args.date != 'string') {
 		throw new Error('Must specify --date');
 		
