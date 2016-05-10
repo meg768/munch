@@ -5,6 +5,14 @@ var sprintf  = require('../../lib/sprintf.js');
 var config  = require('../scripts/config.js');
 var stocks  = require('../scripts/stocks.js');
 
+
+/*
+
+	args.date - specifies the stock dates to transform
+	args.update - only update, if the transformation has been done, don't do it again	
+	
+*/
+
 var Transformer = module.exports = function(args) {
 
 	var _downloadFolder  = config.transform.downloadFolder;
