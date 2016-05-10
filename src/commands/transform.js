@@ -79,8 +79,10 @@ var Transformer = module.exports = function(args) {
 		var fileName = sprintf('%s/%02d.%02d.json', path, parseInt(time.split(':')[0]), parseInt(time.split(':')[1]));
 		
 		if (args.update) {
-			if (fileExists(fileName))
-				return;
+			if (fileExists(fileName)) {
+				console.log(sprintf('Already transformed %s %s.', date, time));
+				return;				
+			}
 		}
 		
 		for (var symbol in stocks) {
