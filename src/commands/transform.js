@@ -8,7 +8,7 @@ var stocks  = require('../scripts/stocks.js');
 
 /*
 
-	args.date - specifies the stock dates to transform
+	args.date - specifies the stock dates to transform (or specify 'all')
 	args.update - only update, if the transformation has been done, don't do it again	
 	
 */
@@ -101,7 +101,7 @@ var Transformer = module.exports = function(args) {
 			mkdir(path);			
 
 			fs.writeFileSync(fileName, JSON.stringify(quotes, null, '\t'));
-			console.log(sprintf('Transforming %s %s to %s.', date, time, fileName));
+			console.log(sprintf('Transformed %s %s into %s.', date, time, fileName));
 		}
 
 	}
