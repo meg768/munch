@@ -2,8 +2,27 @@
 var args    = require('minimist')(process.argv.slice(2));
 var sprintf = require('./lib/sprintf.js');
 var fs      = require('fs');
+var config  = require('./src/scripts/config.js');
 
 var App = function() {
+
+	function mkdir(path) {
+		if (!fileExists(path)) {
+			fs.mkdirSync(path);		
+		}
+		
+	}
+
+	function fileExists(path) {
+		try {
+			fs.accessSync(path);		
+			return true;
+		}
+		catch (error) {
+		}
+
+		return false;		
+	}
 
 	function prefixLogs() {
 			require('./src/scripts/console-prefix.js')(function() {
@@ -13,6 +32,9 @@ var App = function() {
 	}
 
 	function redirectLogs() {
+		
+		mkdir(config.logFolder);
+		
 		require('./src/scripts/console-redirect.js')(function() {
 			var date = new Date();
 			return sprintf('%s/%04d-%02d-%02d-%02d-%02d.log', config.logFolder, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes());
