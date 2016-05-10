@@ -72,6 +72,8 @@ var App = function() {
 			module.run();
 	}
 	
+	
+	
 	this.run = function() {
 
 		try {
