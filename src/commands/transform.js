@@ -1,21 +1,14 @@
 
 var fs       = require('fs');
-var Promise  = require('bluebird');
-var Path     = require('path');
-var schedule = require('node-schedule');
-
-var Gopher  = require('../../lib/gopher.js');
-var sprintf = require('../../lib/sprintf.js');
-var utils   = require('../../lib/utils.js');
-var extend  = require('../../lib/extend.js');
+var sprintf  = require('../../lib/sprintf.js');
 
 var config  = require('../scripts/config.js');
 var stocks  = require('../scripts/stocks.js');
 
-var Exporter = module.exports = function(args) {
+var Transformer = module.exports = function(args) {
 
-	var _downloadFolder  = config.export.downloadFolder;
-	var _exportFolder    = config.export.exportFolder;
+	var _downloadFolder  = config.transform.downloadFolder;
+	var _quotesFolder    = config.transform.quotesFolder;
 
 	if (typeof args.date != 'string') {
 		throw new Error('Must specify --date');
@@ -26,7 +19,7 @@ var Exporter = module.exports = function(args) {
 		throw new Error('The download folder does not exist');
 	}
 
-	mkdir(_exportFolder);
+	mkdir(_quotesFolder);
 	
 	function mkdir(path) {
 		if (!fileExists(path)) {
@@ -34,7 +27,6 @@ var Exporter = module.exports = function(args) {
 		}
 		
 	}
-
 
 	function fileExists(path) {
 		try {
@@ -89,12 +81,12 @@ var Exporter = module.exports = function(args) {
 		}
 
 		if (quotes != undefined) {
-			var path = sprintf('%s/%s', _exportFolder, date);
+			var path = sprintf('%s/%s', _quotesFolder, date);
 			var fileName = sprintf('%s/%02d.%02d.json', path, parseInt(time.split(':')[0]), parseInt(time.split(':')[1]));
 			
 			mkdir(path);
 			
-			console.log(sprintf('Exporting %s %s to %s.', date, time, fileName));
+			console.log(sprintf('Transforming %s %s to %s.', date, time, fileName));
 			fs.writeFileSync(fileName, JSON.stringify(quotes, null, '\t'));
 		}
 
@@ -123,13 +115,10 @@ var Exporter = module.exports = function(args) {
 		}
 	}
 
-	function convertQuotes(quotes) {
-		console.log()
-	}
 	
 	this.run = function() {
 		
-		console.log(sprintf('Exporting %s to \'%s\'...', args.date, _exportFolder));
+		console.log(sprintf('Transforming %s to \'%s\'...', args.date, _quotesFolder));
 
 		var dates = [args.date];
 		

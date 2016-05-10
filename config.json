@@ -11,14 +11,19 @@
 				"chunkSize"      : 10
 			},
 			
-			"export": {
+			"transform": {
 				"downloadFolder" : "./data/downloads",
-				"exportFolder"   : "./data/exports"
+				"quotesFolder"   : "./data/quotes"
 				
 			},
 			
+			"simulation": {
+				"quotesFolder"   : "./data/quotes",
+				"stocksFolder"   : "./data/stocks"
+			},
+			
 			"server": {
-				"quotesFolder"   : "./data/exports",
+				"quotesFolder"   : "./data/quotes",
 				"stocksFolder"   : "./data/stocks",
 				"port"           : 3000
 				
@@ -27,7 +32,7 @@
 		},
 		
 		"meg": {
-			"foo": "./data/foox"
+			"foo": "./data/foo"
 		}
 		
 		

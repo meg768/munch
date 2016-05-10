@@ -75,8 +75,9 @@ var Downloader = module.exports = function(args) {
 			return a.timestamp.getTime() - b.timestamp.getTime();
 		});			
 
-		if (timestamps.length > 0)
+		if (timestamps.length > 0) {
 			log(sprintf('%d stocks needs an update...', timestamps.length));
+		}
 				
 		// Only picks the first ones
 		timestamps = timestamps.slice(0, _chunkSize);
