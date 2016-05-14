@@ -1,5 +1,5 @@
 var fs         = require('fs');
-var sprintf    = require('tbx').sprintf;
+var sprintf    = require('yow').sprintf;
 
 var Workday = function(engine, config) {
 	
