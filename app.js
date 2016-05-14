@@ -1,28 +1,14 @@
 
 var args    = require('minimist')(process.argv.slice(2));
-var sprintf = require('tbx').sprintf;
+var sprintf = require('yow').sprintf;
 var fs      = require('fs');
 var config  = require('./src/scripts/config.js');
 
 var App = function() {
+	
+	var mkdir = require('yow').mkdir;
+	var fileExists = require('yow').fileExists;
 
-	function mkdir(path) {
-		if (!fileExists(path)) {
-			fs.mkdirSync(path);		
-		}
-		
-	}
-
-	function fileExists(path) {
-		try {
-			fs.accessSync(path);		
-			return true;
-		}
-		catch (error) {
-		}
-
-		return false;		
-	}
 
 	function prefixLogs() {
 			require('./src/scripts/console-prefix.js')(function() {
