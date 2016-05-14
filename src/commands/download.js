@@ -5,10 +5,10 @@ var Promise  = require('bluebird');
 var Path     = require('path');
 var schedule = require('node-schedule');
 
-var Gopher  = require('../../lib/gopher.js');
-var sprintf = require('../../lib/sprintf.js');
-var utils   = require('../../lib/utils.js');
-var extend  = require('../../lib/extend.js');
+var sprintf = require('tbx').sprintf;
+var extend  = require('tbx').extend;
+
+var Gopher  = require('rest-request');
 
 var config  = require('../scripts/config.js');
 var stocks  = require('../scripts/stocks.js');

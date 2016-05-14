@@ -7,7 +7,7 @@
 
 var fs         = require('fs');
 var express    = require('express');
-var sprintf    = require('../../lib/sprintf.js');
+var sprintf    = require('tbx').sprintf;
 var config     = require('../scripts/config.js');
 
 var Server = module.exports = function(args) {

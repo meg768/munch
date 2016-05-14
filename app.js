@@ -1,6 +1,6 @@
 
 var args    = require('minimist')(process.argv.slice(2));
-var sprintf = require('./lib/sprintf.js');
+var sprintf = require('tbx').sprintf;
 var fs      = require('fs');
 var config  = require('./src/scripts/config.js');
 

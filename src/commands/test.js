@@ -1,9 +1,9 @@
 
-var fs       = require('fs');
-var sprintf  = require('../../lib/sprintf.js');
+var fs        = require('fs');
+var sprintf   = require('tbx').sprintf;
 
-var config  = require('../scripts/config.js');
-var stocks  = require('../scripts/stocks.js');
+var config    = require('../scripts/config.js');
+var stocks    = require('../scripts/stocks.js');
 var Portfolio = require('../scripts/portfolio.js');
 
 var Module = module.exports = function(args) {

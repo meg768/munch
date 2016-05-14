@@ -1,9 +1,21 @@
 var clientRequest = require('client-request');
-var isString = require('./utils.js').isString;
-var isObject = require('./utils.js').isObject;
-var isArray = require('./utils.js').isArray;
 var Promise = require('bluebird');
 
+function isType(obj, type) {
+	return Object.prototype.toString.call(obj) === '[object ' + type + ']';
+};
+
+function isArray(obj) {
+	return isType(obj, 'Array');
+};
+
+function isString(obj) {
+	return isType(obj, 'String');
+};
+
+function isObject(obj) {
+	return obj !== null && isType(obj, 'Object');
+};
 
 var Gopher = module.exports = function(baseURL) {
 	
@@ -123,22 +135,18 @@ var Gopher = module.exports = function(baseURL) {
 						var json = {};
 						
 						try {
-							json = JSON.parse(body);
-							console.log(json);
+							resolve(JSON.parse(body));
 						}
 
 						catch (error) {
-							reject('JSON parse error.');
+							reject(error);
 						}
-		
-						resolve(json);
 					}
 					else {
 						resolve(body.toString());
 					}
 				}
 				else {
-					//console.log(response);
 					reject(error, response, body);
 					
 				}

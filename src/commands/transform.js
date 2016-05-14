@@ -1,6 +1,6 @@
 
 var fs       = require('fs');
-var sprintf  = require('../../lib/sprintf.js');
+var sprintf  = require('tbx').sprintf;
 
 var config  = require('../scripts/config.js');
 var stocks  = require('../scripts/stocks.js');

@@ -1,5 +1,5 @@
 var fs         = require('fs');
-var sprintf    = require('../../lib/sprintf.js');
+var sprintf    = require('tbx').sprintf;
 
 var Workday = function(engine, config) {
 	
