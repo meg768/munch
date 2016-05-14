@@ -1,6 +1,6 @@
 var fs        = require('fs');
-var sprintf   = require('tbx').sprintf;
-var extend    = require('../../lib/extend.js');
+var sprintf   = require('yow').sprintf;
+var extend    = require('yow').extend;
 var config    = require('../scripts/config.js');
 
 

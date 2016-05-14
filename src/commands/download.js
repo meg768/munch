@@ -5,8 +5,8 @@ var Promise  = require('bluebird');
 var Path     = require('path');
 var schedule = require('node-schedule');
 
-var sprintf = require('tbx').sprintf;
-var extend  = require('tbx').extend;
+var sprintf = require('yow').sprintf;
+var extend  = require('yow').extend;
 
 var Gopher  = require('rest-request');
 

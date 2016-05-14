@@ -28,9 +28,9 @@
     "node-rsa": "^0.3.2",
     "node-schedule": "^1.1.0",
     "rest-request": "^1.0.0",
-    "tbx": "^1.0.0",
     "ursa": "^0.9.3",
-    "ursa-purejs": "0.0.3"
+    "ursa-purejs": "0.0.3",
+    "yow": "^1.0.4"
   },
   "devDependencies": {}
 }

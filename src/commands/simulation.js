@@ -1,7 +1,7 @@
 
 var fs        = require('fs');
-var sprintf   = require('tbx').sprintf;
-var extend    = require('tbx').extend;
+var sprintf   = require('yow').sprintf;
+var extend    = require('yow').extend;
 var config    = require('../scripts/config.js');
 
 
