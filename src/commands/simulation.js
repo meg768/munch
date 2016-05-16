@@ -1,8 +1,9 @@
 
-var fs        = require('fs');
-var sprintf   = require('yow').sprintf;
-var extend    = require('yow').extend;
-var config    = require('../scripts/config.js');
+var fs         = require('fs');
+var sprintf    = require('yow').sprintf;
+var extend     = require('yow').extend;
+var fileExists = require('yow').fileExists;
+var config     = require('../scripts/config.js');
 
 
 var Store = function(config) {
@@ -22,18 +23,6 @@ var Store = function(config) {
 	}		
 
 	
-	function fileExists(path) {
-		try {
-			fs.accessSync(path);		
-			return true;
-		}
-		catch (error) {
-		}
-
-		return false;		
-	}
-
-
 	this.getSectors = function(stocks) {
 	
 		var sectors = {};
