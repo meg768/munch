@@ -36,6 +36,11 @@
 				"downloadFolder" : "/Volumes/DATA/downloads",
 				"quotesFolder"   : "/Volumes/DATA/quotes"
 				
+			},
+			"sqlite": {
+				"downloadFolder" : "/Volumes/DATA/downloads",
+				"sqliteFolder"   : "/Volumes/DATA/sqlite"
+				
 			}
 		}
 		

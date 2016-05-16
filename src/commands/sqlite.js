@@ -15,15 +15,19 @@ var sqlite3 = require('sqlite3').verbose();
 
 var Module = module.exports = function(args) {
 
-	var _downloadFolder  = config.transform.downloadFolder;
-	var _sqliteFolder    = './data/sqlite';
+	var _downloadFolder  = config.sqlite.downloadFolder;
+	var _sqliteFolder    = config.sqlite.sqliteFolder;
 	var _sqlFile         = sprintf('%s/%s', _sqliteFolder, 'sqlite.db');
 
-	mkdir(_sqliteFolder);
-
+	if (_sqliteFolder == undefined) {
+		throw new Error('Must specify sqlite folder.');
+		
+	}
 	if (!fileExists(_downloadFolder)) {
 		throw new Error('The download folder does not exist');
 	}
+
+	mkdir(_sqliteFolder);
 
 	
 
@@ -127,6 +131,8 @@ var Module = module.exports = function(args) {
 		db.run('BEGIN TRANSACTION');
 
 		for (var symbol in stocks) {
+			
+			console.log(symbol);
 			var stock = stocks[symbol];
 			var data = {};
 			
