@@ -26,8 +26,8 @@ var Module = module.exports = function(engine) {
 		var quotes = engine.data;
 		var symbol = config.symbol;
 		
-		if (quotes[symbol])
-			console.log(symbol, quotes[symbol].close);
+		//if (quotes[symbol])
+		//	console.log(symbol, quotes[symbol].close);
 	}
 
 	this.onStartOfAlgorithm = function() {

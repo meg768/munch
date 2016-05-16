@@ -5,8 +5,9 @@ var Promise  = require('bluebird');
 var Path     = require('path');
 var schedule = require('node-schedule');
 
-var sprintf = require('yow').sprintf;
-var extend  = require('yow').extend;
+var sprintf  = require('yow').sprintf;
+var extend   = require('yow').extend;
+var isString = require('yow').isString;
 
 var Gopher  = require('rest-request');
 
@@ -18,6 +19,7 @@ var Downloader = module.exports = function(args) {
 	var _stocksFolder   = config.download.stocksFolder;
 	var _downloadFolder = config.download.downloadFolder;
 	var _chunkSize      = config.download.chunkSize;
+	var _numberOfDays   = config.download.numberOfDays;
 	
 	if (_chunkSize == undefined)
 		_chunkSize = 10;
@@ -25,27 +27,40 @@ var Downloader = module.exports = function(args) {
 	mkdir(_stocksFolder);
 	mkdir(_downloadFolder);
 	
-	
-	if (config.download.numberOfDays == undefined) {
+	if (_numberOfDays == undefined) {
 		console.warn('Number of days to download is not specified. Assuming 3 days.');
-		config.download.numberOfDays = 3;	
+		_numberOfDays = 3;	
 	}
 	
 	this.run = function() {
-		
-		log(sprintf('Started downloading quotes to \'%s\'...', _downloadFolder));
 
-		log(sprintf('Warming up...'));
-		getTimeStamps();
-		log(sprintf('Done.'));
-		
-		var rule = new schedule.RecurrenceRule();	
-		rule.minute = new schedule.Range(0, 59, 1);
-
-		schedule.scheduleJob(rule, function() {
-			fetch();	
-		});
-
+		if (args.days)
+			_numberOfDays = parseInt(args.days);
+			
+		if (isString(args.symbol)) {
+			
+			if (stocks[args.symbol] != undefined)
+				fetchQuote(stocks[args.symbol]);
+			else	
+			log(sprintf('Symbol \'%s\' does not exist.', args.symbol));
+		}
+		else {
+			
+			log(sprintf('Started downloading quotes to folder \'%s\'...', _downloadFolder));
+	
+			log(sprintf('Warming up...'));
+			getTimeStamps();
+			log(sprintf('Done.'));
+	
+			var rule = new schedule.RecurrenceRule();	
+			rule.minute = new schedule.Range(0, 59, 1);
+	
+			schedule.scheduleJob(rule, function() {
+				fetch();	
+			});
+	
+			
+		}
 	}
 
 	function log(message) {
@@ -103,7 +118,7 @@ var Downloader = module.exports = function(args) {
 			
 		}
 		else {
-			log('Nothing to fetch');
+			log('Nothing to fetch.');
 		}
 		
 	}
@@ -133,7 +148,7 @@ var Downloader = module.exports = function(args) {
 	
 	function fetchQuote(stock) {
 
-		var request = requestQuotes(stock.symbol, config.download.numberOfDays, 60);
+		var request = requestQuotes(stock.symbol, _numberOfDays, 60);
 
 		request.then(function(quotes) {
 			try {

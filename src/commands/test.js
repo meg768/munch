@@ -11,7 +11,17 @@ var Module = module.exports = function(args) {
 	function toString(json) {
 		return JSON.stringify(json, null, '\t');
 	}
-
+	var array = [];
+	
+	for (var key in stocks) {
+		array.push(stocks[key]);
+	}
+	array.sort(function(a, b){
+		return a.symbol.localeCompare(b.symbol);
+	});
+	fs.writeFileSync("stocks.json", JSON.stringify(array, null, '\t'));
+/*
+	
 	this.run = function() {
 
 		var portfolio = new Portfolio();
@@ -24,7 +34,7 @@ var Module = module.exports = function(args) {
 		console.log(toString(portfolio.holdings));
 		console.log('Cash', portfolio.cash);
 	}
-
+*/
 
 	
 };
