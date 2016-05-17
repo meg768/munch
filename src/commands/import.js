@@ -1,16 +1,4 @@
-/*
-	
-Finished imports:
 
-2016-04-14
-2016-04-26
-2016-04-27
-2016-04-28
-2016-04-29
-2016-05-02
-2016-05-03
-	
-*/
 
 var fs          = require('fs');
 var sprintf     = require('yow').sprintf;
@@ -18,7 +6,6 @@ var mkdir       = require('yow').mkdir;
 var fileExists  = require('yow').fileExists;
 
 var config  = require('../scripts/config.js');
-var stocks  = require('../scripts/stocks.js');
 
 var sqlite3 = require('sqlite3').verbose();
 
