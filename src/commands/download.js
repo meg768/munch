@@ -124,7 +124,7 @@ var Module = module.exports = function(args) {
 			return [];
 			
 		console.log(sprintf('%d stocks have not been updated in 24 hours...', timestamps.length));
-		console.log(sprintf('Latest update was %s.', timestamps[0].timestamp.toISOString()));
+		console.log(sprintf('Latest update for %s was %s.', timestamps[0].symbol, timestamps[0].timestamp.toISOString()));
 		
 		// Only picks the first ones
 		timestamps = timestamps.slice(0, max);
