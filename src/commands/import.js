@@ -2,7 +2,13 @@
 	
 Finished imports:
 
-2016-04-14-2016-04-26
+2016-04-14
+2016-04-26
+2016-04-27
+2016-04-28
+2016-04-29
+2016-05-02
+2016-05-03
 	
 */
 
@@ -96,7 +102,7 @@ var Module = module.exports = function(args) {
 				db.run('COMMIT', function() {
 				});
 				
-				console.log(sprintf('%d quotes updated for %s.', count, symbol));
+				console.log(sprintf('Updated %s with %d quotes from %s.', symbol, count, date));
 				
 			});
 			

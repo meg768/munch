@@ -35,17 +35,17 @@ var Module = module.exports = function(args) {
 		throw new Error(sprintf('File \'%s\' does not exist.', _sqlFile));
 	}
 	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 15 days.');
+		console.warn('Number of days to download is not specified. Assuming 15.');
 		_numberOfDays = 15;	
 	}
 
 	if (_fetchCount == undefined) {
-		console.warn('Number of stocks to update not specified. Assuming 10 days.');
-		_fetchCount = 15;	
+		console.warn('Number of stocks to update not specified. Assuming 10.');
+		_fetchCount = 10;	
 	}
 	
 
-		function getStocks(db) {
+	function getStocks(db) {
 		
 		return new Promise(function(resolve, reject) {
 			db.all('SELECT * FROM stocks', function(error, rows) {
@@ -144,7 +144,6 @@ var Module = module.exports = function(args) {
 
 		var db = new sqlite3.Database(_sqlFile);
 	
-
 		getStocks(db).then(function(stocks) {
 			
 			var symbol = args.symbol;
@@ -160,9 +159,10 @@ var Module = module.exports = function(args) {
 				if (stocks[symbol] != undefined)
 					fetchQuotes(db, symbol);
 				else	
-					log(sprintf('Symbol \'%s\' does not exist.', symbol));
+					colsole.log(sprintf('Symbol \'%s\' does not exist.', symbol));
 			}
 			else {
+				console.warn(sprintf('No --symbol specified.'));
 				/*
 				log(sprintf('Started downloading quotes to folder \'%s\'...', _sqlFile));
 		
@@ -201,16 +201,21 @@ var Module = module.exports = function(args) {
 						insertQuote(db, quote);	
 					});
 	
-					var now = new Date();				
-					db.run('UPDATE stocks SET updated = ? WHERE symbol = ?', [now.toISOString(), symbol]);
-					
 					db.run('COMMIT', function(){ 
-						console.log(sprintf('Committed %s.', symbol));
+						console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
+
+						var now = new Date();
+						var updated = now.toISOString();
+										
+						db.run('UPDATE stocks SET updated = ? WHERE symbol = ?', [updated, symbol], function() {
+							console.log(sprintf('Updated fetch information for %s to %s.', symbol, updated));
+							
+						});
+						
 					});	
 					
 				});
 				
-				console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
 			}
 			catch(error) {
 				console.error('Request failed.', error);				
@@ -220,7 +225,7 @@ var Module = module.exports = function(args) {
 
 		request.catch(function(error, response, body) {
 			console.error(response);
-			log(sprintf('Failed loading %s.', symbol));
+			console.error(sprintf('Failed loading %s.', symbol));
 		});
 		
 	}

@@ -1,6 +1,7 @@
 
 var args    = require('minimist')(process.argv.slice(2));
 var sprintf = require('yow').sprintf;
+var isString = require('yow').isString;
 var fs      = require('fs');
 var config  = require('./src/scripts/config.js');
 
