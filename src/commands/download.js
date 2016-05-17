@@ -124,7 +124,7 @@ var Module = module.exports = function(args) {
 			return [];
 			
 		console.log(sprintf('%d stocks have not been updated in 24 hours...', timestamps.length));
-		console.log(sprintf('Latest update for %s was %s.', timestamps[0].symbol, timestamps[0].timestamp.toISOString()));
+		console.log(sprintf('Oldest update is %s at %s.', timestamps[0].symbol, timestamps[0].timestamp.toISOString()));
 		
 		// Only picks the first ones
 		timestamps = timestamps.slice(0, max);
@@ -147,7 +147,7 @@ var Module = module.exports = function(args) {
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
 
-		_fetchCount = 5;
+		_fetchCount = 6;
 		_numberOfDays = 3;
 		
 		console.log(sprintf('Fetch count is set to %d every minute and fetching %d days of quotes.', _fetchCount, _numberOfDays));
