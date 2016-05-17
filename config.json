@@ -5,11 +5,10 @@
 			"logFolder": "./data/logs",
 			
 			"download": {
-				"downloadFolder" : "./data/downloads",
-				"stocksFolder"   : "./data/stocks",
-				"numberOfDays"   : 3,
-				"chunkSize"      : 10
+				"days"           : 3,
+				"count"          : 10				
 			},
+			
 			
 			"transform": {
 				"downloadFolder" : "./data/downloads",
@@ -37,8 +36,13 @@
 				"quotesFolder"   : "/Volumes/DATA/quotes"
 				
 			},
-			"sqlite": {
+			"import": {
 				"downloadFolder" : "/Volumes/DATA/downloads",
+				"sqliteFolder"   : "/Volumes/DATA/sqlite"
+				
+			},
+			
+			"download": {
 				"sqliteFolder"   : "/Volumes/DATA/sqlite"
 				
 			}

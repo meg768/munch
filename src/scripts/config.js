@@ -20,6 +20,7 @@ var extend  = require('yow').extend;
 			console.error(sprintf('Configuration \'%s\' not defined.', args.config));
 			process.exit(-1);
 		}
+		
 		extend(config, configs[args.config]);
 	}
 	
