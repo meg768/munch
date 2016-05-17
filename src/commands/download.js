@@ -123,7 +123,7 @@ var Module = module.exports = function(args) {
 		if (timestamps.length == 0)
 			return undefined;
 			
-		console.log(sprintf('%d stocks in need for an update...', timestamps.length));
+		console.log(sprintf('%d stocks have not been updated in 24 hours...', timestamps.length));
 		
 		// Only picks the first ones
 		timestamps = timestamps.slice(0, max);
@@ -146,7 +146,7 @@ var Module = module.exports = function(args) {
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
 
-		_fetchCount = 4;
+		_fetchCount = 5;
 		_numberOfDays = 3;
 		
 		console.log(sprintf('Fetch count is set to %d every minute and fetching %d days of quotes.', _fetchCount, _numberOfDays));
