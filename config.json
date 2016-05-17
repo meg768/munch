@@ -5,6 +5,7 @@
 			"logFolder": "./data/logs",
 			
 			"download": {
+				"sqliteFolder"   : "./data/sqlite"
 				"days"           : 3,
 				"count"          : 10				
 			},

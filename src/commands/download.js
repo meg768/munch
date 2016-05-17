@@ -146,8 +146,8 @@ var Module = module.exports = function(args) {
 		var rule = new schedule.RecurrenceRule();	
 		rule.minute = new schedule.Range(0, 59, 1);
 
-		_fetchCount = 1;
-		_numberOfDays = 3;
+		_fetchCount = 10;
+		_numberOfDays = 5;
 		
 		console.log(sprintf('Fetch count is set to %d every minute and fetching %d days of quotes.', _fetchCount, _numberOfDays));
 			
