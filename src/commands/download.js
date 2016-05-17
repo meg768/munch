@@ -67,7 +67,6 @@ var Module = module.exports = function(args) {
 		});		
 	};
 	
-	
 	function insertQuote(db, quote) {
 
 		var insertSQL = 'INSERT INTO quotes (symbol, date, time, open, high, low, close, volume) VALUES($symbol, $date, $time, $open, $high, $low, $close, $volume)';
@@ -91,9 +90,8 @@ var Module = module.exports = function(args) {
 		});
 
 	}
-		
 			
-	function getSymbolsToUpdate(stocks) {
+	function getSymbolsToUpdate(stocks, max) {
 	
 		var timestamps = [];
 		
@@ -125,31 +123,61 @@ var Module = module.exports = function(args) {
 		if (timestamps.length == 0)
 			return undefined;
 			
-		log(sprintf('%d stocks in need for an update...', timestamps.length));
+		console.log(sprintf('%d stocks in need for an update...', timestamps.length));
 		
 		// Only picks the first ones
-		timestamps = timestamps.slice(0, _fetchCount);
+		timestamps = timestamps.slice(0, max);
 		
 		var symbols = [];
 		
 		timestamps.forEach(function(timestamp) {
 			symbols.push(timestamp.symbol);			
 		});
+		
+		if (symbols.length > 0 && symbols.length < 100) {
+			console.log(sprintf('The following symbols will be updated: %s', symbols.join(', ')));
+		}
 
 		return symbols;
 	}
-
 	
+
+	function scheduleFetch(db) {
+		var rule = new schedule.RecurrenceRule();	
+		rule.minute = new schedule.Range(0, 59, 1);
+
+		_fetchCount = 1;
+		_numberOfDays = 3;
+		
+		console.log(sprintf('Fetch count is set to %d every minute and fetching %d days of quotes.', _fetchCount, _numberOfDays));
+			
+		schedule.scheduleJob(rule, function() {
+			getStocks(db).then(function(stocks) {
+				getSymbolsToUpdate(stocks, _fetchCount).forEach(function(symbol) {
+					fetchQuotes(db, symbol);
+				});
+			});			
+		});
+		
+	}
+
 	this.run = function() {
 
 		var db = new sqlite3.Database(_sqlFile);
-	
+
+
+		if (args.schedule) {
+			scheduleFetch(db);
+			return;
+			
+		}
+
 		getStocks(db).then(function(stocks) {
 			
 			var symbol = args.symbol;
 			
 			if (symbol == undefined) {
-				getSymbolsToUpdate(stocks).forEach(function(symbol) {
+				getSymbolsToUpdate(stocks, _fetchCount).forEach(function(symbol) {
 					fetchQuotes(db, symbol);
 				});
 			}
@@ -161,18 +189,8 @@ var Module = module.exports = function(args) {
 				else	
 					colsole.log(sprintf('Symbol \'%s\' does not exist.', symbol));
 			}
+			
 			else {
-				console.warn(sprintf('No --symbol specified.'));
-				/*
-				log(sprintf('Started downloading quotes to folder \'%s\'...', _sqlFile));
-		
-				var rule = new schedule.RecurrenceRule();	
-				rule.minute = new schedule.Range(0, 59, 1);
-		
-				schedule.scheduleJob(rule, function() {
-					fetch();	
-				});
-				*/
 				
 			}
 			
@@ -180,13 +198,7 @@ var Module = module.exports = function(args) {
 		});
 	}
 
-	function log(message) {
-		console.log(message);
-	}	
 
-	
-
-	
 	function fetchQuotes(db, symbol) {
 
 		var request = requestQuotes(symbol, _numberOfDays, 60);
@@ -230,8 +242,7 @@ var Module = module.exports = function(args) {
 		
 	}
 
-
-
+	
 	function requestQuotes(symbol, days, interval) {
 
 		var gopher = new Gopher('http://www.google.com/finance');
@@ -315,7 +326,7 @@ var Module = module.exports = function(args) {
 		return quotes;
 		
 	}
-	
+
 };
 
 
