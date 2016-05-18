@@ -3,7 +3,6 @@ var jsonfile = require('jsonfile');
 var fs       = require('fs');
 var Promise  = require('bluebird');
 var Path     = require('path');
-var schedule = require('node-schedule');
 
 var sprintf    = require('yow').sprintf;
 var extend     = require('yow').extend;
@@ -144,21 +143,62 @@ var Module = module.exports = function(args) {
 	
 
 	function scheduleFetch(db) {
-		var rule = new schedule.RecurrenceRule();	
-		rule.minute = new schedule.Range(0, 59, 1);
-
-		_fetchCount = 5;
-		_numberOfDays = 3;
+		var delay = undefined;
 		
-		console.log(sprintf('Fetch count is set to %d every minute and fetching %d days of quotes.', _fetchCount, _numberOfDays));
+		_fetchCount = 5;
+		_numberOfDays = 4;
+
+		if (args.delay)
+			delay = parseInt(args.delay);
 			
-		schedule.scheduleJob(rule, function() {
-			getStocks(db).then(function(stocks) {
-				getSymbolsToUpdate(stocks, _fetchCount).forEach(function(symbol) {
-					fetchQuotes(db, symbol);
+		if (delay == undefined) {
+			console.log('No --delay specified. Assuming 30 seconds');
+			delay = 30;
+		}
+		
+		if (delay < 1)
+			delay = 1;
+		
+		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, delay, _numberOfDays));
+		
+		function runOnce() {
+
+			return new Promise(function(resolve, reject) {
+				getStocks(db).then(function(stocks) {
+					
+					var symbols = getSymbolsToUpdate(stocks, _fetchCount);
+					var promises = [];
+					
+					symbols.forEach(function(symbol) {
+						promises.push(fetchQuotes(db, symbol));
+					}); 
+
+					return Promise.all(promises).then(function() {
+						resolve();
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+				})
+				.catch(function(error) {
+					reject(error);	
 				});
-			});			
-		});
+				
+			});
+		}	
+
+		function loop() {
+			runOnce().then(function() {
+				setTimeout(loop, delay * 1000);
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+			
+			
+		}
+		
+		loop();
 		
 	}
 
@@ -202,43 +242,47 @@ var Module = module.exports = function(args) {
 
 	function fetchQuotes(db, symbol) {
 
-		var request = requestQuotes(symbol, _numberOfDays, 60);
-
-		request.then(function(quotes) {
-			try {
-				db.serialize(function(){
+		return new Promise(function(resolve, reject) {
 	
-					db.run('BEGIN');	
-					
-					quotes.forEach(function(quote) {
-						insertQuote(db, quote);	
-					});
-	
-					db.run('COMMIT', function(){ 
-						console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
-
-						var now = new Date();
-						var updated = now.toISOString();
-										
-						db.run('UPDATE stocks SET updated = ? WHERE symbol = ?', [updated, symbol], function() {
-							console.log(sprintf('Updated fetch information for %s to %s.', symbol, updated));
-							
-						});
+			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
+				try {
+					db.serialize(function(){
+		
+						db.run('BEGIN');	
 						
-					});	
-					
-				});
-				
-			}
-			catch(error) {
-				console.error('Request failed.', error);				
-			}
-			
-		});
+						quotes.forEach(function(quote) {
+							insertQuote(db, quote);	
+						});
+		
+						db.run('COMMIT', function(){ 
+							console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
+	
+							var now = new Date();
+							var updated = now.toISOString();
+											
+							db.run('UPDATE stocks SET updated = ? WHERE symbol = ?', [updated, symbol], function() {
+								console.log(sprintf('Updated fetch information for %s to %s.', symbol, updated));
 
-		request.catch(function(error, response, body) {
-			console.error(response);
-			console.error(sprintf('Failed loading %s.', symbol));
+								resolve(symbol);								
+							});
+							
+						});	
+						
+					});
+					
+				}
+				catch(error) {
+					console.error('Request failed.', error);
+					reject(error);
+				}
+				
+			})
+	
+			.catch(function(error, response, body) {
+				console.error(sprintf('Failed loading %s.', symbol));
+				reject(error);
+			});
+			
 		});
 		
 	}
@@ -266,8 +310,8 @@ var Module = module.exports = function(args) {
 					reject(error);
 					
 				};
-			});
-			request.catch(function(error) {
+			})
+			.catch(function(error) {
 				reject(error);
 			});
 			
