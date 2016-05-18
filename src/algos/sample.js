@@ -25,9 +25,15 @@ var Module = module.exports = function(engine) {
 	this.onData = function() {
 		var quotes = engine.data;
 		var symbol = config.symbol;
+
+
+		// Build up the key (HH:MM)
+		var timeKey = sprintf('%02d:%02d', engine.time.getHours(), engine.time.getMinutes());
 		
-		//if (quotes[symbol])
-		//	console.log(symbol, quotes[symbol].close);
+		
+		if (quotes[symbol]) {
+			console.log(sprintf('%s %s %f', timeKey, symbol, quotes[symbol].close));
+		}
 	}
 
 	this.onStartOfAlgorithm = function() {

@@ -23,6 +23,8 @@ var Simulation = module.exports = function(args) {
 
 	function loadAlgorithm() {
 	
+		console.log(sprintf('Loading algorithm \'%s\'...', args.algo));
+	
 		if (!fileExists(sprintf('./src/algos/%s.js', args.algo))) {
 			throw new Error(sprintf('Algorithm \'%s\' not found.', args.algo));
 		}
@@ -78,18 +80,19 @@ var Simulation = module.exports = function(args) {
 		return new Promise(function(resolve, reject) {
 			
 			var ymd = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-			var sql = sprintf('SELECT * FROM quotes WHERE date =\'%s\'', ymd);
+			var hm  = sprintf('%02d:%02d', date.getHours(), date.getMinutes());
+			var sql = sprintf('SELECT * FROM quotes WHERE date =\'%s\' AND time = \'%s\'', ymd, hm);
+			
+			console.log(sprintf('Loading quotes for %s %s.', ymd, hm));
 			
 			db.all(sql, function(error, rows) {
 				
 				if (error == null) {
 					var quotes = {};
 					
+					console.log(sprintf('Got %d quotes.', rows.length));
 					rows.forEach(function(row) {
-						if (quotes[row.time] == undefined)
-							quotes[row.time] = {};
-							
-						quotes[row.time][row.symbol] = row;
+						quotes[row.symbol] = row;
 					});
 					
 					resolve(quotes);
@@ -103,9 +106,32 @@ var Simulation = module.exports = function(args) {
 	};
 	
 
-
+	function runMinute(db, datetime) {
+		
+		return new Promise(function(resolve, reject) {
+			
+			// Set start time
+			_this.time = new Date(datetime.getTime());
+			
+			getQuotes(db, datetime).then(function(quotes) {
+				
+				// Extend the data with minute data
+				extend(_this.data, quotes);
 	
-	function runDate(db, date) {
+				_this.algorithm.onData();
+		
+				resolve();			
+				
+			})
+			
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
+
+	function runDay(db, date) {
 		
 		return new Promise(function(resolve, reject) {
 			var startOfDay = new Date(date.getTime());
@@ -114,36 +140,40 @@ var Simulation = module.exports = function(args) {
 			startOfDay.setMinutes(30);
 			startOfDay.setSeconds(0);
 			startOfDay.setMilliseconds(0);
-	
+
+			var promises = [];
+			
 			// Set start time
 			_this.time = new Date(startOfDay.getTime());
 			
 			// Reset quotes
 			_this.data = {};
+
+			for (var minute = 0; minute <= 390; minute++) {
+				var datetime = new Date(startOfDay.getTime() + minute * 1000 * 60);
+	
+				promises.push(runMinute(db, datetime));
+			}
+	
+			var promise = new Promise(function(resolve, reject){
+				resolve();
+			});
 			
-			
-			getQuotes(db, _this.time).then(function(quotes) {
+			promise.then(function() {
 				_this.algorithm.onStartOfDay();			
 				
-				for (var minute = 0; minute <= 390; minute++) {
-					// Set new time
-					_this.time = new Date(startOfDay.getTime() + minute * 1000 * 60);
-		
-					// Build up the key (HH:MM)
-					var timeKey = sprintf('%02d:%02d', _this.time.getHours(), _this.time.getMinutes());
-					
-					// Extend the data with minute data
-					extend(_this.data, quotes[timeKey]);
-		
-					_this.algorithm.onData();
+				while (promises.length > 0) {
+					promise.then(function(){
+						promise = promises.shift(1);
+					});
 				}
-		
+						
 				_this.algorithm.onEndOfDay();
 				
 				resolve();			
-				
-			}).catch(function(){
-				reject();
+			})
+			.catch(function(error) {
+				reject(error);
 			});
 			
 			
@@ -157,53 +187,27 @@ var Simulation = module.exports = function(args) {
 
 		var db = new sqlite3.Database(_sqlFile);
 		
-		_this.config  = loadConfig();
-		_this.time    = null;
-		_this.data    = {};
-		_this.stocks  = getStocks(db);
-		
-		console.log(sprintf('Loading algorithm \'%s\'...', args.algo));
+		_this.config    = loadConfig();
+		_this.time      = new Date();
+		_this.data      = {};		
 		_this.algorithm = loadAlgorithm();
-		console.log('Done.');
 				
-		getStocks().then(function(stocks) {
+		getStocks(db).then(function(stocks) {
 			_this.stocks = stocks;
-
 			_this.algorithm.onStartOfAlgorithm();		
 	
-			_this.dates.forEach(function(date) {
-	
-				var startOfDay = new Date(date.getTime());
-				
-				startOfDay.setHours(9);
-				startOfDay.setMinutes(30);
-				startOfDay.setSeconds(0);
-				startOfDay.setMilliseconds(0);
-	
-				// Set start time
-				_this.time = new Date(startOfDay.getTime());
-				
-				getQuotes(db, _this.time).then(function(quotes) {
-					_this.algorithm.onStartOfDay();			
-					
-					for (var minute = 0; minute <= 390; minute++) {
-						// Set new time
-						_this.time = new Date(start.getTime() + minute * 1000 * 60);
-		
-						// Extend the data with minute data
-						extend(_this.data, store.getQuotes(_this.time));
-		
-						algorithm.onData();			
-						
-					}
-		
-					algorithm.onEndOfDay();			
-					
-				});
-	
+			var date = new Date();
+			date.setMonth(3);
+			date.setDate(25);
+			
+			runDay(db, date).then(function(){
+				_this.algorithm.onEndOfAlgorithm();		
+				console.log('Done');
+			})
+			.catch(function(error){ 
+				console.log(error);
 			});
 	
-			algorithm.onEndOfAlgorithm();		
 			
 		});
 
@@ -216,14 +220,6 @@ var Simulation = module.exports = function(args) {
 		if (typeof args.algo != 'string') {
 			throw new Error('No algorithm defined. Use --algo.');
 		}
-
-		if (!fileExists(_quotesFolder)) {
-			throw new Error('The quotes folder does not exist.');
-		}
-	
-		if (!fileExists(_stocksFolder)) {
-			throw new Error('The stocks folder does not exist.');
-		}		
 
 		
 	}

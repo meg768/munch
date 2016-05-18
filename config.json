@@ -18,8 +18,7 @@
 			},
 			
 			"simulation": {
-				"quotesFolder"   : "./data/quotes",
-				"stocksFolder"   : "./data/stocks"
+				"sqlFile"   : "./data/sqlite/sqlite.db"
 			},
 			
 			"server": {

@@ -192,6 +192,7 @@ var Module = module.exports = function(args) {
 				setTimeout(loop, delay * 1000);
 			})
 			.catch(function(error) {
+				setTimeout(loop, 30 * 1000);
 				console.log(error);
 			});
 			
