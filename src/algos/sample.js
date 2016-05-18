@@ -23,16 +23,17 @@ var Module = module.exports = function(engine) {
 	var config  = engine.config;
 	
 	this.onData = function() {
-		var quotes = engine.data;
+		var data = engine.data;
 		var symbol = config.symbol;
 
 
 		// Build up the key (HH:MM)
+		var dateKey = sprintf('%04d-%02d-%02d', engine.time.getFullYear(), engine.time.getMonth()+1, engine.time.getDate());
 		var timeKey = sprintf('%02d:%02d', engine.time.getHours(), engine.time.getMinutes());
 		
 		
-		if (quotes[symbol]) {
-			console.log(sprintf('%s %s %f', timeKey, symbol, quotes[symbol].close));
+		if (data[symbol]) {
+			console.log(sprintf('%s %s %s %f', dateKey, timeKey, symbol, data[symbol].close));
 		}
 	}
 
