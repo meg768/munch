@@ -160,20 +160,23 @@ var Module = module.exports = function(args) {
 
 			return new Promise(function(resolve, reject) {
 
-				
-				var symbols = getSymbolsToUpdate();
 				var promises = [];
 				
-				symbols.forEach(function(symbol) {
+				getSymbolsToUpdate.forEach(function(symbol) {
 					promises.push(fetchQuotes(symbol));
 				}); 
 
-				return Promise.all(promises).then(function() {
-					resolve();
-				})
-				.catch(function(error) {
-					reject(error);
-				});
+				if (promises.length > 0) {
+					return Promise.all(promises).then(function() {
+						resolve();
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+					
+				}
+				else
+					resolve()
 			});
 		}	
 
