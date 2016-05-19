@@ -161,14 +161,15 @@ var Module = module.exports = function(args) {
 			return new Promise(function(resolve, reject) {
 
 				var promises = [];
-				
-				getSymbolsToUpdate().forEach(function(symbol) {
+				var symbols  = getSymbolsToUpdate();
+				 
+				symbols.forEach(function(symbol) {
 					promises.push(fetchQuotes(symbol));
 				}); 
 
 				if (promises.length > 0) {
 					return Promise.all(promises).then(function() {
-						resolve(true);
+						resolve(symbols);
 					})
 					.catch(function(error) {
 						reject(error);
@@ -176,14 +177,19 @@ var Module = module.exports = function(args) {
 					
 				}
 				else
-					resolve(false);
+					resolve(symbols);
 			});
 		}	
 
 		function loop() {
-			runOnce().then(function(result) {
-				console.log(result);
-				setTimeout(loop, delay * 1000);
+			runOnce().then(function(symbols) {
+				if (symbols.length > 0)
+					setTimeout(loop, delay * 1000);
+				else {
+					console.log('Nothing to to. Waiting for 5 minutes.');
+					setTimeout(loop, 1000 * 60 * 5);
+					
+				}
 			})
 			.catch(function(error) {
 				setTimeout(loop, 30 * 1000);
