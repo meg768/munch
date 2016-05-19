@@ -162,13 +162,13 @@ var Module = module.exports = function(args) {
 
 				var promises = [];
 				
-				getSymbolsToUpdate.forEach(function(symbol) {
+				getSymbolsToUpdate().forEach(function(symbol) {
 					promises.push(fetchQuotes(symbol));
 				}); 
 
 				if (promises.length > 0) {
 					return Promise.all(promises).then(function() {
-						resolve();
+						resolve(true);
 					})
 					.catch(function(error) {
 						reject(error);
@@ -176,12 +176,13 @@ var Module = module.exports = function(args) {
 					
 				}
 				else
-					resolve()
+					resolve(false);
 			});
 		}	
 
 		function loop() {
-			runOnce().then(function() {
+			runOnce().then(function(result) {
+				console.log(result);
 				setTimeout(loop, delay * 1000);
 			})
 			.catch(function(error) {
