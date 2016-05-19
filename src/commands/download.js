@@ -82,7 +82,7 @@ var Module = module.exports = function(args) {
 			else	
 				console.log(sprintf('Symbol \'%s\' does not exist.', symbol));
 		}
-		else {
+		else if (args.schedule) {
 			
 			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
 	
