@@ -86,10 +86,6 @@ var Module = module.exports = function(args) {
 			
 			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
 	
-			console.log(sprintf('Warming up...'));
-			getTimeStamps();
-			console.log(sprintf('Done.'));
-
 			fetch();	
 	
 			
