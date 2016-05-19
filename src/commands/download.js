@@ -1,5 +1,4 @@
 
-var jsonfile = require('jsonfile');
 var fs       = require('fs');
 var Promise  = require('bluebird');
 var Path     = require('path');
@@ -8,106 +7,104 @@ var sprintf    = require('yow').sprintf;
 var extend     = require('yow').extend;
 var isString   = require('yow').isString;
 var fileExists = require('yow').fileExists;
+var mkdir      = require('yow').mkdir;
 
 var Gopher  = require('rest-request');
 
-var config  = require('../scripts/config.js');
-var Promise = require('bluebird');
-var sqlite3 = require('sqlite3');
 
 var Module = module.exports = function(args) {
 
-
-	var _fetchCount     = config.download.count;
-	var _numberOfDays   = config.download.days;
-	var _sqliteFolder   = config.download.sqliteFolder;
-	var _sqlFile        = sprintf('%s/%s', _sqliteFolder, 'sqlite.db');
+	var _downloadFolder = './data/downloads';
+	var _stocksFolder   = './data/downloads/stocks';
+	var _quotesFolder   = './data/downloads/quotes';
+	var _fetchCount     = undefined;
+	var _numberOfDays   = undefined;
+	var _symbols        = getSymbols();
 	
-
 	if (args.count)
 		_fetchCount = parseInt(args.count);
 		
 	if (args.days)
 		_numberOfDays = parseInt(args.days);
 		
-	if (!fileExists(_sqlFile)) {
-		throw new Error(sprintf('File \'%s\' does not exist.', _sqlFile));
-	}
 	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 15.');
-		_numberOfDays = 15;	
+		console.warn('Number of days to download is not specified. Assuming 14.');
+		_numberOfDays = 14;	
 	}
 
+	if (_numberOfDays > 14)
+		_numberOfDays = 14;
+		
 	if (_fetchCount == undefined) {
 		console.warn('Number of stocks to update not specified. Assuming 10.');
 		_fetchCount = 10;	
 	}
 	
 
-	function getStocks(db) {
-		
-		return new Promise(function(resolve, reject) {
-			db.all('SELECT * FROM stocks', function(error, rows) {
-				
-				if (error == null) {
-					var stocks = [];
-					
-					rows.forEach(function(row) {
-						stocks[row.symbol] = row;
-					});
-					
-					resolve(stocks);
-					
-				}
-				else
-					reject(error);
-			});
-			
-		});		
-	};
+	function stringify(o) {
+		return JSON.stringify(o, null, '\t');
+	}	
 	
-	function insertQuote(db, quote) {
+	function getSymbols() {
+		
+		var symbols = [];
+		
+		fs.readdirSync(_stocksFolder).forEach(function(file) {
+			var match = file.match('^(.+).json$');
 
-		var insertSQL = 'INSERT INTO quotes (symbol, date, time, open, high, low, close, volume) VALUES($symbol, $date, $time, $open, $high, $low, $close, $volume)';
-		var deleteSQL = 'DELETE FROM quotes WHERE symbol = $symbol AND date = $date AND time = $time'; 
-
-		db.serialize(function() {
-			var data = {};
-			
-			data.$symbol = quote.symbol;
-			data.$date   = quote.date;
-			data.$time   = quote.time;
-			data.$open   = quote.open;
-			data.$high   = quote.high;
-			data.$low    = quote.low;
-			data.$close  = quote.close;
-			data.$volume = quote.volume;
-			
-			db.run(deleteSQL, {$symbol:quote.symbol, $date:quote.date, $time:quote.time});
-			db.run(insertSQL, data);
+			if (match) {
+				symbols.push(match[1]);
+			}
 			
 		});
-
-	}
-			
-	function getSymbolsToUpdate(stocks, max) {
-	
-		var timestamps = [];
 		
-		for (var symbol in stocks) {
-			var stock = stocks[symbol];
-			
-			if (stock.updated == null) {
-				timestamps.push({symbol:stock.symbol, timestamp:new Date(0)});
-			}
-			else {
-				timestamps.push({symbol:stock.symbol, timestamp:new Date(stock.updated)});
-			}
-				
-		}	
+		return symbols;
+	}
+	
+	function stockFileName(symbol) {
+		return sprintf('%s/%s.json', _stocksFolder, symbol);
+	}
+	
+	function symbolExists(symbol) {
+		return fileExists(stockFileName(symbol));
+	}
+	
+	this.run = function() {
 
+		if (args.days)
+			_numberOfDays = parseInt(args.days);
+			
+		if (isString(args.symbol)) {
+			var symbol = args.symbol;
+			
+			if (symbolExists(symbol))
+				fetchQuotes(symbol);
+			else	
+				console.log(sprintf('Symbol \'%s\' does not exist.', symbol));
+		}
+		else {
+			
+			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
+	
+			console.log(sprintf('Warming up...'));
+			getTimeStamps();
+			console.log(sprintf('Done.'));
+
+			fetch();	
+	
+			
+		}
+	}
+
+	function getSymbolsToUpdate() {
+
+		var symbols = [];
+		
 		var date = new Date();
 		date.setDate(date.getDate() - 1);
+		
+		// Get all timestamps
+		var timestamps = getTimeStamps();
 		
 		// Keep only the older ones
 		timestamps = timestamps.filter(function(timestamp) {
@@ -119,35 +116,30 @@ var Module = module.exports = function(args) {
 			return a.timestamp.getTime() - b.timestamp.getTime();
 		});			
 
-		if (timestamps.length == 0)
-			return [];
-			
-		console.log(sprintf('%d stocks have not been updated in 24 hours...', timestamps.length));
-		console.log(sprintf('Oldest update is %s at %s.', timestamps[0].symbol, timestamps[0].timestamp.toISOString()));
-		
+		if (timestamps.length > 0) {
+			console.log(sprintf('%d stocks needs an update...', timestamps.length));
+		}
+				
 		// Only picks the first ones
-		timestamps = timestamps.slice(0, max);
-		
-		var symbols = [];
+		timestamps = timestamps.slice(0, _fetchCount);
 		
 		timestamps.forEach(function(timestamp) {
-			symbols.push(timestamp.symbol);			
+			symbols.push(timestamp.symbol);
 		});
-		
+
 		if (symbols.length > 0 && symbols.length < 100) {
 			console.log(sprintf('The following symbols will be updated: %s', symbols.join(', ')));
 		}
-
+		
 		return symbols;
 	}
+
 	
 
-	function scheduleFetch(db) {
+	
+	function fetch() {
 		var delay = undefined;
 		
-		_fetchCount = 5;
-		_numberOfDays = 4;
-
 		if (args.delay)
 			delay = parseInt(args.delay);
 			
@@ -164,26 +156,21 @@ var Module = module.exports = function(args) {
 		function runOnce() {
 
 			return new Promise(function(resolve, reject) {
-				getStocks(db).then(function(stocks) {
-					
-					var symbols = getSymbolsToUpdate(stocks, _fetchCount);
-					var promises = [];
-					
-					symbols.forEach(function(symbol) {
-						promises.push(fetchQuotes(db, symbol));
-					}); 
 
-					return Promise.all(promises).then(function() {
-						resolve();
-					})
-					.catch(function(error) {
-						reject(error);
-					});
+				
+				var symbols = getSymbolsToUpdate();
+				var promises = [];
+				
+				symbols.forEach(function(symbol) {
+					promises.push(fetchQuotes(symbol));
+				}); 
+
+				return Promise.all(promises).then(function() {
+					resolve();
 				})
 				.catch(function(error) {
-					reject(error);	
+					reject(error);
 				});
-				
 			});
 		}	
 
@@ -202,85 +189,65 @@ var Module = module.exports = function(args) {
 		loop();
 		
 	}
+	
 
-	this.run = function() {
-
-		var db = new sqlite3.Database(_sqlFile);
-
-
-		if (args.schedule) {
-			scheduleFetch(db);
-			return;
+	// Fetches all timestamps for the stock file, if it doesn't exist, timestamp is from 1970.
+	function getTimeStamps() {
+	
+		var timestamps = [];
 			
-		}
+		_symbols.forEach(function(symbol){
+			var file = stockFileName(symbol);			
 
-		getStocks(db).then(function(stocks) {
-			
-			var symbol = args.symbol;
-			
-			if (symbol == undefined) {
-				getSymbolsToUpdate(stocks, _fetchCount).forEach(function(symbol) {
-					fetchQuotes(db, symbol);
-				});
+			if (!fileExists(file)) {
+				timestamps.push({symbol:symbol, timestamp:new Date(0)});
 			}
-			
-			else if (isString(symbol)) {
-				
-				if (stocks[symbol] != undefined)
-					fetchQuotes(db, symbol);
-				else	
-					colsole.log(sprintf('Symbol \'%s\' does not exist.', symbol));
-			}
-			
 			else {
-				
+				var stat = fs.statSync(file);
+				timestamps.push({symbol:symbol, timestamp:stat.mtime});
 			}
-			
-			
 		});
+
+		return timestamps;
 	}
+	
 
-
-	function fetchQuotes(db, symbol) {
+	function fetchQuotes(symbol) {
 
 		return new Promise(function(resolve, reject) {
-	
+			
 			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 				try {
-					db.serialize(function(){
-		
-						db.run('BEGIN');	
+					var quotesUpdated = 0;
+					
+					for (var dateKey in quotes) {
+						mkdir(sprintf('%s/%s', _quotesFolder, dateKey));
 						
-						quotes.forEach(function(quote) {
-							insertQuote(db, quote);	
-						});
+						var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, dateKey, symbol);
+						fs.writeFileSync(quoteFile, JSON.stringify(quotes[dateKey], null, '\t'));
+						quotesUpdated++;
+					}
 		
-						db.run('COMMIT', function(){ 
-							console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
-	
-							var now = new Date();
-							var updated = now.toISOString();
-											
-							db.run('UPDATE stocks SET updated = ? WHERE symbol = ?', [updated, symbol], function() {
-								console.log(sprintf('Updated fetch information for %s to %s.', symbol, updated));
-
-								resolve(symbol);								
-							});
-							
-						});	
-						
-					});
+					var stockFile = stockFileName(symbol);
+					var stock = JSON.parse(fs.readFileSync(stockFile));
+					
+					stock.updated = new Date();
+					
+					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
+					console.log(sprintf('Updated %s with %d day(s) of data.', symbol, quotesUpdated));		
+					
+					resolve();	
 					
 				}
 				catch(error) {
-					console.error('Request failed.', error);
-					reject(error);
+					console.error('Request failed.', error);			
+					reject(error);	
 				}
 				
 			})
 	
 			.catch(function(error, response, body) {
-				console.error(sprintf('Failed loading %s.', symbol));
+				console.error(sprintf('Failed loading %s', symbol));
 				reject(error);
 			});
 			
@@ -288,7 +255,7 @@ var Module = module.exports = function(args) {
 		
 	}
 
-	
+
 	function requestQuotes(symbol, days, interval) {
 
 		var gopher = new Gopher('http://www.google.com/finance');
@@ -319,7 +286,8 @@ var Module = module.exports = function(args) {
 		});
 	
 	}
-
+	
+	
 	function parseQuotes(symbol, text) {
 	
 		var rows = text.split('\n');
@@ -334,7 +302,7 @@ var Module = module.exports = function(args) {
 		header.data           = rows.shift().split('=')[1];
 		header.timezoneOffset = parseInt(rows.shift().split('=')[1]);
 	
-		var quotes = [];
+		var quotes = {};
 		var date, time;
 		
 		rows.forEach(function(row) {
@@ -352,27 +320,26 @@ var Module = module.exports = function(args) {
 					time = new Date(date.getTime() + 1000 * header.interval * parseInt(cols[0]));
 				}
 	
-				var dateKey = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-				var timeKey = sprintf('%02d:%02d', time.getUTCHours(), time.getUTCMinutes());
-
-				quote.symbol  = symbol;
-				quote.date    = dateKey;
-				quote.time    = timeKey;
 				quote.close   = parseFloat(cols[1]);
 				quote.high    = parseFloat(cols[2]);
 				quote.low     = parseFloat(cols[3]);
 				quote.open    = parseFloat(cols[4]);
 				quote.volume  = parseInt(cols[5]);
-
-				quotes.push(quote);				
+				
+				var dateKey = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
+				var timeKey = sprintf('%02d:%02d', time.getUTCHours(), time.getUTCMinutes());
 	
+				if (quotes[dateKey] == undefined)
+					quotes[dateKey] = {};
+				 
+				quotes[dateKey][timeKey] = quote;
 			}
 		})
 	
 		return quotes;
 		
 	}
-
+	
 };
 
 
