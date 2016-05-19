@@ -100,6 +100,9 @@ var Module = module.exports = function(args) {
 
 		var symbols = [];
 		
+		
+		console.log('Checking if anything needs to be updated.');
+		
 		var date = new Date();
 		date.setDate(date.getDate() - 1);
 		
