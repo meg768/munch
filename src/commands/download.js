@@ -35,8 +35,8 @@ var Module = module.exports = function(args) {
 		_numberOfDays = 14;
 		
 	if (_fetchCount == undefined) {
-		console.warn('Number of stocks to update not specified. Assuming 10.');
-		_fetchCount = 10;	
+		console.warn('Number of stocks to update not specified. Assuming 3.');
+		_fetchCount = 3;	
 	}
 	
 
@@ -81,7 +81,7 @@ var Module = module.exports = function(args) {
 			else	
 				console.log(sprintf('Symbol \'%s\' does not exist.', symbol));
 		}
-		else if (args.schedule) {
+		else  {
 			
 			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
 	
@@ -142,8 +142,8 @@ var Module = module.exports = function(args) {
 			delay = parseInt(args.delay);
 			
 		if (delay == undefined) {
-			console.log('No --delay specified. Assuming 30 seconds');
-			delay = 30;
+			console.log('No --delay specified. Assuming 15 seconds');
+			delay = 15;
 		}
 		
 		if (delay < 1)
@@ -154,25 +154,19 @@ var Module = module.exports = function(args) {
 		function runOnce() {
 
 			return new Promise(function(resolve, reject) {
-
-				var promises = [];
 				var symbols  = getSymbolsToUpdate();
 				 
-				symbols.forEach(function(symbol) {
-					promises.push(fetchQuotes(symbol));
-				}); 
-
-				if (promises.length > 0) {
-					return Promise.all(promises).then(function() {
-						resolve(symbols);
-					})
-					.catch(function(error) {
-						reject(error);
-					});
-					
-				}
-				else
+				Promise.each(symbols, function(symbol) {
+					return fetchQuotes(symbol);
+				})
+				
+				.then(function() {
 					resolve(symbols);
+				})
+				
+				.catch(function(error) {
+					reject(error);
+				});
 			});
 		}	
 
@@ -242,7 +236,7 @@ var Module = module.exports = function(args) {
 					stock.updated = new Date();
 					
 					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
-					console.log(sprintf('Updated %s with %d day(s) of data.', symbol, quotesUpdated));		
+					console.log(sprintf('Updated %s at %s with %d day(s) of data.', symbol, dateKey, quotesUpdated));		
 					
 					resolve();	
 					
