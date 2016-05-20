@@ -14,8 +14,9 @@ var Gopher  = require('rest-request');
 
 var Module = module.exports = function(args) {
 
-	var _stocksFolder   = './data/downloads/stocks';
-	var _quotesFolder   = './data/downloads/quotes';
+	var _rootFolder     = args.root ? args.root : './data';
+	var _stocksFolder   = sprintf('%s/downloads/stocks', _rootFolder);
+	var _quotesFolder   = sprintf('%s/downloads/quotes', _rootFolder);
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
@@ -236,7 +237,7 @@ var Module = module.exports = function(args) {
 					stock.updated = new Date();
 					
 					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
-					console.log(sprintf('Updated %s at %s with %d day(s) of data.', symbol, dateKey, quotesUpdated));		
+					console.log(sprintf('Updated %s on %s with %d day(s) of data.', symbol, dateKey, quotesUpdated));		
 					
 					resolve();	
 					

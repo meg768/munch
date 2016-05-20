@@ -154,7 +154,7 @@ var Module = module.exports = function(args) {
 						
 						db.run('COMMIT', function(error) {
 
-							console.log(sprintf('Updated %s with %d quotes.', symbol, count));
+							console.log(sprintf('Updated %s at %s with %d quotes.', symbol, date, count));
 							
 							if (error == null)
 								resolve(count);
