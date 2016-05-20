@@ -3,7 +3,9 @@ var sprintf    = require('yow').sprintf;
 
 var Workday = function(engine, config) {
 	
+	var _this = this;
 	var _state = 'idle';
+	
 	
 	
 };
