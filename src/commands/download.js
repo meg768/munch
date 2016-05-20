@@ -221,24 +221,24 @@ var Module = module.exports = function(args) {
 			
 			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 				try {
-					var quotesUpdated = 0;
+					var dateKeys = Object.keys(quotes);
 					
-					for (var dateKey in quotes) {
+					dateKeys.forEach(function(dateKey) {
 						mkdir(sprintf('%s/%s', _quotesFolder, dateKey));
 						
 						var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, dateKey, symbol);
 						fs.writeFileSync(quoteFile, JSON.stringify(quotes[dateKey], null, '\t'));
-						quotesUpdated++;
-					}
-		
+						
+					});
+					
 					var stockFile = stockFileName(symbol);
 					var stock = JSON.parse(fs.readFileSync(stockFile));
 					
 					stock.updated = new Date();
 					
 					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
-					console.log(sprintf('Updated %s on %s with %d day(s) of data.', symbol, dateKey, quotesUpdated));		
-					
+					console.log(sprintf('Updated %s with %d day(s) of data.', symbol, dateKeys.length));		
+
 					resolve();	
 					
 				}
