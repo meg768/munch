@@ -235,6 +235,7 @@ var Module = module.exports = function(args) {
 					var stock = JSON.parse(fs.readFileSync(stockFile));
 					
 					stock.updated = new Date();
+					stock.downloaded = new Date();
 					
 					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
 					console.log(sprintf('Updated %s with %d day(s) of data.', symbol, dateKeys.length));		
