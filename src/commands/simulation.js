@@ -8,13 +8,10 @@ var config     = require('../scripts/config.js');
 var sqlite3    = require('sqlite3');
 
 
-
-
-
 var Simulation = module.exports = function(args) {
 
 	var _this = this;
-	var _sqlFile = config.simulation.sqlFile;
+	var _sqlFile = './data/db/quotes.db';
 	
 	if (!fileExists(_sqlFile)) {
 		throw new Error(sprintf('File \'%s\' does not exist.', _sqlFile));
@@ -75,73 +72,14 @@ var Simulation = module.exports = function(args) {
 		});		
 	};
 
+
 	function getQuotes(db, date) {
 		
 		return new Promise(function(resolve, reject) {
 			
 			var ymd = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
 			var hm  = sprintf('%02d:%02d', date.getHours(), date.getMinutes());
-			var sql = sprintf('SELECT * FROM quotes WHERE date =\'%s\'', ymd, hm);
-			
-			var quotes = {};
-			
-			function populate(error, row) {
-				if (error == null) {
-					var q = quotes[row.time];
-					
-					if (q == undefined)
-						q = quotes[row.time] = {};
-						
-					q[row.symbol] = row;
-				}
-			}
-			
-			function complete(error) {
-				if (error == null)
-					resolve(quotes);
-				else
-					reject(error);
-			}
-
-			db.each(sql, populate, complete);
-
-			
-			/*
-				db.all(sql, function(error, rows) {
-				
-				if (error == null) {
-					var quotes = {};
-					
-					console.log(sprintf('Got %d quotes.', rows.length));
-					
-					rows.forEach(function(row) {
-						if (quotes[row.time] == undefined)
-							quotes[row.time] = {};
-							
-						quotes[row.time][row.symbol] = row;
-					});
-					
-					console.log('Finished.');
-					resolve(quotes);
-					
-				}
-				else
-					reject(error);
-			});
-			*/
-			
-		});		
-	};
-		
-	function getQuotesX(db, date) {
-		
-		return new Promise(function(resolve, reject) {
-			
-			var ymd = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-			var hm  = sprintf('%02d:%02d', date.getHours(), date.getMinutes());
 			var sql = sprintf('SELECT * FROM quotes WHERE date =\'%s\' AND time = \'%s\'', ymd, hm);
-			
-			//console.log(sprintf('Loading quotes for %s %s.', ymd, hm));
 			
 			db.all(sql, function(error, rows) {
 				
@@ -153,7 +91,7 @@ var Simulation = module.exports = function(args) {
 						quotes[row.symbol] = row;
 					});
 					
-					resolve(quotes);
+						resolve(quotes);
 					
 				}
 				else
@@ -162,9 +100,45 @@ var Simulation = module.exports = function(args) {
 			
 		});		
 	};
-	
 
-	function runMinuteX(db, datetime) {
+	function getDates(db) {
+		
+		return new Promise(function(resolve, reject) {
+			
+			var sql = sprintf('SELECT DISTINCT date FROM quotes ORDER BY date');
+			
+			db.all(sql, function(error, rows) {
+				
+				if (error == null) {
+					var dates = [];
+					
+					rows.forEach(function(row) {
+						var parts = row.date.split('-');
+						
+						var date = new Date();
+						date.setFullYear(parseInt(parts[0]));
+						date.setMonth(parseInt(parts[1]) - 1);
+						date.setDate(parseInt(parts[2]));
+						date.setHours(0);
+						date.setMinutes(0);
+						date.setSeconds(0);
+						date.setMilliseconds(0);
+						
+						dates.push(date);
+						
+					});			
+							
+					resolve(dates);
+					
+				}
+				else
+					reject(error);
+			});
+			
+		});		
+	};	
+
+	function runMinute(db, datetime) {
 		
 		return new Promise(function(resolve, reject) {
 			
@@ -190,7 +164,7 @@ var Simulation = module.exports = function(args) {
 	}
 
 
-	function runDayX(db, date) {
+	function runDay(db, date) {
 		
 		return new Promise(function(resolve, reject) {
 			var startOfDay = new Date(date.getTime());
@@ -200,7 +174,7 @@ var Simulation = module.exports = function(args) {
 			startOfDay.setSeconds(0);
 			startOfDay.setMilliseconds(0);
 
-			var promises = [];
+			var minutes = [];
 			
 			// Reset quotes
 			_this.data = {};
@@ -208,7 +182,7 @@ var Simulation = module.exports = function(args) {
 			for (var minute = 0; minute <= 390; minute++) {
 				var datetime = new Date(startOfDay.getTime() + minute * 1000 * 60);
 	
-				promises.push(runMinute(db, datetime));
+				minutes.push(datetime);
 			}
 			
 			// Set start time
@@ -216,7 +190,10 @@ var Simulation = module.exports = function(args) {
 			
 			_this.algorithm.onStartOfDay();			
 			
-			return Promise.each(promises, function(){}).then(function() {
+			return Promise.each(minutes, function(datetime) {
+				return runMinute(db, datetime);	
+			})
+			.then(function() {
 				_this.algorithm.onEndOfDay();
 				resolve();
 			})
@@ -228,51 +205,10 @@ var Simulation = module.exports = function(args) {
 	}
 	
 	
-	function runDay(db, date) {
-		
-		return new Promise(function(resolve, reject) {
-
-			getQuotes(db, date).then(function(quotes) {
-
-				var startOfDay = new Date(date.getTime());
-				
-				startOfDay.setHours(9);
-				startOfDay.setMinutes(30);
-				startOfDay.setSeconds(0);
-				startOfDay.setMilliseconds(0);
-
-				_this.time = new Date(startOfDay.getTime());
-
-				// Reset quotes
-				_this.data = {};
-
-				_this.algorithm.onStartOfDay();
 	
-				for (var minute = 0; minute <= 390; minute++) {
-					_this.time = new Date(startOfDay.getTime() + minute * 1000 * 60);
-
-					var timeKey = sprintf('%02d:%02d', _this.time.getHours(), _this.time.getMinutes());
-
-					// Extend the data with minute data
-					extend(_this.data, quotes[timeKey]);
-		
-					_this.algorithm.onData();
-				}
-				
-				_this.algorithm.onEndOfDay();
-				
-			})
-			.catch(function(error) {
-				reject(error);
-				
-			});
-		});
-	}
-		
 	this.run = function() {
 		
 		console.log(sprintf('Starting simulation...'));
-		console.log('Initializing engine.');
 
 		var db = new sqlite3.Database(_sqlFile);
 		
@@ -282,19 +218,24 @@ var Simulation = module.exports = function(args) {
 		_this.algorithm = loadAlgorithm();
 				
 		getStocks(db).then(function(stocks) {
-			_this.stocks = stocks;
-			_this.algorithm.onStartOfAlgorithm();		
-	
-			var date = new Date();
-			date.setMonth(3);
-			date.setDate(25);
-			
-			runDay(db, date).then(function(){
-				_this.algorithm.onEndOfAlgorithm();		
-				console.log('Done');
-			})
-			.catch(function(error){ 
-				console.log(error);
+			getDates(db).then(function(dates) {
+				_this.stocks = stocks;
+				
+				_this.algorithm.onStartOfAlgorithm();		
+
+				Promise.each(dates, function(date) {
+					return runDay(db, date);
+					
+				})
+				
+				.then(function() {
+					_this.algorithm.onEndOfAlgorithm();		
+					
+				})
+				.catch(function(error){ 
+					console.log(sprintf('Simulation failed. %s', error));
+				});
+				
 			});
 	
 			

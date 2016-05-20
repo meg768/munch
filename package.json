@@ -17,7 +17,7 @@
     "url": "https://github.com/meg768/munch/issues"
   },
   "dependencies": {
-    "bluebird": "^3.3.5",
+    "bluebird": "^3.4.0",
     "client-request": "^1.0.1",
     "dropbox-node": "^0.4.0",
     "events": "^1.1.0",

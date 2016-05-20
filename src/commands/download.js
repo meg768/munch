@@ -14,7 +14,6 @@ var Gopher  = require('rest-request');
 
 var Module = module.exports = function(args) {
 
-	var _downloadFolder = './data/downloads';
 	var _stocksFolder   = './data/downloads/stocks';
 	var _quotesFolder   = './data/downloads/quotes';
 	var _fetchCount     = undefined;
@@ -86,7 +85,7 @@ var Module = module.exports = function(args) {
 			
 			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
 	
-			fetch();	
+			schedule();	
 	
 			
 		}
@@ -136,7 +135,7 @@ var Module = module.exports = function(args) {
 	
 
 	
-	function fetch() {
+	function schedule() {
 		var delay = undefined;
 		
 		if (args.delay)
