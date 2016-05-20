@@ -18,19 +18,11 @@
   },
   "dependencies": {
     "bluebird": "^3.4.0",
-    "client-request": "^1.0.1",
-    "dropbox-node": "^0.4.0",
-    "events": "^1.1.0",
     "express": "^4.13.4",
-    "jsonfile": "^2.3.0",
     "minimist": "^1.2.0",
     "moment": "^2.10.2",
-    "node-rsa": "^0.3.2",
-    "node-schedule": "^1.1.0",
     "rest-request": "^1.0.0",
     "sqlite3": "^3.1.4",
-    "ursa": "^0.9.3",
-    "ursa-purejs": "0.0.3",
     "yow": "^1.0.4"
   },
   "devDependencies": {}
