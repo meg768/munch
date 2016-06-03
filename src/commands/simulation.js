@@ -107,6 +107,8 @@ var Simulation = module.exports = function(args) {
 			
 			var sql = sprintf('SELECT DISTINCT date FROM quotes ORDER BY date');
 			
+			console.log('Fetching dates...');
+			
 			db.all(sql, function(error, rows) {
 				
 				if (error == null) {
@@ -204,46 +206,61 @@ var Simulation = module.exports = function(args) {
 		});
 	}
 	
-	
-	
-	this.run = function() {
+	function runSimulation() {
 		
-		console.log(sprintf('Starting simulation...'));
-
-		var db = new sqlite3.Database(_sqlFile);
-		
-		_this.config    = loadConfig();
-		_this.time      = new Date();
-		_this.data      = {};		
-		_this.algorithm = loadAlgorithm();
-				
-		getStocks(db).then(function(stocks) {
-			getDates(db).then(function(dates) {
-				_this.stocks = stocks;
-				
-				_this.algorithm.onStartOfAlgorithm();		
-
-				Promise.each(dates, function(date) {
-					return runDay(db, date);
+		return new Promise(function(resolve, reject) {
+			console.log(sprintf('Starting simulation...'));
+	
+			var db = new sqlite3.Database(_sqlFile);
+			
+			getStocks(db).then(function(stocks) {
+				getDates(db).then(function(dates) {
+					_this.stocks = stocks;
 					
-				})
-				
-				.then(function() {
-					_this.algorithm.onEndOfAlgorithm();		
+					_this.algorithm.onStartOfAlgorithm();		
+	
+					Promise.each(dates, function(date) {
+						return runDay(db, date);
+						
+					})
 					
-				})
-				.catch(function(error){ 
-					console.log(sprintf('Simulation failed. %s', error));
+					.then(function() {
+						_this.algorithm.onEndOfAlgorithm();	
+						resolve();
+						
+					})
+					.catch(function(error){ 
+						console.log(sprintf('Simulation failed. %s', error));
+					});
+					
 				});
+		
 				
 			});
 	
 			
 		});
-
-		saveConfig(_this.config);
 		
-		console.log('Done.');
+	}
+	
+	
+	this.run = function() {
+
+		_this.config    = loadConfig();
+		_this.time      = new Date();
+		_this.data      = {};		
+		_this.algorithm = loadAlgorithm();
+				
+		
+		runSimulation().then(function() {
+			saveConfig(_this.config);
+			console.log('Done.');			
+		})
+		
+		.catch(function(error){ 
+			console.log(sprintf('Simulation failed. %s', error));
+		});
+
 	}
 	
 	function init() {

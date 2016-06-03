@@ -35,7 +35,7 @@ var Module = module.exports = function(engine) {
 		
 		
 		if (data[symbol]) {
-			console.log(sprintf('%s %s %s %f', dateKey, timeKey, symbol, data[symbol].close));
+			//console.log(sprintf('%s %s %s %f', dateKey, timeKey, symbol, data[symbol].close));
 		}
 	}
 
