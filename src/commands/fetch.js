@@ -67,7 +67,7 @@ var Module = module.exports = function(args) {
 	this.run = function() {
 		//exec('ls', 'data');
 		//exec('rsync', ['-avz', 'pi@10.0.1.42:/home/pi/munch/data/downloads/quotes/2016-07-05', 'q/downloads/quotes/2016-07-05']);
-		exec('rsync', ['-avz', 'pi@10.0.1.42:/home/pi/munch/data/downloads', 'data']);
+		exec('rsync', ['-avz', 'pi@10.0.1.2:/home/pi/munch/data/downloads', 'data']);
 		// rsync -avz pi@10.0.1.42:/home/pi/munch/data/downloads data
 
 	};
