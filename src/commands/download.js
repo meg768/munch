@@ -23,8 +23,9 @@ var Module = module.exports = function(args) {
 	var _symbols        = getSymbols();
 
 	console.log('creating folders1!!!', _stocksFolder, _quotesFolder);
-	mkpath(_stocksFolder);
-	mkpath(_quotesFolder);
+	mkdir(_rootFolder);
+	mkdir(_stocksFolder);
+	mkdir(_quotesFolder);
 
 	if (args.count)
 		_fetchCount = parseInt(args.count);
