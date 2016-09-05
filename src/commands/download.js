@@ -8,6 +8,7 @@ var extend     = require('yow').extend;
 var isString   = require('yow').isString;
 var fileExists = require('yow').fileExists;
 var mkdir      = require('yow').mkdir;
+var mkpath     = require('yow').mkpath;
 
 var Gopher  = require('rest-request');
 
@@ -20,7 +21,10 @@ var Module = module.exports = function(args) {
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
-	
+
+	mkpath(_stocksFolder);
+	mkpath(_quotesFolder);
+
 	if (args.count)
 		_fetchCount = parseInt(args.count);
 
