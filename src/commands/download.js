@@ -18,14 +18,13 @@ var Module = module.exports = function(args) {
 	var _rootFolder     = args.root ? args.root : './data';
 	var _stocksFolder   = sprintf('%s/downloads/stocks', _rootFolder);
 	var _quotesFolder   = sprintf('%s/downloads/quotes', _rootFolder);
+
+	mkpath(_stocksFolder);
+	mkpath(_quotesFolder);
+	
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
-KALLE();
-	console.log('creating folders1!!!', _stocksFolder, _quotesFolder);
-	mkdir(_rootFolder);
-	mkdir(_stocksFolder);
-	mkdir(_quotesFolder);
 
 	if (args.count)
 		_fetchCount = parseInt(args.count);
