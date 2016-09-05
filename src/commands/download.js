@@ -22,7 +22,7 @@ var Module = module.exports = function(args) {
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
 
-	console.log('creating folders1!!!');
+	console.log('creating folders1!!!', _stocksFolder, _quotesFolder);
 	mkpath(_stocksFolder);
 	mkpath(_quotesFolder);
 
