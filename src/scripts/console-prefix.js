@@ -15,10 +15,15 @@ var prefix = module.exports = function(fn) {
 			if (typeof arguments[0] == 'string') {
 				arguments[0].split('\n').forEach(function(line) {
 
-					if (output != '')
-						output += '\n';
+					line = line.replace('\r', '');
 
-					output += prefix + line;
+					if (line.length > 0) {
+						if (output != '')
+							output += '\n';
+
+						output += prefix + line;
+
+					}
 				});
 			}
 			else {
