@@ -21,7 +21,7 @@ var Module = module.exports = function(args) {
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
-
+KALLE();
 	console.log('creating folders1!!!', _stocksFolder, _quotesFolder);
 	mkdir(_rootFolder);
 	mkdir(_stocksFolder);
