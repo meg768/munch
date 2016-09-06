@@ -322,56 +322,80 @@ var Module = module.exports = function(args) {
 
 	}
 
-	this.run = function() {
-		console.log(sprintf('Reading from \'%s\'...', _quotesFolder));
-
-		connect().then(function(db) {
-
+	function process(db) {
+		return new Promise(function(resolve, reject) {
 			if (args.stocks) {
 				importStocks(db).then(function() {
-					console.log('Done');
+					resolve('Done');
+				})
+				.catch(function(error) {
+					reject(error);
 				});
+
 			}
 
 
 			else if (args.date) {
 				if (args.symbol) {
 					importFile(db, args.date, args.symbol).then(function() {
-						console.log(sprintf('Imported all quotes for %s.', args.symbol));
+						resolve(sprintf('Imported all quotes for %s.', args.symbol));
 					})
 					.catch(function(error) {
-						console.error(error);
+						reject(error);
 					});
 
 				}
 				else
 					importDate(db, args.date).then(function() {
-						console.log(sprintf('Imported all quotes for %s.', args.date));
+						resolve(sprintf('Imported all quotes for %s.', args.date));
 
 					})
 					.catch(function(error) {
-						console.error(sprintf('%s', error));
+						reject(sprintf('%s', error));
 
 					});
 
 			}
-			else {
+			else if (args.all) {
 
 				importAll(db).then(function() {
-					console.log(sprintf('Imported all.'));
+					resolve(sprintf('Imported all.'));
 
 				})
 				.catch(function(error) {
-					console.error(sprintf('%s', error));
+					reject(sprintf('%s', error));
 
 				});
 			}
+			else {
+				reject('Nothing to do!');
+			}
 
+		});
 
+	}
+
+	this.run = function() {
+		console.log(sprintf('Reading from \'%s\'...', _quotesFolder));
+
+		connect().then(function(db) {
+
+			process(db).then(function(msg) {
+				console.log(msg);
+			})
+			.catch(function(error) {
+				console.log(error);
+			})
+			.finally(function() {
+				db.destroy();
+
+			});
 		})
 		.catch(function(error) {
 			console.error(error);
 		});
+
+
 	}
 
 
