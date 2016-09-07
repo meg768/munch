@@ -314,9 +314,11 @@ var Module = module.exports = function(args) {
 					return importFile(db, date, file).then(function(count) {
 						filesImported++
 
-						var percentComplete = Math.floor((filesImported * 100) / files.length);
-
-						console.log(sprintf('Imported %s - %s with %d quotes. %d%% complete...', date, file, count, percentComplete));
+						if ((filesImported % 100) == 0) {
+							var percentComplete = Math.floor((filesImported * 100) / files.length);
+							console.log(sprintf('Imported %s - %s with %d quotes. %d%% complete...', date, file, count, percentComplete));
+							
+						}
 						totalUpdates += count;
 					});;
 				})
