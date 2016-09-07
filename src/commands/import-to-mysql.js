@@ -13,6 +13,7 @@ var Module = module.exports = function(args) {
 	var _quotesFolder     = sprintf('%s/downloads/quotes', _rootFolder);
 	var _stocksFolder     = sprintf('%s/downloads/stocks', _rootFolder);
 
+
 	if (!fileExists(_quotesFolder)) {
 		throw new Error(sprintf('The folder %s does not exist', _quotesFolder));
 	}
@@ -20,6 +21,7 @@ var Module = module.exports = function(args) {
 	if (!fileExists(_stocksFolder)) {
 		throw new Error(sprintf('The folder %s does not exist', _stocksFolder));
 	}
+
 
 	function connect() {
 
@@ -161,9 +163,52 @@ var Module = module.exports = function(args) {
 
 	}
 
+	function markDateAndSymbolAsImported(db, date, symbol, count) {
+		return new Promise(function(resolve, reject) {
+			var row = {};
+			row.date   = date;
+			row.symbol = symbol;
+			row.count = count;
+
+			return upsertRow(db, 'imported', row).then(function() {
+				resolve();
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+
+	}
+
+	function getNumberOfQuotesImportedForDateAndSymbol(db, date, symbol) {
+
+		return new Promise(function(resolve, reject) {
+			var sql = 'SELECT count FROM imported WHERE `date` = ? and `symbol` = ?';
+
+			var query = db.query(sql, [date, symbol], function(error, results, fields) {
+				if (error)
+					reject(error);
+				else {
+					if (results.length == 0) {
+						resolve(0);
+					}
+					else {
+						resolve(results[0].count);
+
+					}
+
+				}
+
+			});
+
+		});
+	}
+
 	function importFile(db, date, symbol) {
 
 		return new Promise(function(resolve, reject) {
+
+
 			var fileName = sprintf('%s/%s/%s.json', _quotesFolder, date, symbol);
 
 			if (fileExists(fileName)) {
@@ -190,23 +235,43 @@ var Module = module.exports = function(args) {
 						quotes.push(quote);
 					}
 
-					console.log(sprintf('Importing %d quotes for symbol %s at %s', quotes.length, symbol, date));
+					getNumberOfQuotesImportedForDateAndSymbol(db, date, symbol).then(function(numberOfQuotes) {
+						if (numberOfQuotes != quotes.length) {
+							//console.log(sprintf('Importing %d quotes for symbol %s at %s...', quotes.length, symbol, date));
 
+							return Promise.each(quotes, function(quote) {
+								return upsertRow(db, 'quotes', quote).then(function() {
+									count++;
+								});;
+							})
 
-					return Promise.each(quotes, function(quote) {
-						return upsertRow(db, 'quotes', quote).then(function() {
-							count++;
-						});;
+							.then(function() {
+
+								markDateAndSymbolAsImported(db, date, symbol, count).then(function() {
+									//console.log(sprintf('Completed importing %d quotes for %s at %s.', count, symbol, date, count));
+									resolve(count);
+								})
+								.catch(function(error) {
+									reject(error);
+
+								});
+							})
+
+							.catch(function(error) {
+								reject(error);
+							});
+
+						}
+						else {
+							resolve(numberOfQuotes);
+						}
 					})
-
-					.then(function() {
-						console.log(sprintf('%d quotes updated.', count));
-						resolve();
-					})
-
 					.catch(function(error) {
 						reject(error);
 					});
+
+
+
 				}
 				else
 					reject(sprintf('File %s could not be read properly.', fileName));
@@ -234,6 +299,7 @@ var Module = module.exports = function(args) {
 
 				var files = [];
 				var totalUpdates = 0;
+				var filesImported = 0;
 
 				fs.readdirSync(path).forEach(function(file) {
 
@@ -246,6 +312,11 @@ var Module = module.exports = function(args) {
 
 				return Promise.each(files, function(file) {
 					return importFile(db, date, file).then(function(count) {
+						filesImported++
+
+						var percentComplete = Math.floor((filesImported * 100) / files.length);
+
+						console.log(sprintf('Imported %s - %s with %d quotes. %d%% complete...', date, file, count, percentComplete));
 						totalUpdates += count;
 					});;
 				})
@@ -299,28 +370,6 @@ var Module = module.exports = function(args) {
 
 	}
 
-	function initialize(db) {
-
-		return new Promise(function(resolve, reject) {
-			var promises = [];
-
-			promises.push(createTables(db));
-			promises.push(importStocks(db));
-
-			return Promise.each(promises, function(promise) {
-				return promise;
-			})
-
-			.then(function() {
-				resolve();
-			})
-			.catch(function(error) {
-				reject(error);
-			});
-
-		});
-
-	}
 
 	function process(db) {
 		return new Promise(function(resolve, reject) {
@@ -345,15 +394,15 @@ var Module = module.exports = function(args) {
 					});
 
 				}
-				else
+				else {
 					importDate(db, args.date).then(function() {
 						resolve(sprintf('Imported all quotes for %s.', args.date));
-
 					})
 					.catch(function(error) {
-						reject(sprintf('%s', error));
-
+						reject(error);
 					});
+
+				}
 
 			}
 			else if (args.all) {
@@ -363,7 +412,7 @@ var Module = module.exports = function(args) {
 
 				})
 				.catch(function(error) {
-					reject(sprintf('%s', error));
+					reject(error);
 
 				});
 			}
