@@ -317,7 +317,7 @@ var Module = module.exports = function(args) {
 						if ((filesImported % 100) == 0) {
 							var percentComplete = Math.floor((filesImported * 100) / files.length);
 							console.log(sprintf('Imported %s - %s with %d quotes. %d%% complete...', date, file, count, percentComplete));
-							
+
 						}
 						totalUpdates += count;
 					});;
@@ -356,6 +356,10 @@ var Module = module.exports = function(args) {
 					files.push(match[1]);
 			});
 
+			files.sort();
+
+			if (args.reverse)
+				files.reverse();
 
 			return Promise.each(files, function(file) {
 				return importDate(db, file);
