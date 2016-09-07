@@ -21,7 +21,7 @@ var Module = module.exports = function(args) {
 
 	mkpath(_stocksFolder);
 	mkpath(_quotesFolder);
-	
+
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
 	var _symbols        = getSymbols();
@@ -33,8 +33,8 @@ var Module = module.exports = function(args) {
 		_numberOfDays = parseInt(args.days);
 
 	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 14.');
-		_numberOfDays = 14;
+		console.warn('Number of days to download is not specified. Assuming 7.');
+		_numberOfDays = 7;
 	}
 
 	if (_numberOfDays > 14)
