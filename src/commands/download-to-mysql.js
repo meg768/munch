@@ -9,22 +9,18 @@ var isString   = require('yow').isString;
 var fileExists = require('yow').fileExists;
 var mkdir      = require('yow').mkdir;
 var mkpath     = require('yow').mkpath;
+var isInteger  = require('yow').isInteger;
 
 var Gopher  = require('rest-request');
 
 
+
 var Module = module.exports = function(args) {
 
-	var _rootFolder     = args.root ? args.root : './data';
-	var _stocksFolder   = sprintf('%s/downloads/stocks', _rootFolder);
-	var _quotesFolder   = sprintf('%s/downloads/quotes', _rootFolder);
 
-	mkpath(_stocksFolder);
-	mkpath(_quotesFolder);
-	
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
-	var _symbols        = getSymbols();
+
 
 	if (args.count)
 		_fetchCount = parseInt(args.count);
@@ -33,8 +29,8 @@ var Module = module.exports = function(args) {
 		_numberOfDays = parseInt(args.days);
 
 	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 14.');
-		_numberOfDays = 14;
+		console.warn('Number of days to download is not specified. Assuming 7.');
+		_numberOfDays = 7;
 	}
 
 	if (_numberOfDays > 14)
@@ -45,212 +41,162 @@ var Module = module.exports = function(args) {
 		_fetchCount = 3;
 	}
 
+	function connect() {
+
+		var mysql = require('mysql');
+
+		var connection  = mysql.createConnection({
+			host     : '104.199.12.40',
+			user     : 'root',
+			password : 'potatismos',
+			database : 'munch_test'
+		});
+
+		return new Promise(function(resolve, reject) {
+			connection.connect(function(error) {
+				if (error) {
+					console.error('Error connecting: ' + error.stack);
+					reject(error);
+				}
+
+				resolve(connection);
+			});
+		});
+
+	}
+
+	function upsertRow(db, table, row) {
+
+		return new Promise(function(resolve, reject) {
+			var data = [];
+			var columns = [];
+
+			Object.keys(row).forEach(function(column) {
+				columns.push('`' + column + '`');
+				data.push(row[column]);
+			});
+
+			var sql = '';
+
+			sql += sprintf('INSERT INTO `%s` (%s) VALUES (?) ', table, columns.join(','));
+			sql += sprintf('ON DUPLICATE KEY UPDATE ');
+
+			sql += columns.map(function(column) {
+				return sprintf('%s = VALUES(%s)', column, column);
+			}).join(',');
+
+			var query = db.query(sql, [data], function(error, result) {
+				if (error)
+					reject(error);
+				else
+					resolve();
+			});
+
+			//console.log(query.sql);
+
+		});
+
+	}
+
+	function getSymbols(db) {
+
+		return new Promise(function(resolve, reject) {
+			var query = db.query('SELECT symbol from stocks ORDER by symbol', function(error, rows, fields) {
+
+				if (error)
+					reject(error);
+				else {
+					var symbols = rows.map(function(row) {
+						return row.symbol;
+					});
+
+					resolve(symbols);
+				}
+			});
+		});
+	}
+
+
 
 	function stringify(o) {
 		return JSON.stringify(o, null, '\t');
 	}
 
-	function getSymbols() {
 
-		var symbols = [];
 
-		fs.readdirSync(_stocksFolder).forEach(function(file) {
-			var match = file.match('^(.+).json$');
+	function getSymbolsToUpdate(db) {
 
-			if (match) {
-				symbols.push(match[1]);
-			}
+		return new Promise(function(resolve, reject) {
+
+			var date = new Date();
+			date.setDate(date.getDate() - 1);
+
+			var sql = '';
+			sql += sprintf('SELECT symbol from stocks ');
+			sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
+			sql += sprintf('ORDER by symbol ASC, downloaded ASC');
+
+			var query = db.query(sql, [date.toISOString()], function(error, rows, fields) {
+
+				if (error)
+					reject(error);
+				else {
+					if (rows.length > 0) {
+						console.log(sprintf('%d stocks needs an update...', rows.length));
+					}
+
+					// Only picks the first ones
+					rows = rows.slice(0, _fetchCount);
+
+					var symbols = rows.map(function(row) {
+						return row.symbol;
+					});
+
+					resolve(symbols);
+				}
+			});
+
+			console.log(query.sql);
 
 		});
-
-		return symbols;
-	}
-
-	function stockFileName(symbol) {
-		return sprintf('%s/%s.json', _stocksFolder, symbol);
-	}
-
-	function symbolExists(symbol) {
-		return fileExists(stockFileName(symbol));
-	}
-
-	this.run = function() {
-
-		if (args.days)
-			_numberOfDays = parseInt(args.days);
-
-		if (isString(args.symbol)) {
-			var symbol = args.symbol;
-
-			if (symbolExists(symbol))
-				fetchQuotes(symbol);
-			else
-				console.log(sprintf('Symbol \'%s\' does not exist.', symbol));
-		}
-		else  {
-
-			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
-
-			schedule();
-
-
-		}
-	}
-
-	function getSymbolsToUpdate() {
-
-		var symbols = [];
-
-		console.log('Checking if anything needs to be updated.');
-
-		var date = new Date();
-		date.setDate(date.getDate() - 1);
-
-		// Get all timestamps
-		var timestamps = getTimeStamps();
-
-		// Keep only the older ones
-		timestamps = timestamps.filter(function(timestamp) {
-			return timestamp.timestamp.getTime() < date.getTime();
-		});
-
-		// Sort ascending
-		timestamps.sort(function(a, b) {
-			return a.timestamp.getTime() - b.timestamp.getTime();
-		});
-
-		if (timestamps.length > 0) {
-			console.log(sprintf('%d stocks needs an update...', timestamps.length));
-		}
-
-		// Only picks the first ones
-		timestamps = timestamps.slice(0, _fetchCount);
-
-		timestamps.forEach(function(timestamp) {
-			symbols.push(timestamp.symbol);
-		});
-
-		if (symbols.length > 0 && symbols.length < 100) {
-			console.log(sprintf('The following symbols will be updated: %s', symbols.join(', ')));
-		}
-
-		return symbols;
 	}
 
 
 
 
-	function schedule() {
-		var delay = undefined;
 
-		if (args.delay)
-			delay = parseInt(args.delay);
 
-		if (delay == undefined) {
-			console.log('No --delay specified. Assuming 15 seconds');
-			delay = 15;
-		}
+	function downloadQuotes(db, symbol) {
 
-		if (delay < 1)
-			delay = 1;
+		return new Promise(function(resolve, reject) {
+			console.log(sprintf('Downloading quotes for symbol %s...', symbol));
 
-		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, delay, _numberOfDays));
+			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 
-		function runOnce() {
+				console.log(sprintf('Saving %d quotes for symbol %s...', quotes.length, symbol));
 
-			return new Promise(function(resolve, reject) {
-				var symbols  = getSymbolsToUpdate();
-
-				Promise.each(symbols, function(symbol) {
-					return fetchQuotes(symbol);
+				Promise.each(quotes, function(quote) {
+					//console.log(stringify(quote));
+					return upsertRow(db, 'quotes', quote);
 				})
 
 				.then(function() {
-					resolve(symbols);
+					var now = new Date();
+					var sql = sprintf('UPDATE stocks SET downloaded = ? WHERE symbol = ?');
+
+					var query = db.query(sql, [now.toISOString(), symbol], function(error, result) {
+						if (error)
+							reject(error);
+						else
+							resolve(quotes);
+					});
+
 				})
 
 				.catch(function(error) {
 					reject(error);
 				});
-			});
-		}
 
-		function loop() {
-			runOnce().then(function(symbols) {
-				if (symbols.length > 0)
-					setTimeout(loop, delay * 1000);
-				else {
-					console.log('Nothing to to. Waiting for 5 minutes.');
-					setTimeout(loop, 1000 * 60 * 5);
-
-				}
-			})
-			.catch(function(error) {
-				setTimeout(loop, 30 * 1000);
-				console.log(error);
-			});
-
-
-		}
-
-		loop();
-
-	}
-
-
-	// Fetches all timestamps for the stock file, if it doesn't exist, timestamp is from 1970.
-	function getTimeStamps() {
-
-		var timestamps = [];
-
-		_symbols.forEach(function(symbol){
-			var file = stockFileName(symbol);
-
-			if (!fileExists(file)) {
-				timestamps.push({symbol:symbol, timestamp:new Date(0)});
-			}
-			else {
-				var stat = fs.statSync(file);
-				timestamps.push({symbol:symbol, timestamp:stat.mtime});
-			}
-		});
-
-		return timestamps;
-	}
-
-
-	function fetchQuotes(symbol) {
-
-		return new Promise(function(resolve, reject) {
-
-			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
-				try {
-					var dateKeys = Object.keys(quotes);
-
-					dateKeys.forEach(function(dateKey) {
-						mkdir(sprintf('%s/%s', _quotesFolder, dateKey));
-
-						var quoteFile = sprintf('%s/%s/%s.json', _quotesFolder, dateKey, symbol);
-						fs.writeFileSync(quoteFile, JSON.stringify(quotes[dateKey], null, '\t'));
-
-					});
-
-					var stockFile = stockFileName(symbol);
-					var stock = JSON.parse(fs.readFileSync(stockFile));
-
-					stock.updated = new Date();
-					stock.downloaded = new Date();
-
-					fs.writeFileSync(stockFile, JSON.stringify(stock, null, '\t'));
-					console.log(sprintf('Updated %s with %d day(s) of data.', symbol, dateKeys.length));
-
-					resolve();
-
-				}
-				catch(error) {
-					console.error('Request failed.', error);
-					reject(error);
-				}
 
 			})
 
@@ -274,6 +220,8 @@ var Module = module.exports = function(args) {
 			params.i = interval;
 			params.p = sprintf('%dd', days);
 			params.f = 'd,o,h,l,c,v';
+
+			console.log(sprintf('Requesting quotes for %d days for symbol %s...', days, symbol));
 
 			var request = gopher.request('GET', 'getprices', params);
 
@@ -310,8 +258,17 @@ var Module = module.exports = function(args) {
 		header.data           = rows.shift().split('=')[1];
 		header.timezoneOffset = parseInt(rows.shift().split('=')[1]);
 
-		var quotes = {};
+		var quotes = [];
 		var date, time;
+
+		if (!isInteger(header.timezoneOffset)) {
+			console.log('Invalid header!!!');
+			console.log('--------------------------------');
+			console.log(text);
+			console.log('--------------------------------');
+
+			return quotes;
+		}
 
 		rows.forEach(function(row) {
 			var cols = row.split(',');
@@ -328,24 +285,147 @@ var Module = module.exports = function(args) {
 					time = new Date(date.getTime() + 1000 * header.interval * parseInt(cols[0]));
 				}
 
+				var dateKey = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
+				var timeKey = sprintf('%02d:%02d', time.getUTCHours(), time.getUTCMinutes());
+
+				quote.symbol  = symbol;
+				quote.date    = dateKey;
+				quote.time    = timeKey;
 				quote.close   = parseFloat(cols[1]);
 				quote.high    = parseFloat(cols[2]);
 				quote.low     = parseFloat(cols[3]);
 				quote.open    = parseFloat(cols[4]);
 				quote.volume  = parseInt(cols[5]);
 
-				var dateKey = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-				var timeKey = sprintf('%02d:%02d', time.getUTCHours(), time.getUTCMinutes());
-
-				if (quotes[dateKey] == undefined)
-					quotes[dateKey] = {};
-
-				quotes[dateKey][timeKey] = quote;
+				quotes.push(quote);
 			}
 		})
 
 		return quotes;
 
+	}
+
+
+
+
+
+
+	function process(db) {
+
+		return new Promise(function(resolve, reject) {
+			getSymbolsToUpdate(db).then(function(symbols) {
+
+				Promise.each(symbols, function(symbol) {
+					return downloadQuotes(db, symbol).then(function(quotes) {
+						console.log(sprintf('Downloaded %d quotes for symbol %s.', quotes.length, symbol));
+					});
+				})
+
+				.then(function() {
+					resolve(symbols);
+				})
+
+				.catch(function(error) {
+					reject(error);
+				});
+
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+
+		});
+
+	}
+
+	function run() {
+
+		return new Promise(function(resolve, reject) {
+			connect().then(function(db) {
+
+				process(db).then(function(symbols) {
+					resolve(symbols);
+				})
+				.catch(function(error) {
+					reject(error);
+				})
+				.finally(function() {
+					db.destroy();
+
+				});
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+
+		});
+
+
+	}
+
+
+	function schedule() {
+		var delay = undefined;
+
+		if (args.delay)
+			delay = parseInt(args.delay);
+
+		if (delay == undefined) {
+			console.log('No --delay specified. Assuming 15 seconds');
+			delay = 15;
+		}
+
+		if (delay < 1)
+			delay = 1;
+
+		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, delay, _numberOfDays));
+
+
+		function loop() {
+			run().then(function(symbols) {
+				if (symbols.length > 0)
+					setTimeout(loop, delay * 1000);
+				else {
+					console.log('Nothing to to. Waiting for 5 minutes.');
+					setTimeout(loop, 1000 * 60 * 5);
+
+				}
+			})
+			.catch(function(error) {
+				setTimeout(loop, 30 * 1000);
+				console.log(error);
+			});
+
+
+		}
+
+		loop();
+
+	}
+
+
+	this.run = function() {
+		schedule();
+
+/*
+
+		if (isString(args.symbol)) {
+			var symbol = args.symbol;
+
+			if (symbolExists(symbol))
+				fetchQuotes(symbol);
+			else
+				console.log(sprintf('Symbol \'%s\' does not exist.', symbol));
+		}
+		else  {
+
+			console.log(sprintf('Started downloading quotes to folder \'%s\'...', _quotesFolder));
+
+			schedule();
+
+
+		}
+		*/
 	}
 
 };
