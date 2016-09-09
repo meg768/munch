@@ -350,7 +350,7 @@ var Module = module.exports = function(args) {
 					reject(error);
 				})
 				.finally(function() {
-					db.destroy();
+					db.end();
 
 				});
 			})
