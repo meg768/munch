@@ -213,14 +213,17 @@ var Module = module.exports = function(args) {
 
 			if (fileExists(fileName)) {
 				var content = undefined;
+				var fileContent = fs.readFileSync(fileName);
 
 				try {
-					var text = fs.readFileSync(fileName);
-
-					if (text.length > 0)
-						content = JSON.parse(text);
+					if (fileContent.length > 0)
+						content = JSON.parse(fileContent);
 				}
 				catch(error) {
+					console.log('-------');
+					console.log(fileContent.length);
+					console.log('-------');
+
 					reject(sprintf('File %s could not be read properly (%s).', fileName, error));
 					return;
 				}
