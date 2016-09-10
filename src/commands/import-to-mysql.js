@@ -218,12 +218,10 @@ var Module = module.exports = function(args) {
 				try {
 					if (fileContent.length > 0)
 						content = JSON.parse(fileContent);
+					else
+						content = {};
 				}
 				catch(error) {
-					console.log('-------');
-					console.log(fileContent.length);
-					console.log('-------');
-
 					reject(sprintf('File %s could not be read properly (%s).', fileName, error));
 					return;
 				}
