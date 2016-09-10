@@ -218,7 +218,7 @@ var Module = module.exports = function(args) {
 					content = JSON.parse(fs.readFileSync(fileName));
 
 				}
-				catch() {
+				catch(error) {
 
 				}
 
