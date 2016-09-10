@@ -215,7 +215,10 @@ var Module = module.exports = function(args) {
 				var content = undefined;
 
 				try {
-					content = JSON.parse(fs.readFileSync(fileName));
+					var text = fs.readFileSync(fileName);
+
+					if (text != '')
+						content = JSON.parse(text);
 
 				}
 				catch(error) {
