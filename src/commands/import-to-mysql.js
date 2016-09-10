@@ -217,10 +217,8 @@ var Module = module.exports = function(args) {
 				try {
 					var text = fs.readFileSync(fileName);
 
-					if (text != '')
+					if (text.length > 0)
 						content = JSON.parse(text);
-
-						console.log(content);
 				}
 				catch(error) {
 					reject(sprintf('File %s could not be read properly (%s).', fileName, error));
