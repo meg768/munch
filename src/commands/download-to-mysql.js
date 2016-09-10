@@ -41,80 +41,8 @@ var Module = module.exports = function(args) {
 		_fetchCount = 3;
 	}
 
-	function connect() {
 
-		var mysql = require('mysql');
 
-		var connection  = mysql.createConnection({
-			host     : '104.199.12.40',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch_test'
-		});
-
-		return new Promise(function(resolve, reject) {
-			connection.connect(function(error) {
-				if (error) {
-					console.error('Error connecting: ' + error.stack);
-					reject(error);
-				}
-
-				resolve(connection);
-			});
-		});
-
-	}
-
-	function upsertRow(db, table, row) {
-
-		return new Promise(function(resolve, reject) {
-			var data = [];
-			var columns = [];
-
-			Object.keys(row).forEach(function(column) {
-				columns.push('`' + column + '`');
-				data.push(row[column]);
-			});
-
-			var sql = '';
-
-			sql += sprintf('INSERT INTO `%s` (%s) VALUES (?) ', table, columns.join(','));
-			sql += sprintf('ON DUPLICATE KEY UPDATE ');
-
-			sql += columns.map(function(column) {
-				return sprintf('%s = VALUES(%s)', column, column);
-			}).join(',');
-
-			var query = db.query(sql, [data], function(error, result) {
-				if (error)
-					reject(error);
-				else
-					resolve();
-			});
-
-			//console.log(query.sql);
-
-		});
-
-	}
-
-	function getSymbols(db) {
-
-		return new Promise(function(resolve, reject) {
-			var query = db.query('SELECT symbol from stocks ORDER by symbol', function(error, rows, fields) {
-
-				if (error)
-					reject(error);
-				else {
-					var symbols = rows.map(function(row) {
-						return row.symbol;
-					});
-
-					resolve(symbols);
-				}
-			});
-		});
-	}
 
 
 
@@ -127,36 +55,36 @@ var Module = module.exports = function(args) {
 	function getSymbolsToUpdate(db) {
 
 		return new Promise(function(resolve, reject) {
-
 			var date = new Date();
 			date.setDate(date.getDate() - 1);
 
-			var sql = '';
-			sql += sprintf('SELECT symbol from stocks ');
-			sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
-			sql += sprintf('ORDER by symbol ASC, downloaded ASC');
+			var query = {};
 
-			var query = db.query(sql, [date.toISOString()], function(error, rows, fields) {
+			query.sql = '';
+			query.sql += sprintf('SELECT symbol from stocks ');
+			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
+			query.sql += sprintf('ORDER by symbol ASC, downloaded ASC');
 
-				if (error)
-					reject(error);
-				else {
-					if (rows.length > 0) {
-						console.log(sprintf('%d stocks needs an update...', rows.length));
-					}
+			query.values = [date.toISOString()];
 
-					// Only picks the first ones
-					rows = rows.slice(0, _fetchCount);
-
-					var symbols = rows.map(function(row) {
-						return row.symbol;
-					});
-
-					resolve(symbols);
+			db.query(query).then(function(rows) {
+				if (rows.length > 0) {
+					console.log(sprintf('%d stocks needs an update...', rows.length));
 				}
-			});
 
-			console.log(query.sql);
+				// Only picks the first ones
+				rows = rows.slice(0, _fetchCount);
+
+				var symbols = rows.map(function(row) {
+					return row.symbol;
+				});
+
+				resolve(symbols);
+
+			})
+			.catch(function(error) {
+				reject(error);
+			});
 
 		});
 	}
@@ -176,21 +104,24 @@ var Module = module.exports = function(args) {
 				console.log(sprintf('Saving %d quotes for symbol %s...', quotes.length, symbol));
 
 				Promise.each(quotes, function(quote) {
-					//console.log(stringify(quote));
-					return upsertRow(db, 'quotes', quote);
+					return db.upsert('quotes', quote);
 				})
 
 				.then(function() {
 					var now = new Date();
-					var sql = sprintf('UPDATE stocks SET downloaded = ? WHERE symbol = ?');
 
-					var query = db.query(sql, [now.toISOString(), symbol], function(error, result) {
-						if (error)
-							reject(error);
-						else
-							resolve(quotes);
+					var query = {};
+					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
+					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
+
+					db.query(query).then(function(a, b, c) {
+						resolve(quotes);
+
+					})
+					.catch(function(error){
+						reject(error);
+
 					});
-
 				})
 
 				.catch(function(error) {
@@ -338,10 +269,15 @@ var Module = module.exports = function(args) {
 
 	}
 
+
 	function run() {
 
+
+		var MySQL = require('../scripts/mysql.js');
+		var mysql = new MySQL();
+
 		return new Promise(function(resolve, reject) {
-			connect().then(function(db) {
+			mysql.connect().then(function(db) {
 
 				process(db).then(function(symbols) {
 					resolve(symbols);
@@ -405,7 +341,7 @@ var Module = module.exports = function(args) {
 
 
 	this.run = function() {
-		schedule();
+		run();
 
 /*
 

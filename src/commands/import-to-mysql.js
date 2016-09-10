@@ -212,7 +212,15 @@ var Module = module.exports = function(args) {
 			var fileName = sprintf('%s/%s/%s.json', _quotesFolder, date, symbol);
 
 			if (fileExists(fileName)) {
-				var content = JSON.parse(fs.readFileSync(fileName));
+				var content = undefined;
+
+				try {
+					content = JSON.parse(fs.readFileSync(fileName));
+
+				}
+				catch() {
+
+				}
 
 				if (content != undefined) {
 
