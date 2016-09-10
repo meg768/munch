@@ -220,6 +220,7 @@ var Module = module.exports = function(args) {
 					if (text != '')
 						content = JSON.parse(text);
 
+						console.log(content);
 				}
 				catch(error) {
 					reject(sprintf('File %s could not be read properly (%s).', fileName, error));
