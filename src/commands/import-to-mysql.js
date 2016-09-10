@@ -219,7 +219,8 @@ var Module = module.exports = function(args) {
 
 				}
 				catch(error) {
-
+					reject(sprintf('File %s could not be read properly (%s).', fileName, error));
+					return;
 				}
 
 				if (content != undefined) {
