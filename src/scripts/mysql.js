@@ -50,10 +50,6 @@ var Module = module.exports = function() {
 		});
 	}
 
-	function format() {
-		return mysql.format.apply(this, arguments);
-	}
-
 	_this.format = function() {
 		return mysql.format.apply(this, arguments);
 	}
@@ -80,28 +76,6 @@ var Module = module.exports = function() {
 		return _this.query(sql);
 	}
 
-	_this.upsertX = function(table, row) {
-
-		var data = [];
-		var columns = [];
-
-		Object.keys(row).forEach(function(column) {
-			columns.push(column);
-			data.push(row[column]);
-		});
-
-
-		var sql = '';
-
-		sql += sprintf('INSERT INTO `%s` (%s) VALUES (?) ', table, columns.join(','));
-		sql += sprintf('ON DUPLICATE KEY UPDATE ');
-
-		sql += columns.map(function(column) {
-			return sprintf('%s = VALUES(%s)', column, column);
-		}).join(',');
-
-		return _this.query({sql:sql, values:[data]});
-	}
 
 	function init() {
 

@@ -13,7 +13,6 @@ var Module = module.exports = function(args) {
 	var _quotesFolder     = sprintf('%s/downloads/quotes', _rootFolder);
 	var _stocksFolder     = sprintf('%s/downloads/stocks', _rootFolder);
 
-
 	if (!fileExists(_quotesFolder)) {
 		throw new Error(sprintf('The folder %s does not exist', _quotesFolder));
 	}
