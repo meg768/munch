@@ -83,7 +83,7 @@ var Module = module.exports = function() {
 			host     : '104.199.12.40',
 			user     : 'root',
 			password : 'potatismos',
-			database : 'munch_test'
+			database : 'munch'
 		});
 	}
 
