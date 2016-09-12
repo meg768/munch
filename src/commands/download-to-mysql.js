@@ -337,7 +337,7 @@ var Module = module.exports = function(args) {
 
 
 	this.run = function() {
-		run();
+		schedule();
 
 /*
 
