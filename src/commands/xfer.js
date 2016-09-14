@@ -10,6 +10,7 @@ var fileExists = require('yow').fileExists;
 var mkdir      = require('yow').mkdir;
 var mkpath     = require('yow').mkpath;
 var isInteger  = require('yow').isInteger;
+var isDate     = require('yow').isDate;
 
 
 
@@ -157,19 +158,23 @@ var Module = module.exports = function(args) {
 
 	}
 
-	function processQuotes(src, dst) {
+	function processQuotes(src, dst, date) {
 
 		return new Promise(function(resolve, reject) {
 
-			if (!isString(args.date))
+			if (isString(date))
+				date = new Date();
+
+			if (!isDate(date))
 				reject('Must supply a date using --date.');
 
 			else {
-				console.log(sprintf('Transferring quotes for %s...', args.date));
-				var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', args.date);
+				date = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
+
+				console.log(sprintf('Transferring quotes for %s...', date));
+				var sql = src.format('SELECT * FROM quotes WHERE date = ?', [date]);
 
 				processTable(src, dst, sql, 'quotes').then(function() {
-					console.log('Done.');
 					resolve();
 				})
 				.catch(function(error) {
@@ -182,17 +187,90 @@ var Module = module.exports = function(args) {
 
 	}
 
+
+	function processAllQuotes(src, dst) {
+
+		function processDate(date) {
+			return new Promise(function(resolve, reject) {
+
+				getNumberOfQuotesForDate(src, date).then(function(srcCount) {
+					getNumberOfQuotesForDate(dst, date).then(function(dstCount) {
+						if (srcCount != dstCount) {
+							console.log(sprintf('Importing %s...', date.toLocaleDateString()));
+							processQuotes(src, dst, date).then(function() {
+								resolve();
+							})
+							.catch(function(error) {
+								reject(error);
+							});
+						}
+						else {
+							console.log(sprintf('Skipping %s...', date.toLocaleDateString()));
+							resolve();
+						}
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+			});
+		}
+
+		return new Promise(function(resolve, reject) {
+
+			getAllDates(src).then(function(dates) {
+
+				Promise.each(dates, function(date) {
+					return processDate(date).then(function(count) {
+						//console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				})
+				.then(function() {
+					resolve();
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+
+			})
+			.catch(function(error) {
+				reject(error);
+
+			});
+
+		});
+
+	}
 	function process(src, dst) {
+
 
 		if (args.check)
 			return processCheck(src, dst);
 		if (args.stocks)
 			return processStocks(src, dst);
-		if (args.quotes)
-			return processQuotes(src, dst);
+
+		if (args.quotes) {
+			if (isString(args.date))
+				return processQuotes(src, dst, args.date);
+
+			if (args.all)
+				return processAllQuotes(src, dst);
+
+			return new Promise(function(resolve, reject) {
+				reject('Specify --date or --all');
+			});
+		}
 
 		return new Promise(function(resolve, reject) {
-			reject('Nothing to do. Specify --quotes or --stocks');
+			reject('Nothing to do. Specify --check, --quotes or --stocks');
 		});
 
 	}
