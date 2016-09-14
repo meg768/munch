@@ -32,8 +32,9 @@ var Module = module.exports = function(args) {
 
 			src.query(sql).then(function(rows) {
 
+
 				var bucket  = Math.floor((rows.length / 100));
-				var total   = 100;
+				var total   = rows.length / bucket;
 				var count   = 0;
 
 				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
