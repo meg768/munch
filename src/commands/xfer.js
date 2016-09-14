@@ -32,17 +32,17 @@ var Module = module.exports = function(args) {
 
 			src.query(sql).then(function(rows) {
 
+				var tick  = 100;
+				var total = Math.floor(rows.length / tick);
 				var count = 0;
-				var percentComplete = -1;
-
-				var factor = 1;
 
 				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
- 				var progress = new Progress(progressTemplate, {total:rows.length});
+ 				var progress = new Progress(progressTemplate, {total:total});
 
 
 				Promise.each(rows, function(row) {
-					progress.tick();
+					if ((count++ % tick) == 0)
+						progress.tick();
 
 					return dst.upsert(table, row);
 				})
