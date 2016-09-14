@@ -106,6 +106,8 @@ var Module = module.exports = function(args) {
 				.then(function() {
 					var now = new Date();
 
+					console.log('UPDATING!!!!!!!!!!!!');
+
 					var query = {};
 					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
 					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
@@ -269,7 +271,7 @@ var Module = module.exports = function(args) {
 	function run() {
 
 		var options = {
-			host     : '104.199.12.40',
+			host     : '104.155.40.16',
 			user     : 'root',
 			password : 'potatismos',
 			database : 'munch'
