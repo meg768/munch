@@ -76,6 +76,87 @@ var Module = module.exports = function(args) {
 
 	}
 
+	function getAllDates(db) {
+		return new Promise(function(resolve, reject) {
+
+			db.query('select  distinct date from quotes order by date').then(function(rows) {
+
+				var dates = rows.map(function(row){
+					return row.date;
+				});
+
+				resolve(dates);
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
+	function getNumberOfQuotesForDate(db, date) {
+		return new Promise(function(resolve, reject) {
+
+			var sql = db.format('select date, count(symbol) as count from quotes where date = ? group by date', [date]);
+
+			db.query(sql).then(function(rows) {
+				resolve(rows.length == 0 ? 0 : rows[0].count);
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
+	function processCheck(src, dst) {
+
+		function processDate(date) {
+			return new Promise(function(resolve, reject) {
+
+				getNumberOfQuotesForDate(src, date).then(function(srcCount) {
+					getNumberOfQuotesForDate(dst, date).then(function(dstCount) {
+						resolve({source:srcCount, destination:dstCount});
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+			});
+		}
+
+		return new Promise(function(resolve, reject) {
+
+			getAllDates(src).then(function(dates) {
+
+				Promise.each(dates, function(date) {
+					return processDate(date).then(function(count) {
+						console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				})
+				.then(function() {
+					resolve();
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+
+			})
+			.catch(function(error) {
+				reject(error);
+
+			});
+
+		});
+
+	}
+
 	function processQuotes(src, dst) {
 
 		return new Promise(function(resolve, reject) {
@@ -103,6 +184,8 @@ var Module = module.exports = function(args) {
 
 	function process(src, dst) {
 
+		if (args.check)
+			return processCheck(src, dst);
 		if (args.stocks)
 			return processStocks(src, dst);
 		if (args.quotes)
