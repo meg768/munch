@@ -84,6 +84,7 @@ var Module = module.exports = function(args) {
 				reject('Must supply a date using --date.');
 
 			else {
+				console.log(sprintf('Transferring quotes for %s...', args.date));
 				var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', args.date);
 
 				processTable(src, dst, sql, 'quotes').then(function() {
