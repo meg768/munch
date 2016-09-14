@@ -373,5 +373,4 @@ var Module = module.exports = function(args) {
 		});
 
 	}
-
 };
