@@ -33,7 +33,8 @@ var Module = module.exports = function(args) {
 			src.query(sql).then(function(rows) {
 
 
-				var bucket  = Math.floor((rows.length / 100));
+				var size    = Math.pow(10, Math.floor(Math.log10(rows.length)));
+				var bucket  = Math.floor((rows.length / size));
 				var total   = rows.length / bucket;
 				var count   = 0;
 
@@ -43,8 +44,8 @@ var Module = module.exports = function(args) {
 
 				Promise.each(rows, function(row) {
 
-					if ((count++ % bucket) == 0)
-						progress.tick();
+				//	if ((count++ % bucket) == 0)
+				//		progress.tick();
 
 					return dst.upsert(table, row);
 				})

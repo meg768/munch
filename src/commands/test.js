@@ -28,16 +28,27 @@ var Module = module.exports = function(args) {
 
 
 	this.run = function() {
-		console.log('hej');
-		var ProgressBar = require('progress');
 
-		var bar = new ProgressBar('[:bar] :percent :eta', { total: 80 });
-		var timer = setInterval(function () {
-		  bar.tick();
-		  if (bar.complete) {
-		    console.log('\ncomplete\n');
-		    clearInterval(timer);
-		  }
-		}, 100);
+		var Progress = require('progress');
+
+		var length  = args.count;
+		var base    = 100;;//Math.log10(length);
+		var bucket  = Math.floor((length / base));
+		var total   = base;
+		var count   = 0;
+
+		var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', length, 'XXX');
+		var progress = new Progress(progressTemplate, {total:total});
+		var ticks = 0;
+
+		for (var i = 0; i < length; i++) {
+			if ((count++ % bucket) == 0) {
+				progress.tick();
+				ticks++;
+
+			}
+
+		}
+		console.log('Ticks', ticks)
 	};
 }
