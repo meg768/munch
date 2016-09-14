@@ -10,3 +10,6 @@ http://stackoverflow.com/questions/5218733/problems-in-connecting-to-mysql-serve
 http://unix.stackexchange.com/questions/226089/how-to-install-service-command-in-a-stable-debian
 
 https://support.rackspace.com/how-to/mysql-connect-to-your-database-remotely/
+
+
+https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
