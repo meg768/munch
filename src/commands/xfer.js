@@ -264,8 +264,9 @@ var Module = module.exports = function(args) {
 			return processStocks(src, dst);
 
 		if (args.quotes) {
-			if (isString(args.date))
-				return processQuotes(src, dst, args.date);
+			if (isString(args.date)) {
+				return processQuotes(src, dst, new Date(args.date));
+			}
 
 			if (args.all)
 				return processAllQuotes(src, dst);
