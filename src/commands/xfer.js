@@ -32,7 +32,7 @@ var Module = module.exports = function(args) {
 
 			src.query(sql).then(function(rows) {
 
-				var tick  = 100-;
+				var tick  = 100;
 				var total = Math.floor(rows.length / tick);
 				var count = 0;
 
