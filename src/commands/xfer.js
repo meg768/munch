@@ -27,13 +27,13 @@ var Module = module.exports = function(args) {
 
 
 
-	function processTable(src, dst, sql, table) {
+	function processTable(src, dst, sql, table, comment) {
 		return new Promise(function(resolve, reject) {
 
 			src.query(sql).then(function(rows) {
 
-				var tick  = 1000;
-				var total = Math.floor(rows.length / tick);
+				var tick  = (rows.length / 100);
+				var total = 100;
 				var count = 0;
 
 				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
@@ -41,7 +41,8 @@ var Module = module.exports = function(args) {
 
 
 				Promise.each(rows, function(row) {
-					if ((count++ % tick) == 0)
+
+					if ((count % 100) == 0)
 						progress.tick();
 
 					return dst.upsert(table, row);
