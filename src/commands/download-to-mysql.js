@@ -268,9 +268,15 @@ var Module = module.exports = function(args) {
 
 	function run() {
 
+		var options = {
+			host     : '104.199.12.40',
+			user     : 'root',
+			password : 'potatismos',
+			database : 'munch'
+		};
 
 		var MySQL = require('../scripts/mysql.js');
-		var mysql = new MySQL();
+		var mysql = new MySQL(options);
 
 		return new Promise(function(resolve, reject) {
 			mysql.connect().then(function(db) {

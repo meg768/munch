@@ -3,10 +3,18 @@ var sprintf  = require('yow').sprintf;
 var isString = require('yow').isString;
 var mysql    = require('mysql');
 
-var Module = module.exports = function() {
+/*
+host     : '104.199.12.40',
+user     : 'root',
+password : 'potatismos',
+database : 'munch'
+*/
+
+var Module = module.exports = function(options) {
 
 	var _this = this;
 	var _connection = null;
+
 
 	_this.connect = function() {
 
@@ -79,12 +87,7 @@ var Module = module.exports = function() {
 	function init() {
 
 
-		_connection  = mysql.createConnection({
-			host     : '104.199.12.40',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch'
-		});
+		_connection  = mysql.createConnection(options);
 	}
 
 	init();
