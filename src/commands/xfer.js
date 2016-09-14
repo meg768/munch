@@ -25,6 +25,40 @@ var Module = module.exports = function(args) {
 
 
 
+	function processTable(src, dst, query, table) {
+		return new Promise(function(resolve, reject) {
+
+			src.query(query).then(function(rows) {
+
+				var count = 0;
+				var percentComplete = -1;
+
+				Promise.each(rows, function(row) {
+
+					var percent = Math.floor((count++ * 100) / rows.length);
+
+					if (percent != percentComplete) {
+						console.log(stringify(row));
+						console.log(sprintf('%d %% completed...', percentComplete = percent));
+
+					}
+					return dst.upsert(table, row);
+				})
+
+				.then(function() {
+					resolve();
+				})
+
+				.catch(function(error) {
+					reject(error);
+				});
+			})
+			.catch(function(error) {
+				reject();
+			});
+		});
+
+	};
 
 
 	function processStocks(src, dst) {
@@ -66,7 +100,7 @@ var Module = module.exports = function(args) {
 	function process(src, dst) {
 
 		return new Promise(function(resolve, reject) {
-			processStocks(src, dst).then(function() {
+			processTable(src, dst, 'SELECT * FROM stocks', 'stocks').then(function() {
 				resolve();
 			})
 			.catch(function(error) {
