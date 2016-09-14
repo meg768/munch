@@ -87,7 +87,7 @@ var Module = module.exports = function(options) {
 
 	function init() {
 
-
+		console.log(sprintf('Connecting to %s@%s...', options.database, options.host));
 		_connection  = mysql.createConnection(options);
 	}
 
