@@ -96,6 +96,35 @@ var Module = module.exports = function(args) {
 	};
 
 
+	function processStocks(src, dst) {
+
+		return new Promise(function(resolve, reject) {
+			processTable(src, dst, 'SELECT * FROM stocks', 'stocks').then(function() {
+				resolve();
+			})
+			.catch(function(error) {
+				reject(error);
+
+			});
+		});
+
+	}
+
+	function processQuotes(src, dst) {
+
+		return new Promise(function(resolve, reject) {
+			var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\' AND symbol = \'A\'', '2016-06-23');
+
+			processTable(src, dst, sql, 'quotes').then(function() {
+				resolve();
+			})
+			.catch(function(error) {
+				reject(error);
+
+			});
+		});
+
+	}
 
 	function process(src, dst) {
 
@@ -134,7 +163,7 @@ var Module = module.exports = function(args) {
 			srcDB.connect().then(function(src) {
 
 				dstDB.connect().then(function(dst) {
-					process(src, dst).then(function() {
+					processQuotes(src, dst).then(function() {
 						resolve();
 					})
 					.catch(function(error) {
