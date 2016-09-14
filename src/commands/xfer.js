@@ -25,10 +25,10 @@ var Module = module.exports = function(args) {
 
 
 
-	function processTable(src, dst, query, table) {
+	function processTable(src, dst, sql, table) {
 		return new Promise(function(resolve, reject) {
 
-			src.query(query).then(function(rows) {
+			src.query(sql).then(function(rows) {
 
 				var count = 0;
 				var percentComplete = -1;
@@ -38,8 +38,7 @@ var Module = module.exports = function(args) {
 					var percent = Math.floor((count++ * 100) / rows.length);
 
 					if (percent != percentComplete) {
-						console.log(stringify(row));
-						console.log(sprintf('%d %% completed...', percentComplete = percent));
+						console.log(sprintf('%d %% complete...', percentComplete = percent));
 
 					}
 					return dst.upsert(table, row);
@@ -61,44 +60,11 @@ var Module = module.exports = function(args) {
 	};
 
 
-	function processStocks(src, dst) {
-		return new Promise(function(resolve, reject) {
-
-			src.query('SELECT * FROM stocks').then(function(stocks) {
-
-				var count = 0;
-				var percentComplete = -1;
-
-				Promise.each(stocks, function(stock) {
-
-					var percent = Math.floor((count++ * 100) / stocks.length);
-
-					if (percent != percentComplete) {
-						console.log(sprintf('%s - %d %% completed...', stock.symbol, percentComplete = percent));
-
-					}
-					return dst.upsert('stocks', stock);
-				})
-
-				.then(function() {
-					resolve();
-				})
-
-				.catch(function(error) {
-					reject(error);
-				});
-			})
-			.catch(function(error) {
-				reject();
-			});
-		});
-
-	};
-
 
 	function processStocks(src, dst) {
 
 		return new Promise(function(resolve, reject) {
+
 			processTable(src, dst, 'SELECT * FROM stocks', 'stocks').then(function() {
 				resolve();
 			})
@@ -113,29 +79,35 @@ var Module = module.exports = function(args) {
 	function processQuotes(src, dst) {
 
 		return new Promise(function(resolve, reject) {
-			var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', '2016-06-23');
 
-			processTable(src, dst, sql, 'quotes').then(function() {
-				resolve();
-			})
-			.catch(function(error) {
-				reject(error);
+			if (!isString(args.date))
+				reject('Must supply a date using --date.');
 
-			});
+			else {
+				var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', args.date);
+
+				processTable(src, dst, sql, 'quotes').then(function() {
+					resolve();
+				})
+				.catch(function(error) {
+					reject(error);
+
+				});
+
+			}
 		});
 
 	}
 
 	function process(src, dst) {
 
-		return new Promise(function(resolve, reject) {
-			processTable(src, dst, 'SELECT * FROM stocks', 'stocks').then(function() {
-				resolve();
-			})
-			.catch(function(error) {
-				reject(error);
+		if (args.stocks)
+			return processStocks(src, dst);
+		if (args.quotes)
+			return processQuotes(src, dst);
 
-			});
+		return new Promise(function(resolve, reject) {
+			reject('Nothing to do. Specify --quotes or --stocks');
 		});
 
 	}
@@ -163,7 +135,7 @@ var Module = module.exports = function(args) {
 			srcDB.connect().then(function(src) {
 
 				dstDB.connect().then(function(dst) {
-					processQuotes(src, dst).then(function() {
+					process(src, dst).then(function() {
 						resolve();
 					})
 					.catch(function(error) {
@@ -178,8 +150,6 @@ var Module = module.exports = function(args) {
 				.catch(function(error) {
 					reject(error);
 				})
-				.finally(function() {
-				});
 			})
 			.catch(function(error) {
 				reject(error);
@@ -229,7 +199,9 @@ var Module = module.exports = function(args) {
 
 
 	this.run = function() {
-		run().then(function(){}).catch(function(){});
+		run().then(function(){}).catch(function(error) {
+			console.log(error);
+		});
 
 	}
 
