@@ -224,6 +224,12 @@ var Module = module.exports = function(args) {
 
 			getAllDates(src).then(function(dates) {
 
+				if (args.reverse) {
+					dates.sort(function(a, b) {
+						return b.valueOf() - a.valueOf();
+					});
+				}
+
 				Promise.each(dates, function(date) {
 					return processDate(date).then(function(count) {
 						//console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
