@@ -2,6 +2,7 @@
 var fs       = require('fs');
 var Promise  = require('bluebird');
 var Path     = require('path');
+var Progress = require('progress');
 
 var sprintf    = require('yow').sprintf;
 var extend     = require('yow').extend;
@@ -34,14 +35,12 @@ var Module = module.exports = function(args) {
 				var count = 0;
 				var percentComplete = -1;
 
+				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
+ 				var progress = new Progress(progressTemplate, {total:rows.length});
+
+
 				Promise.each(rows, function(row) {
-
-					var percent = Math.floor((count++ * 100) / rows.length);
-
-					if (percent != percentComplete) {
-						console.log(sprintf('%d %% complete...', percentComplete = percent));
-
-					}
+					progress.tick();
 					return dst.upsert(table, row);
 				})
 

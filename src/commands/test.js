@@ -8,23 +8,36 @@ var extend     = require('yow').extend;
 var isString   = require('yow').isString;
 var fileExists = require('yow').fileExists;
 var mkdir      = require('yow').mkdir;
-
-var Gopher  = require('rest-request');
-
-
-function mkpath(path) {
-	var o = Path.parse(path);
-	
-	console.log(JSON.stringify(o));
+var mkpath     = require('yow').mkpath;
+var isInteger  = require('yow').isInteger;
+var isDate     = require('yow').isDate;
 
 
-	//var parts = 	
-}
+
+
 var Module = module.exports = function(args) {
 
 
-	
-	mkpath('./kalle/olga/nisseline/ollex');
-};
+
+	function stringify(o) {
+		return JSON.stringify(o, null, '\t');
+	}
 
 
+
+
+
+	this.run = function() {
+		console.log('hej');
+		var ProgressBar = require('progress');
+
+		var bar = new ProgressBar('[:bar] :percent :eta', { total: 80 });
+		var timer = setInterval(function () {
+		  bar.tick();
+		  if (bar.complete) {
+		    console.log('\ncomplete\n');
+		    clearInterval(timer);
+		  }
+		}, 100);
+	};
+}
