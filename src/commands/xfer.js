@@ -88,6 +88,7 @@ var Module = module.exports = function(args) {
 				var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', args.date);
 
 				processTable(src, dst, sql, 'quotes').then(function() {
+					console.log('Done.');
 					resolve();
 				})
 				.catch(function(error) {
