@@ -113,7 +113,7 @@ var Module = module.exports = function(args) {
 	function processQuotes(src, dst) {
 
 		return new Promise(function(resolve, reject) {
-			var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\' AND symbol = \'A\'', '2016-06-23');
+			var sql = sprintf('SELECT * FROM quotes WHERE date = \'%s\'', '2016-06-23');
 
 			processTable(src, dst, sql, 'quotes').then(function() {
 				resolve();
