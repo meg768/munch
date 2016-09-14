@@ -40,8 +40,7 @@ var Module = module.exports = function(args) {
 					var percent = Math.floor((count++ * 100) / stocks.length);
 
 					if (percent != percentComplete) {
-						console.log(stringify(stock));
-						console.log(sprintf('%d %% completed...', percentComplete = percent));
+						console.log(sprintf('%s - %d %% completed...', stock.symbol, percentComplete = percent));
 
 					}
 					return dst.upsert('stocks', stock);
