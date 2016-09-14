@@ -35,7 +35,7 @@ var Module = module.exports = function(args) {
 				var count = 0;
 				var percentComplete = -1;
 
-				var factor = 10;
+				var factor = 100;
 
 				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
  				var progress = new Progress(progressTemplate, {total:Math.floor(rows.length / factor)})
@@ -44,7 +44,7 @@ var Module = module.exports = function(args) {
 				Promise.each(rows, function(row) {
 					if ((count % factor) == 0)
 						progress.tick();
-						
+
 					return dst.upsert(table, row);
 				})
 
