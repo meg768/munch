@@ -106,8 +106,6 @@ var Module = module.exports = function(args) {
 				.then(function() {
 					var now = new Date();
 
-					console.log('UPDATING!!!!!!!!!!!!');
-
 					var query = {};
 					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
 					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
