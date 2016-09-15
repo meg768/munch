@@ -298,7 +298,7 @@ var Module = module.exports = function(args) {
 		});
 
 		var dstDB = new MySQL({
-			host     : '104.155.40.16',
+			host     : '10.132.0.2', //'104.155.40.16',
 			user     : 'root',
 			password : 'potatismos',
 			database : 'munch'
