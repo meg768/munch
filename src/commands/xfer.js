@@ -32,21 +32,18 @@ var Module = module.exports = function(args) {
 
 			src.query(sql).then(function(rows) {
 
-
-				var size    = Math.pow(10, Math.floor(Math.log10(rows.length)));
-				var bucket  = Math.floor((rows.length / size));
-				var total   = rows.length / bucket;
-				var count   = 0;
-
 				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
- 				var progress = new Progress(progressTemplate, {total:total});
-
+ 				var progress = new Progress(progressTemplate, {total:100});
+				var complete = -1;
+				var count = 0;
 
 				Promise.each(rows, function(row) {
+					var percent = Math.floor(++count / rows.length * 100);
 
-				//	if ((count++ % bucket) == 0)
-				//		progress.tick();
-
+					if (percent != complete) {
+						complete = percent;
+						progress.tick();
+					}
 					return dst.upsert(table, row);
 				})
 
