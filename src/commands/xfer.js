@@ -32,7 +32,7 @@ var Module = module.exports = function(args) {
 
 			src.query(sql).then(function(rows) {
 
-				var progressTemplate = sprintf('Downloading %d rows for table %s [:bar] :percent :etas', rows.length, table);
+				var progressTemplate = sprintf('%s [:bar] :percent :etas', comment, rows.length, table);
  				var progress = new Progress(progressTemplate, {total:100});
 				var complete = -1;
 				var count = 0;
@@ -68,7 +68,7 @@ var Module = module.exports = function(args) {
 
 		return new Promise(function(resolve, reject) {
 
-			processTable(src, dst, 'SELECT * FROM stocks', 'stocks').then(function() {
+			processTable(src, dst, 'SELECT * FROM stocks', 'stocks', 'Downloading stocks').then(function() {
 				resolve();
 			})
 			.catch(function(error) {
@@ -174,10 +174,10 @@ var Module = module.exports = function(args) {
 			else {
 				date = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
 
-				console.log(sprintf('Transferring quotes for %s...', date));
 				var sql = src.format('SELECT * FROM quotes WHERE date = ?', [date]);
+				var text = sprintf('Transferring quotes for %s', date);
 
-				processTable(src, dst, sql, 'quotes').then(function() {
+				processTable(src, dst, sql, 'quotes', text).then(function() {
 					resolve();
 				})
 				.catch(function(error) {
