@@ -109,7 +109,7 @@ var Module = module.exports = function(args) {
 
 
 					db.query(query).then(function(a, b, c) {
-						console.log(sprintf('%d quotes updated for %s.', quotes.length, symbol));
+						console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
 						resolve(quotes);
 
 					})
