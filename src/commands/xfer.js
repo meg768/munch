@@ -142,6 +142,16 @@ var Module = module.exports = function(args) {
 
 	function processCheck(src, dst) {
 
+		function delay() {
+			return new Promise(function(resolve, reject) {
+
+				setTimeout(function() {
+					resolve();
+				}, 1000);
+			});
+
+		}
+
 		function processDate(date) {
 			return new Promise(function(resolve, reject) {
 
@@ -161,7 +171,11 @@ var Module = module.exports = function(args) {
 
 				Promise.each(dates, function(date) {
 					return processDate(date).then(function(count) {
-						console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
+
+						delay().then(function() {
+							console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
+
+						});
 					})
 					.catch(function(error) {
 						reject(error);
