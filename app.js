@@ -6,6 +6,7 @@ var prefixLogs   = require('yow').prefixLogs;
 var redirectLogs = require('yow').redirectLogs;
 var fs           = require('fs');
 var config       = require('./src/scripts/config.js');
+var path         = require('path');
 
 var App = function() {
 
@@ -52,7 +53,12 @@ var App = function() {
 			}
 
 			if (args.log) {
-				redirectLogs();
+
+				if (isString(args.log)) {
+					redirectLogs(path.join('logs', args.log));
+				}
+				else
+					redirectLogs();
 			}
 
 			if (typeof args.run == 'string') {

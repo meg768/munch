@@ -82,7 +82,17 @@ var Module = module.exports = function(args) {
 	function getAllDates(db) {
 		return new Promise(function(resolve, reject) {
 
-			db.query('select  distinct date from quotes order by date').then(function(rows) {
+			var sql = '';
+
+			sql += 'select distinct date from quotes ';
+
+			if (isString(args.start)) {
+				sql += db.format('where date >= ? ', [args.start]);
+			}
+
+			sql += 'order by date'
+
+			db.query(sql).then(function(rows) {
 
 				var dates = rows.map(function(row){
 					return row.date;
