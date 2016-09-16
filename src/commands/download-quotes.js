@@ -107,7 +107,9 @@ var Module = module.exports = function(args) {
 					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
 					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
 
+
 					db.query(query).then(function(a, b, c) {
+						console.log(sprintf('%d quotes updated for %s.', quotes.length, symbol));
 						resolve(quotes);
 
 					})
