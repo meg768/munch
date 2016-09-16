@@ -147,7 +147,7 @@ var Module = module.exports = function(args) {
 			params.p = sprintf('%dd', days);
 			params.f = 'd,o,h,l,c,v';
 
-			console.log(sprintf('Requesting quotes for %d days for symbol %s...', days, symbol));
+//			console.log(sprintf('Requesting quotes for %d days for symbol %s...', days, symbol));
 
 			var request = gopher.request('GET', 'getprices', params);
 
