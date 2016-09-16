@@ -188,11 +188,12 @@ var Module = module.exports = function(args) {
 		var date, time;
 
 		if (!isInteger(header.timezoneOffset)) {
+			/*
 			console.log('Invalid header!!!');
 			console.log('--------------------------------');
 			console.log(text);
 			console.log('--------------------------------');
-
+			*/
 			return quotes;
 		}
 
