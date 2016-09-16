@@ -30,16 +30,16 @@ var Module = module.exports = function(args) {
 		_numberOfDays = parseInt(args.days);
 
 	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 7.');
-		_numberOfDays = 7;
+		console.warn('Number of days to download is not specified. Assuming 5.');
+		_numberOfDays = 5;
 	}
 
 	if (_numberOfDays > 14)
 		_numberOfDays = 14;
 
 	if (_fetchCount == undefined) {
-		console.warn('Number of stocks to update not specified. Assuming 3.');
-		_fetchCount = 3;
+		console.warn('Number of stocks to update not specified. Assuming 10.');
+		_fetchCount = 10;
 	}
 
 
@@ -94,15 +94,9 @@ var Module = module.exports = function(args) {
 	function downloadQuotes(db, symbol) {
 
 		return new Promise(function(resolve, reject) {
-			console.log(sprintf('Downloading quotes for symbol %s...', symbol));
-
 			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 
-				var log = sprintf('Saving %d quotes for %s[:bar] :percent :etas', quotes.length, symbol);
- 				var progress = new Progress(log, {total:quotes.length});
-
 				Promise.each(quotes, function(quote) {
-					progress.tick();
 					return db.upsert('quotes', quote);
 				})
 
