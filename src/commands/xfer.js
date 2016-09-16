@@ -110,21 +110,45 @@ var Module = module.exports = function(args) {
 		});
 	}
 
+	function getQuoteCountsForDate(src, dst, date) {
+		return new Promise(function(resolve, reject) {
+
+			getNumberOfQuotesForDate(src, date).then(function(srcCount) {
+				getNumberOfQuotesForDate(dst, date).then(function(dstCount) {
+					resolve({source:srcCount, destination:dstCount});
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
+	function areAllQuotesTransferredForDate(src, dst, date) {
+		return new Promise(function(resolve, reject) {
+
+			getQuoteCountsForDate(src, dst, date).then(function(count) {
+				resolve(count.destination >= count.source);
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+		});
+	}
+
 	function processCheck(src, dst) {
 
 		function processDate(date) {
 			return new Promise(function(resolve, reject) {
 
-				getNumberOfQuotesForDate(src, date).then(function(srcCount) {
-					getNumberOfQuotesForDate(dst, date).then(function(dstCount) {
-						resolve({source:srcCount, destination:dstCount});
-					})
-					.catch(function(error) {
-						reject(error);
-					});
-
+				getQuoteCountsForDate(src, dst, date).then(function(count) {
+					resolve(count);
 				})
-				.catch(function(error) {
+				.catch(function() {
 					reject(error);
 				});
 			});
@@ -166,7 +190,7 @@ var Module = module.exports = function(args) {
 		return new Promise(function(resolve, reject) {
 
 			if (isString(date))
-				date = new Date();
+				date = new Date(date);
 
 			if (!isDate(date))
 				reject('Must supply a date using --date.');
@@ -174,14 +198,28 @@ var Module = module.exports = function(args) {
 			else {
 				date = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
 
-				var sql = src.format('SELECT * FROM quotes WHERE date = ?', [date]);
-				var text = sprintf('Transferring quotes for %s', date);
+				console.log(sprintf('Processing date %s', date));
+				
+				areAllQuotesTransferredForDate(src, dst, date).then(function(yes) {
+					if (yes) {
+						console.log(sprintf('All quotes for %s are transferred.', date));
+						resolve();
+					}
+					else {
+						var sql = src.format('SELECT * FROM quotes WHERE date = ?', [date]);
+						var text = sprintf('Transferring quotes for %s', date);
 
-				processTable(src, dst, sql, 'quotes', text).then(function() {
-					resolve();
+						processTable(src, dst, sql, 'quotes', text).then(function() {
+							resolve();
+						})
+						.catch(function(error) {
+							reject(error);
+
+						});
+
+					}
 				})
 				.catch(function(error) {
-					reject(error);
 
 				});
 
