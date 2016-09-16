@@ -147,7 +147,7 @@ var Module = module.exports = function(args) {
 
 				setTimeout(function() {
 					resolve();
-				}, 1000);
+				}, 10000);
 			});
 
 		}
@@ -155,11 +155,14 @@ var Module = module.exports = function(args) {
 		function processDate(date) {
 			return new Promise(function(resolve, reject) {
 
-				getQuoteCountsForDate(src, dst, date).then(function(count) {
-					resolve(count);
-				})
-				.catch(function(error) {
-					reject(error);
+				delay().then(function() {
+					getQuoteCountsForDate(src, dst, date).then(function(count) {
+						resolve(count);
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
 				});
 			});
 		}
@@ -172,10 +175,7 @@ var Module = module.exports = function(args) {
 				Promise.each(dates, function(date) {
 					return processDate(date).then(function(count) {
 
-						delay().then(function() {
-							console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
-
-						});
+						console.log(sprintf('%s: %d/%d - %.1f%%', date.toLocaleDateString(), count.source, count.destination, count.destination / count.source * 100));
 					})
 					.catch(function(error) {
 						reject(error);
