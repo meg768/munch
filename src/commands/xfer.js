@@ -147,7 +147,7 @@ var Module = module.exports = function(args) {
 
 				setTimeout(function() {
 					resolve();
-				}, 5000);
+				}, 2000);
 			});
 
 		}
