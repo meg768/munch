@@ -148,7 +148,7 @@ var Module = module.exports = function(args) {
 				getQuoteCountsForDate(src, dst, date).then(function(count) {
 					resolve(count);
 				})
-				.catch(function() {
+				.catch(function(error) {
 					reject(error);
 				});
 			});
@@ -199,7 +199,7 @@ var Module = module.exports = function(args) {
 				date = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
 
 				console.log(sprintf('Processing date %s', date));
-				
+
 				areAllQuotesTransferredForDate(src, dst, date).then(function(yes) {
 					if (yes) {
 						console.log(sprintf('All quotes for %s are transferred.', date));
