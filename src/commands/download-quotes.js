@@ -340,9 +340,50 @@ var Module = module.exports = function(args) {
 
 	}
 
+	function runOnce() {
+		return new Promise(function(resolve, reject) {
+			var delay = undefined;
+
+			if (args.delay)
+				delay = parseInt(args.delay);
+
+			if (delay == undefined) {
+				console.log('No --delay specified. Assuming 15 seconds');
+				delay = 15;
+			}
+
+			if (delay < 1)
+				delay = 1;
+
+			console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, delay, _numberOfDays));
+
+
+			function loop() {
+				run().then(function(symbols) {
+					if (symbols.length > 0)
+						setTimeout(loop, delay * 1000);
+					else {
+						resolve();
+					}
+				})
+				.catch(function(error) {
+					setTimeout(loop, 30 * 1000);
+					console.log(error);
+				});
+
+
+			}
+
+			loop();
+
+		});
+
+
+	}
+
 
 	this.run = function() {
-		run().then(function() {
+		runOnce().then(function() {
 			console.log('Finished.');
 		})
 		.catch(function(error) {
