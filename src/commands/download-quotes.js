@@ -360,8 +360,11 @@ var Module = module.exports = function(args) {
 
 			function loop() {
 				run().then(function(symbols) {
-					if (symbols.length > 0)
+					if (symbols.length > 0) {
+						console.log('Waiting for next fetch...');
 						setTimeout(loop, delay * 1000);
+
+					}
 					else {
 						resolve();
 					}
