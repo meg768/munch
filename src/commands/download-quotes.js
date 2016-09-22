@@ -342,7 +342,12 @@ var Module = module.exports = function(args) {
 
 
 	this.run = function() {
-		schedule();
+		run().then(function() {
+			console.log('Finished.');
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
 
 /*
 
