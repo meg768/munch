@@ -328,6 +328,8 @@ select '2016-05-25', simulate('2016-05-25');
 	<array/>
 	<key>queryHistory</key>
 	<array>
+		<string>select downloaded from stocks order by downloaded asc limit 1</string>
+		<string>select downloaded from stocks order by downloaded desc limit 1</string>
 		<string>select date, count(symbol) from quotes group by date</string>
 		<string>select count(symbol) from stocks</string>
 		<string>select count(date) from quotes</string>
@@ -387,21 +389,6 @@ order by time limit 1</string>
 
 where 
  (time between  '09:30' and '09:35') 
-and
-date='2016-08-19' and symbol = 'A'
-order by time limit 1</string>
-		<string>BEGIN
-select * from quotes 
-
-where 
- (time between  '09:30' and '09:35') 
-and
-date='2016-08-19' and symbol = 'A'
-order by time limit 1</string>
-		<string>select * from quotes 
-
-where 
- (time between  '09:30' and '09:45') 
 and
 date='2016-08-19' and symbol = 'A'
 order by time limit 1</string>
