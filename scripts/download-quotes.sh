@@ -2,8 +2,9 @@
 
 FILENAME=$(basename "$0")
 LOCATION="$(cd "$(dirname "$0")" && pwd)"
+DATESTAMP=$(date +"%Y-%m-%d-%H-%M")
 
-exec >> ${LOCATION}/../logs/${FILENAME%.*}.log
+exec >> ${LOCATION}/../logs/${DATESTAMP}.log
 exec 2>&1
 
 cd ${LOCATION}/.. && node app.js --run download-quotes
