@@ -268,7 +268,8 @@ var Module = module.exports = function(args) {
 	function run() {
 
 		var options = {
-			host     : '130.211.79.11',
+			//host     : '130.211.79.11',
+			host     : '104.199.47.32',
 			user     : 'root',
 			password : 'potatismos',
 			database : 'munch'
