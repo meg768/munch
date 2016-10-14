@@ -56,7 +56,6 @@ var Module = module.exports = function(args) {
 
 			query.sql = '';
 			query.sql += sprintf('SELECT symbol from stocks ');
-			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL ');
 			query.sql += sprintf('ORDER by downloaded ASC, symbol ASC');
 
 			db.query(query).then(function(rows) {
