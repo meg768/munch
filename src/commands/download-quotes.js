@@ -52,17 +52,12 @@ var Module = module.exports = function(args) {
 	function getSymbolsToUpdate(db) {
 
 		return new Promise(function(resolve, reject) {
-			var date = new Date();
-			date.setDate(date.getDate() - 1);
-
 			var query = {};
 
 			query.sql = '';
 			query.sql += sprintf('SELECT symbol from stocks ');
-			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
+			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL ');
 			query.sql += sprintf('ORDER by symbol ASC, downloaded ASC');
-
-			query.values = [date.toISOString()];
 
 			db.query(query).then(function(rows) {
 				if (rows.length > 0) {
