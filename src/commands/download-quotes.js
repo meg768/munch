@@ -21,6 +21,7 @@ var Module = module.exports = function(args) {
 
 	var _fetchCount     = undefined;
 	var _numberOfDays   = undefined;
+	var _startDate      = new Date();
 
 
 	if (args.count)
@@ -52,11 +53,17 @@ var Module = module.exports = function(args) {
 	function getSymbolsToUpdate(db) {
 
 		return new Promise(function(resolve, reject) {
+			var date = new Date();
+			date.setDate(date.getDate() - 1);
+
 			var query = {};
 
 			query.sql = '';
 			query.sql += sprintf('SELECT symbol from stocks ');
-			query.sql += sprintf('ORDER by downloaded ASC, symbol ASC');
+			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
+			query.sql += sprintf('ORDER by symbol ASC, downloaded ASC');
+
+			query.values = [_startDate.toISOString()];
 
 			db.query(query).then(function(rows) {
 				if (rows.length > 0) {
