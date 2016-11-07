@@ -23,6 +23,7 @@ var App = function() {
 	var _fetchCount        = undefined;
 	var _numberOfDays      = undefined;
 	var _delay             = undefined;
+	var _busy              = false;
 
 
 	function getMySQL() {
@@ -320,29 +321,40 @@ var App = function() {
 
 	function runOnce() {
 
-		var sinceDate = new Date();
+		var failCount = 0;
 
-		function loop() {
-			runBatch(sinceDate).then(function(symbols) {
-				if (symbols.length > 0) {
-					console.log('Waiting...');
-					setTimeout(loop, _delay * 1000);
+		return new Promise(function(resolve, reject) {
+			var sinceDate = new Date();
 
-				}
-				else {
-					console.log('Finished.');
-				}
-			})
-			.catch(function(error) {
-				setTimeout(loop, 30 * 1000);
-				console.log(error);
-				console.log('Error running batch. Will try again...');
-			});
+			function loop() {
+				runBatch(sinceDate).then(function(symbols) {
+					if (symbols.length > 0) {
+						console.log('Waiting...');
+						setTimeout(loop, _delay * 1000);
+					}
+					else {
+						resolve();
+					}
+				})
+				.catch(function(error) {
+					if (failCount++ < 10) {
+						console.log('Error running batch. Will try again...');
+						console.log(error);
+						setTimeout(loop, 30 * 1000);
+
+					}
+					else {
+						reject(error)
+					}
+				});
 
 
-		}
+			}
 
-		loop();
+			loop();
+
+		});
+
 
 	}
 
@@ -352,15 +364,34 @@ var App = function() {
 
 	function schedule() {
 
+		var busy    = false;
 		var rule    = new Schedule.RecurrenceRule();
 		rule.hour   = 20;
-		rule.minute = 16;
+		rule.minute = 27;
 
 		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
 
 
 		Schedule.scheduleJob(rule, function() {
-			runOnce();
+			if (busy) {
+				console.log('Busy. Try again later.');
+			}
+			else {
+				busy = true;
+
+				runOnce().then(function() {
+					console.log('Finished.');
+
+					busy = false;
+
+				})
+				.catch(function(error) {
+					console.log(error);
+				})
+				.finally() {
+					busy = false;
+				}
+			}
 		});
 
 
