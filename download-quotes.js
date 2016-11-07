@@ -330,7 +330,8 @@ var App = function() {
 				runBatch(sinceDate).then(function(symbols) {
 					if (symbols.length > 0) {
 						console.log('Updated %d stocks, waiting to start next batch...', symbols.length);
-						setTimeout(loop, _delay * 1000);
+						resolve();
+						//setTimeout(loop, _delay * 1000);
 					}
 					else {
 						resolve();
