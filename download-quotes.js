@@ -3,6 +3,7 @@
 var fs       = require('fs');
 var Promise  = require('bluebird');
 var Path     = require('path');
+var Schedule = require('node-schedule');
 
 var sprintf    = require('yow').sprintf;
 var extend     = require('yow').extend;
@@ -14,13 +15,28 @@ var isInteger  = require('yow').isInteger;
 var prefixLogs = require('yow').prefixLogs;
 
 var Gopher  = require('rest-request');
+var MySQL   = require('./src/scripts/mysql.js');
 
 var App = function() {
 
 
-	var _fetchCount     = undefined;
-	var _numberOfDays   = undefined;
-	var _delay          = undefined;
+	var _fetchCount        = undefined;
+	var _numberOfDays      = undefined;
+	var _delay             = undefined;
+
+
+	function getMySQL() {
+
+		var options = {
+			host     : '104.155.92.17',
+			user     : 'root',
+			password : 'potatismos',
+			database : 'munch'
+		};
+
+		return new MySQL(options);
+	};
+
 
 	function parseArgs() {
 		var args = require('commander');
@@ -276,17 +292,7 @@ var App = function() {
 
 	function runBatch(sinceDate) {
 
-		var options = {
-			//host     : '130.211.79.11',
-			// host     : '104.199.47.32',
-			host     : '104.155.92.17',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch'
-		};
-
-		var MySQL = require('./src/scripts/mysql.js');
-		var mysql = new MySQL(options);
+		var mysql = getMySQL();
 
 		return new Promise(function(resolve, reject) {
 			mysql.connect().then(function(db) {
@@ -340,6 +346,27 @@ var App = function() {
 
 	}
 
+	function reset() {
+
+	}
+
+	function schedule() {
+
+		var rule    = new Schedule.RecurrenceRule();
+		rule.hour   = 20;
+		rule.minute = 11;
+
+		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
+
+
+		Schedule.scheduleJob(rule, function() {
+			runOnce();
+		});
+
+
+
+	};
+
 	function run() {
 
 		prefixLogs();
@@ -378,7 +405,7 @@ var App = function() {
 
 		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, _delay, _numberOfDays));
 
-		runOnce();
+		schedule();
 
 	};
 
