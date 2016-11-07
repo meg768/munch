@@ -330,8 +330,7 @@ var App = function() {
 				runBatch(sinceDate).then(function(symbols) {
 					if (symbols.length > 0) {
 						console.log('Updated %d stocks, waiting to start next batch...', symbols.length);
-						resolve();
-						//setTimeout(loop, _delay * 1000);
+						setTimeout(loop, _delay * 1000);
 					}
 					else {
 						resolve();
@@ -367,8 +366,8 @@ var App = function() {
 
 		var busy    = false;
 		var rule    = new Schedule.RecurrenceRule();
-		rule.hour   = 20;
-		rule.minute = 55;
+		rule.hour   = 3;
+		rule.minute = 0;
 
 		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
 
@@ -380,7 +379,7 @@ var App = function() {
 				busy = true;
 
 				runOnce().then(function() {
-					console.log('Finished.');
+					console.log('Finished for today.');
 				})
 				.catch(function(error) {
 					console.log(error);
