@@ -366,11 +366,10 @@ var App = function() {
 
 		var busy    = false;
 		var rule    = new Schedule.RecurrenceRule();
-		rule.hour   = 20;
-		rule.minute = 29;
+		rule.hour   = 2;
+		rule.minute = 0;
 
 		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
-
 
 		Schedule.scheduleJob(rule, function() {
 			if (busy) {
@@ -381,9 +380,6 @@ var App = function() {
 
 				runOnce().then(function() {
 					console.log('Finished.');
-
-					busy = false;
-
 				})
 				.catch(function(error) {
 					console.log(error);
