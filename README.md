@@ -7,7 +7,7 @@
 
 ## Install with **forever-service**
 
-	$ sudo forever-service install download-quotes --script download-quotes.js --scriptOptions " " --foreverOptions " "
+	$ sudo forever-service install download-quotes --script download-quotes.js --scriptOptions " " --foreverOptions " -w"
 
 ## Controlling the service
 
