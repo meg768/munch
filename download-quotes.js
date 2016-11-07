@@ -366,8 +366,8 @@ var App = function() {
 
 		var busy    = false;
 		var rule    = new Schedule.RecurrenceRule();
-		rule.hour   = 20;
-		rule.minute = 58;
+		rule.hour   = 3;
+		rule.minute = 0;
 
 		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
 
