@@ -14,6 +14,9 @@
 	$ sudo service download-quotes stop
 	$ sudo service download-quotes start
 
+## Display running services
+	$ sudo forever list
+
 ## Delete service
 	$ sudo forever-service delete download-quotes
 
