@@ -354,7 +354,7 @@ var App = function() {
 
 		var rule    = new Schedule.RecurrenceRule();
 		rule.hour   = 20;
-		rule.minute = 11;
+		rule.minute = 16;
 
 		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
 
