@@ -388,9 +388,9 @@ var App = function() {
 				.catch(function(error) {
 					console.log(error);
 				})
-				.finally() {
+				.finally(function() {
 					busy = false;
-				}
+				};
 			}
 		});
 
