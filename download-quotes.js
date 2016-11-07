@@ -390,7 +390,7 @@ var App = function() {
 				})
 				.finally(function() {
 					busy = false;
-				};
+				});
 			}
 		});
 
