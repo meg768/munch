@@ -14,6 +14,9 @@
 	$ sudo service download-quotes stop
 	$ sudo service download-quotes start
 
+## Delete service
+	$ sudo forever-service delete download-quotes
+
 ## Personal notes
 	http://superuser.com/questions/476512/how-do-i-permanently-reset-the-time-zone-in-debian
 	https://cloud.google.com/solutions/setup-mysql
