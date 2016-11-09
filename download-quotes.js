@@ -44,7 +44,7 @@ var App = function() {
 
 		args.version('1.0.0');
 		args.option('-c --count <number>', 'Number of quotes to fetch per batch (10)', 10);
-		args.option('-d --days <number>', 'Number of days back to fetch quotes (14)', 14);
+		args.option('-d --days <number>', 'Number of days back to fetch quotes (5)', 5);
 		args.option('-p --pause <number>', 'Number of seconds to pause before fetching next batch (15)', 15);
 
 		args.parse(process.argv);
@@ -355,10 +355,6 @@ var App = function() {
 
 		});
 
-
-	}
-
-	function reset() {
 
 	}
 
