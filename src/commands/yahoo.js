@@ -1,8 +1,10 @@
-var sprintf  = require('yow/sprintf');
-var isArray  = require('yow/is').isArray;
-var isString = require('yow/is').isString;
-var MySQL    = require('../scripts/mysql.js');
-var yahoo    = require('yahoo-finance');
+var sprintf    = require('yow/sprintf');
+var isArray    = require('yow/is').isArray;
+var isString   = require('yow/is').isString;
+var isDate     = require('yow/is').isDate;
+var isInteger  = require('yow/is').isInteger;
+var MySQL      = require('../scripts/mysql.js');
+var yahoo      = require('yahoo-finance');
 
 
 var Module = new function() {
@@ -13,9 +15,28 @@ var Module = new function() {
 	function defineArgs(args) {
 
 		args.option('symbol', {alias: 's', describe:'Download specified symbol only'});
-		args.option('days', {alias: 'd', describe:'Specifies number of days back in time to fetch', default:10});
+		args.option('days',   {alias: 'd', describe:'Specifies number of days back in time to fetch'});
+		args.option('since',  {alias: 'c', describe:'Fetch quotes since the specified date'});
+
 
 		args.wrap(null);
+
+		args.check(function(argv) {
+			if (argv.days && argv.since)
+				throw new Error('Cannot specify both --since and --days.');
+
+			if (argv.days && !isInteger(argv.days)) {
+				throw new Error(sprintf('Invalid number of days "%s".', argv.days));
+			}
+
+			if (argv.since) {
+				if (!isDate(new Date(argv.since)))
+					throw new Error(sprintf('Invalid date "%s".', argv.since));
+
+			}
+
+			return true;
+		});
 
 	}
 
@@ -31,6 +52,10 @@ var Module = new function() {
 
 		return new MySQL(options);
 	};
+
+	function computeSMA(days) {
+
+	}
 
 	function getSymbols() {
 
@@ -101,7 +126,6 @@ var Module = new function() {
 
 			function fetch(symbol, from, to) {
 
-
 				return new Promise(function(resolve, reject) {
 					var options = {};
 					options.symbol = symbol;
@@ -152,10 +176,18 @@ var Module = new function() {
 
 			getSymbols().then(function(symbols) {
 				try {
+
 					var startDate = new Date();
 					var endDate = new Date();
 
-					startDate.setDate(startDate.getDate() - _argv.days);
+					if (_argv.since) {
+
+						startDate = new Date(_argv.since);
+					}
+
+					if (_argv.days) {
+						startDate.setDate(startDate.getDate() - _argv.days);
+					}
 
 					download(symbols, startDate, endDate).then(function() {
 						return Promise.resolve(symbols.length);
