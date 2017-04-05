@@ -46,6 +46,7 @@ var App = function() {
 		args.option('-c --count <number>', 'Number of quotes to fetch per batch (10)', 10);
 		args.option('-d --days <number>', 'Number of days back to fetch quotes (5)', 5);
 		args.option('-p --pause <number>', 'Number of seconds to pause before fetching next batch (15)', 15);
+		args.option('-r --run', 'Run now');
 
 		args.parse(process.argv);
 
@@ -428,7 +429,20 @@ var App = function() {
 
 		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, _delay, _numberOfDays));
 
-		schedule();
+		if (args.run) {
+			runOnce().then(function() {
+				console.log('Finished for today.');
+			})
+			.catch(function(error) {
+				console.log(error);
+			})
+			.finally(function() {
+			});
+		}
+		else {
+			schedule();
+
+		}
 
 	};
 
@@ -437,3 +451,8 @@ var App = function() {
 };
 
 new App();
+
+
+
+
+//2017-01-12	118.895	119.3	118.21	119.25

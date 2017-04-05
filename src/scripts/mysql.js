@@ -3,12 +3,7 @@ var sprintf  = require('yow').sprintf;
 var isString = require('yow').isString;
 var mysql    = require('mysql');
 
-/*
-host     : '104.199.12.40',
-user     : 'root',
-password : 'potatismos',
-database : 'munch'
-*/
+
 
 var Module = module.exports = function(options) {
 
@@ -59,7 +54,7 @@ var Module = module.exports = function(options) {
 	}
 
 	_this.format = function() {
-		return mysql.format.apply(this, arguments);
+		return mysql.format.apply(_this, arguments);
 	}
 
 	_this.upsert = function(table, row) {
