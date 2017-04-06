@@ -35,6 +35,9 @@ var Module = new function() {
 
 			}
 
+			if (!argv.days && !argv.since)
+				argv.days = 10;
+
 			return true;
 		});
 
@@ -288,7 +291,7 @@ var Module = new function() {
 		}
 	}
 
-	module.exports.command  = 'yahoo [options]';
+	module.exports.command  = 'download-yahoo-quotes [options]';
 	module.exports.describe = 'Download historical data from Yahoo Finance';
 	module.exports.builder  = defineArgs;
 	module.exports.handler  = run;
