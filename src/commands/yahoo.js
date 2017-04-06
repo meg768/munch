@@ -15,7 +15,7 @@ var Module = new function() {
 	function defineArgs(args) {
 
 		args.option('symbol', {alias: 's', describe:'Download specified symbol only'});
-		args.option('days',   {alias: 'd', describe:'Specifies number of days back in time to fetch'});
+		args.option('days',   {alias: 'd', describe:'Specifies number of days back in time to fetch'}, default:10);
 		args.option('since',  {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.help();
 
