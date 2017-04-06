@@ -199,7 +199,6 @@ var Module = new function() {
 					return upsert(quotes);
 				})
 				.then(function() {
-					console.log(sprintf('Updating stats for \'%s\'...', symbol));
 					return updateStatistics(symbol);
 				})
 			});
