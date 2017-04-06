@@ -17,7 +17,7 @@ var Module = new function() {
 		args.option('symbol', {alias: 's', describe:'Download specified symbol only'});
 		args.option('days',   {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',  {alias: 'c', describe:'Fetch quotes since the specified date'});
-
+		args.help();
 
 		args.wrap(null);
 
@@ -41,19 +41,61 @@ var Module = new function() {
 	}
 
 
-	function getMySQL() {
 
-		var options = {
-			host     : '104.155.92.17',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch'
-		};
+	function updateStatistics(symbol) {
 
-		return new MySQL(options);
-	};
+		return new Promise(function(resolve, reject) {
 
-	function computeSMA(days) {
+			function computeSMA(quotes, days) {
+				if (quotes.length < days)
+					return null;
+
+				var sum = 0;
+
+				for (var index = 0; index < days; index++)
+					sum += quotes[index].close;
+
+				return (sum / days).toFixed(2);
+			}
+
+			function computeAV(quotes, days) {
+				if (quotes.length < days)
+					return null;
+
+				var sum = 0;
+
+				for (var index = 0; index < days; index++)
+					sum += quotes[index].volume;
+
+				return (sum / days).toFixed(0);
+			}
+
+
+			var query = {};
+			query.sql = 'SELECT * FROM history WHERE symbol = ? ORDER BY date DESC LIMIT 200';
+			query.values = [symbol];
+
+			_db.query(query).then(function(quotes) {
+
+				var row = {};
+
+				row.symbol = symbol;
+				row.SMA200 = computeSMA(quotes, 200);
+				row.SMA50  = computeSMA(quotes, 50);
+				row.SMA10  = computeSMA(quotes, 10);
+				row.AV14   = computeAV(quotes, 14);
+
+				return _db.upsert('stocks', row);
+			})
+
+			.then(function(row) {
+				resolve();
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+
+		});
 
 	}
 
@@ -73,7 +115,6 @@ var Module = new function() {
 				});
 
 				resolve(symbols);
-				//resolve(['AAPL']);
 			})
 			.catch(function(error) {
 				reject(error);
@@ -156,7 +197,11 @@ var Module = new function() {
 				.then(function(quotes) {
 					console.log(sprintf('Updating %d quotes for \'%s\'...', quotes.length, symbol));
 					return upsert(quotes);
-				});
+				})
+				.then(function() {
+					console.log(sprintf('Updating stats for \'%s\'...', symbol));
+					return updateStatistics(symbol);
+				})
 			});
 
 			promise.then(function() {
@@ -217,30 +262,31 @@ var Module = new function() {
 		try {
 			_argv = argv;
 
-			var mysql = getMySQL();
+			var mysql = new MySQL();
 
 			mysql.connect().then(function(db) {
 
 				_db = db;
 
-				process().then(function() {
+				return process().then(function() {
 					db.end();
+					return Promise.resolve();
 				})
-				.catch(function(error){
-					console.log(error.stack);
+				.catch(function(error) {
 					db.end();
-				});
+					return Promise.reject(error);
+				})
 			})
-			.catch(function(error) {
+
+			.catch(function(error){
 				console.log(error.stack);
-			})
+			});
+
 
 		}
 		catch(error) {
 			console.log(error.stack);
 		}
-
-
 	}
 
 	module.exports.command  = 'yahoo [options]';

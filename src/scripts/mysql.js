@@ -5,7 +5,7 @@ var mysql    = require('mysql');
 
 
 
-var Module = module.exports = function(options) {
+var Module = module.exports = function() {
 
 	var _this = this;
 	var _connection = null;
@@ -81,8 +81,15 @@ var Module = module.exports = function(options) {
 
 
 	function init() {
+		var options = {
+			host     : '104.155.92.17',
+			user     : 'root',
+			password : 'potatismos',
+			database : 'munch'
+		};
 
 		console.log(sprintf('Connecting to %s@%s...', options.database, options.host));
+
 		_connection  = mysql.createConnection(options);
 	}
 
