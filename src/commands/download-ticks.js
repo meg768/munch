@@ -28,15 +28,18 @@ var Command = new function() {
 
 	function defineArgs(args) {
 
-		args.option('count', {alias: 'c', describe:'Number of quotes to fetch per batch', default:10});
-		args.option('days',  {alias: 'd', describe:'Specifies number of days back in time to fetch', default: 5});
-		args.option('pause', {alias: 'p', describe:'Number of seconds to pause before fetching next batch', default:15});
-		args.option('schedule', {alias: 'S', describe:'Specify cron-style scheduling'});
+		args.option('count',    {alias: 'c', describe:'Number of quotes to fetch per batch', default:10});
+		args.option('days',     {alias: 'd', describe:'Specifies number of days back in time to fetch', default: 5});
+		args.option('pause',    {alias: 'p', describe:'Number of seconds to pause before fetching next batch', default:15});
+		args.option('schedule', {alias: 'x', describe:'Specify cron-style scheduling'});
 		args.help();
 
 		args.wrap(null);
 
 		args.check(function(argv) {
+			if (argv.days > 14 || argv.days < 1)
+				throw new Error('Number of days must be from 1 - 14.');
+
 			return true;
 		});
 
@@ -348,16 +351,13 @@ var Command = new function() {
 
 	}
 
-	function schedule() {
+	function schedule(cron) {
 
 		var busy    = false;
-		var rule    = new Schedule.RecurrenceRule();
-		rule.hour   = 3;
-		rule.minute = 0;
 
-		console.log(sprintf('Scheduling to start daily work at %02d:%02d', rule.hour, rule.minute));
+		console.log(sprintf('Scheduling to start work at cron-time "%s"...', cron));
 
-		Schedule.scheduleJob(rule, function() {
+		var job = Schedule.scheduleJob(cron, function() {
 			if (busy) {
 				console.log('Busy. Try again later.');
 			}
@@ -377,37 +377,46 @@ var Command = new function() {
 		});
 
 
+		if (job == null) {
+			throw new Error('Invalid cron time.');
+		}
 
 	};
 
 	function run(args) {
 
+		try {
+			_fetchCount = parseInt(args.count);
+			_numberOfDays = parseInt(args.days);
+			_delay = parseInt(args.pause);
 
-		_fetchCount = parseInt(args.count);
-		_numberOfDays = parseInt(args.days);
-		_delay = parseInt(args.pause);
+			if (_numberOfDays > 14)
+				_numberOfDays = 14;
 
-		if (_numberOfDays > 14)
-			_numberOfDays = 14;
+			if (_delay < 1)
+				_delay = 1;
 
-		if (_delay < 1)
-			_delay = 1;
+			console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, _delay, _numberOfDays));
 
-		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, _delay, _numberOfDays));
+			if (isString(args.schedule)) {
+				schedule(args.schedule);
+			}
+			else {
+				runOnce().then(function() {
+					console.log('Finished for today.');
+				})
+				.catch(function(error) {
+					console.log(error);
+				})
+				.finally(function() {
+				});
 
-		if (isString(args.schedule)) {
-			schedule(args.schedule);
+			}
+
+
 		}
-		else {
-			runOnce().then(function() {
-				console.log('Finished for today.');
-			})
-			.catch(function(error) {
-				console.log(error);
-			})
-			.finally(function() {
-			});
-
+		catch(error) {
+			console.log(error);
 		}
 
 	};
