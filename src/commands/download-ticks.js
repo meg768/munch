@@ -413,8 +413,8 @@ var Command = new function() {
 	};
 
 
-	module.exports.command  = ['download-ticks [options]', 'dt [options]'];
-	module.exports.describe = 'Download ticks from Yahoo Finance';
+	module.exports.command  = ['download-ticks-from-google-finance [options]', 'dtfgf [options]'];
+	module.exports.describe = 'Download ticks from Google Finance';
 	module.exports.builder  = defineArgs;
 	module.exports.handler  = run;
 
