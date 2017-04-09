@@ -3,25 +3,22 @@
 
 ## Running with **forever**
 
-	$ sudo forever start download-quotes.js
-	$ sudo forever start munch.js dtfgf --schedule "00 03 * * *"
-
+	$ sudo forever start munch.js {script} [options]
 
 ## Install with **forever-service**
 
-	$ sudo forever-service install download-quotes --script download-quotes.js --scriptOptions " " --foreverOptions " -w"
-	$ sudo forever-service install download-ticks --script ./munch.js --scriptOptions " dtfgf --schedule '00 03 * * *'" --foreverOptions " -w"
+	$ sudo forever-service install download-ticks --script ./munch.js --scriptOptions " download-ticks --schedule '00 03 * * *'" --foreverOptions " -w"
+	$ sudo forever-service install backup-munch   --script ./munch.js --scriptOptions " backup --schedule '00 22 * * *'" --foreverOptions " -w"
 
 ## Controlling the service
 
-	$ sudo service download-quotes stop
-	$ sudo service download-quotes start
+	$ sudo service {service-name} stop
 
 ## Display running services
 	$ sudo forever list
 
 ## Delete service
-	$ sudo forever-service delete download-quotes
+	$ sudo forever-service delete {service-name}
 
 ## Personal notes
 	http://superuser.com/questions/476512/how-do-i-permanently-reset-the-time-zone-in-debian
@@ -31,6 +28,5 @@
 	http://unix.stackexchange.com/questions/226089/how-to-install-service-command-in-a-stable-debian
 	https://support.rackspace.com/how-to/mysql-connect-to-your-database-remotely/
 	https://nodejs.org/en/download/package-manager/
-
 	https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
 	http://www.backuphowto.info/how-backup-mysql-database-automatically-linux-users
