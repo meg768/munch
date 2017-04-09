@@ -4,10 +4,13 @@
 ## Running with **forever**
 
 	$ sudo forever start download-quotes.js
+	$ sudo forever start munch.js dtfgf --schedule "00 03 * * *"
+
 
 ## Install with **forever-service**
 
 	$ sudo forever-service install download-quotes --script download-quotes.js --scriptOptions " " --foreverOptions " -w"
+	$ sudo forever-service install download-ticks --script ./munch.js --scriptOptions " dtfgf --schedule '00 03 * * *'" --foreverOptions " -w"
 
 ## Controlling the service
 
