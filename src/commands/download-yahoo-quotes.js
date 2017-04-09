@@ -3,6 +3,7 @@ var isArray    = require('yow/is').isArray;
 var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
+var prefixLogs = require('yow/logs').prefix;
 var MySQL      = require('../scripts/mysql.js');
 var yahoo      = require('yahoo-finance');
 
@@ -14,9 +15,10 @@ var Module = new function() {
 
 	function defineArgs(args) {
 
-		args.option('symbol', {alias: 's', describe:'Download specified symbol only'});
-		args.option('days',   {alias: 'd', describe:'Specifies number of days back in time to fetch'});
-		args.option('since',  {alias: 'c', describe:'Fetch quotes since the specified date'});
+		args.option('symbol',    {alias: 's', describe:'Download specified symbol only'});
+		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
+		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
+		args.option('cron',      {alias: 'C', describe:'Schedule job at specified cron date/time format'});
 		args.help();
 
 		args.wrap(null);
@@ -259,11 +261,11 @@ var Module = new function() {
 	}
 
 
-	function run(argv) {
 
-		try {
-			_argv = argv;
 
+	function work() {
+
+		return new Promise(function(resolve, reject) {
 			var mysql = new MySQL();
 
 			mysql.connect().then(function(db) {
@@ -283,7 +285,73 @@ var Module = new function() {
 			.catch(function(error){
 				console.log(error.stack);
 			});
+		});
+	}
 
+
+	function cron(work) {
+
+		try {
+			var Schedule = require('node-schedule');
+			var running  = false;
+
+			console.log(sprintf('Scheduling to run at cron-time "%s"...', _argv.cron));
+
+			var job = Schedule.scheduleJob(_argv.cron, function() {
+
+				console.log('XXXX');
+				if (running) {
+					console.log('Upps! Running already!!');
+				}
+				else {
+					running = true;
+
+					work().then(function() {
+						running = false;
+					})
+					.catch(function(error) {
+						running = false;
+						console.log(error.stack);
+					});
+				}
+			});
+
+			if (job == null) {
+				throw new Error('Invalid cron time.');
+			}
+
+			return Promise.resolve();
+
+		}
+		catch(error) {
+			return Promise.reject(error);
+		}
+
+	}
+
+
+
+	function run(argv) {
+
+		try {
+			_argv = argv;
+
+			prefixLogs();
+
+			var promise = Promise.resolve();
+
+			if (isString(_argv.cron))
+				promise = cron(work);
+			else
+				promise = work();
+
+			promise.then(function() {
+
+			})
+			.catch(function(error) {
+				console.log(error.stack);
+
+			});
 
 		}
 		catch(error) {
@@ -291,7 +359,7 @@ var Module = new function() {
 		}
 	}
 
-	module.exports.command  = 'download-yahoo-quotes [options]';
+	module.exports.command  = ['download-yahoo-quotes [options]', 'dyq [options]'];
 	module.exports.describe = 'Download historical data from Yahoo Finance';
 	module.exports.builder  = defineArgs;
 	module.exports.handler  = run;

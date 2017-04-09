@@ -12,10 +12,11 @@ var App = function() {
 
 			args.usage('Usage: $0 <command> [options]')
 
-			args.command(require('./src/commands/test.js'));
-			args.command(require('./src/commands/yahoo.js'));
+			args.command(require('./src/commands/download-yahoo-quotes.js'));
+			args.command(require('./src/commands/download-ticks.js'));
 
 			args.help();
+			args.wrap(null);
 
 			args.check(function(argv) {
 				return true;
