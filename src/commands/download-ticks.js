@@ -12,7 +12,7 @@ var fileExists = require('yow/fs').fileExists;
 var mkdir      = require('yow/fs').mkdir;
 var mkpath     = require('yow/fs').mkpath;
 var isInteger  = require('yow/is').isInteger;
-var prefixLogs = require('yow/logs').prefixLogs;
+var prefixLogs = require('yow/logs').prefix;
 
 var Gopher  = require('rest-request');
 var MySQL   = require('../scripts/mysql.js');
@@ -386,6 +386,8 @@ var Command = new function() {
 	function run(args) {
 
 		try {
+			prefixLogs();
+
 			_fetchCount = parseInt(args.count);
 			_numberOfDays = parseInt(args.days);
 			_delay = parseInt(args.pause);
