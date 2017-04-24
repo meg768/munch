@@ -38,7 +38,7 @@ var Module = new function() {
 			}
 
 			if (!argv.days && !argv.since)
-				argv.days = 10;
+				argv.days = 20;
 
 			return true;
 		});
