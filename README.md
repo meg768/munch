@@ -8,10 +8,10 @@
 ## Install with **forever-service**
 
 	$ sudo forever-service install munch-download-ticks --script ./munch.js --scriptOptions " download-ticks --schedule '00 03 * * *'" --start
+	$ sudo forever-service install munch-download-quotes --script ./munch.js --scriptOptions " download-quotes --schedule '00 05 * * *'" --start
 	$ sudo forever-service install munch-backup   --script ./munch.js --scriptOptions " backup --schedule '00 01 * * *' --password XXX" --start
 
 ## Controlling the service
-
 	$ sudo service {service-name} stop
 
 ## Display running services

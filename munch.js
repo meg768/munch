@@ -12,7 +12,7 @@ var App = function() {
 
 			args.usage('Usage: $0 <command> [options]')
 
-			args.command(require('./src/commands/download-yahoo-quotes.js'));
+			args.command(require('./src/commands/download-quotes.js'));
 			args.command(require('./src/commands/download-ticks.js'));
 			args.command(require('./src/commands/backup.js'));
 

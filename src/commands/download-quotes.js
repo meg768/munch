@@ -1,261 +1,160 @@
-
-var fs       = require('fs');
-var Promise  = require('bluebird');
-var Path     = require('path');
-var Progress = require('progress');
-
-var sprintf    = require('yow').sprintf;
-var extend     = require('yow').extend;
-var isString   = require('yow').isString;
-var fileExists = require('yow').fileExists;
-var mkdir      = require('yow').mkdir;
-var mkpath     = require('yow').mkpath;
-var isInteger  = require('yow').isInteger;
-
-var Gopher  = require('rest-request');
+var sprintf    = require('yow/sprintf');
+var isArray    = require('yow/is').isArray;
+var isString   = require('yow/is').isString;
+var isDate     = require('yow/is').isDate;
+var isInteger  = require('yow/is').isInteger;
+var prefixLogs = require('yow/logs').prefix;
+var MySQL      = require('../scripts/mysql.js');
+var yahoo      = require('yahoo-finance');
 
 
+var Module = new function() {
 
-var Module = module.exports = function(args) {
+	var _db = undefined;
+	var _argv = undefined;
 
+	function defineArgs(args) {
 
-	var _fetchCount     = undefined;
-	var _numberOfDays   = undefined;
-	var _startDate      = new Date();
+		args.option('symbol',    {alias: 's', describe:'Download specified symbol only'});
+		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
+		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
+		args.option('cron',      {alias: 'C', describe:'Schedule job at specified cron date/time format'});
+		args.help();
 
+		args.wrap(null);
 
-	if (args.count)
-		_fetchCount = parseInt(args.count);
+		args.check(function(argv) {
+			if (argv.days && argv.since)
+				throw new Error('Cannot specify both --since and --days.');
 
-	if (args.days)
-		_numberOfDays = parseInt(args.days);
+			if (argv.days && !isInteger(argv.days)) {
+				throw new Error(sprintf('Invalid number of days "%s".', argv.days));
+			}
 
-	if (_numberOfDays == undefined) {
-		console.warn('Number of days to download is not specified. Assuming 5.');
-		_numberOfDays = 5;
-	}
+			if (argv.since) {
+				if (!isDate(new Date(argv.since)))
+					throw new Error(sprintf('Invalid date "%s".', argv.since));
 
-	if (_numberOfDays > 14)
-		_numberOfDays = 14;
+			}
 
-	if (_fetchCount == undefined) {
-		console.warn('Number of stocks to update not specified. Assuming 10.');
-		_fetchCount = 10;
-	}
+			if (!argv.days && !argv.since)
+				argv.days = 10;
 
+			return true;
+		});
 
-	function stringify(o) {
-		return JSON.stringify(o, null, '\t');
 	}
 
 
 
-	function getSymbolsToUpdate(db) {
+	function updateStatistics(symbol) {
 
 		return new Promise(function(resolve, reject) {
-			var date = new Date();
-			date.setDate(date.getDate() - 1);
+
+			function computeSMA(quotes, days) {
+				if (quotes.length < days)
+					return null;
+
+				var sum = 0;
+
+				for (var index = 0; index < days; index++)
+					sum += quotes[index].close;
+
+				return (sum / days).toFixed(2);
+			}
+
+			function computeAV(quotes, days) {
+				if (quotes.length < days)
+					return null;
+
+				var sum = 0;
+
+				for (var index = 0; index < days; index++)
+					sum += quotes[index].volume;
+
+				return (sum / days).toFixed(0);
+			}
+
 
 			var query = {};
+			query.sql = 'SELECT * FROM history WHERE symbol = ? ORDER BY date DESC LIMIT 200';
+			query.values = [symbol];
 
-			query.sql = '';
-			query.sql += sprintf('SELECT symbol from stocks ');
-			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
-			query.sql += sprintf('ORDER by downloaded ASC, symbol ASC');
+			_db.query(query).then(function(quotes) {
 
-			query.values = [_startDate.toISOString()];
+				var row = {};
 
-			db.query(query).then(function(rows) {
-				if (rows.length > 0) {
-					console.log(sprintf('%d stocks needs an update...', rows.length));
-				}
+				row.symbol = symbol;
+				row.SMA200 = computeSMA(quotes, 200);
+				row.SMA50  = computeSMA(quotes, 50);
+				row.SMA10  = computeSMA(quotes, 10);
+				row.AV14   = computeAV(quotes, 14);
 
-				// Only picks the first ones
-				rows = rows.slice(0, _fetchCount);
+				return _db.upsert('stocks', row);
+			})
 
-				var symbols = rows.map(function(row) {
-					return row.symbol;
+			.then(function(row) {
+				resolve();
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+
+		});
+
+	}
+
+	function getSymbols() {
+
+		if (isString(_argv.symbol))
+			return Promise.resolve([_argv.symbol]);
+
+		return new Promise(function(resolve, reject) {
+
+			_db.query('SELECT symbol FROM stocks').then(function(rows) {
+
+				var symbols = [];
+
+				rows.forEach(function(row) {
+					symbols.push(row.symbol);
 				});
 
 				resolve(symbols);
-
 			})
 			.catch(function(error) {
 				reject(error);
-			});
 
+			});
 		});
 	}
 
-
-
-
-
-
-	function downloadQuotes(db, symbol) {
-
+	function upsert(quotes) {
 		return new Promise(function(resolve, reject) {
-			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 
-				Promise.each(quotes, function(quote) {
-					return db.upsert('quotes', quote);
-				})
-
-				.then(function() {
-					var now = new Date();
-
-					var query = {};
-					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
-					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
-
-
-					db.query(query).then(function(a, b, c) {
-						console.log(sprintf('Updated %s with %d quotes.', symbol, quotes.length));
-						resolve(quotes);
-
-					})
-					.catch(function(error){
-						reject(error);
-
-					});
-				})
-
-				.catch(function(error) {
-					reject(error);
-				});
-
-
-			})
-
-			.catch(function(error, response, body) {
-				console.error(sprintf('Failed loading %s', symbol));
-				reject(error);
-			});
-
-		});
-
-	}
-
-
-	function requestQuotes(symbol, days, interval) {
-
-		var gopher = new Gopher('http://www.google.com/finance');
-
-		return new Promise(function(resolve, reject) {
-			var params = {};
-			params.q = symbol;
-			params.i = interval;
-			params.p = sprintf('%dd', days);
-			params.f = 'd,o,h,l,c,v';
-
-//			console.log(sprintf('Requesting quotes for %d days for symbol %s...', days, symbol));
-
-			var request = gopher.request('GET', 'getprices', params);
-
-			request.then(function(result) {
-				try {
-					resolve(parseQuotes(symbol, result));
-
-				}
-				catch (error) {
-					reject(error);
-
-				};
-			})
-			.catch(function(error) {
-				reject(error);
-			});
-
-		});
-
-	}
-
-
-	function parseQuotes(symbol, text) {
-
-		var rows = text.split('\n');
-
-		var header = {};
-
-		header.exchange       = rows.shift();
-		header.marketOpen     = parseInt(rows.shift().split('=')[1]);
-		header.marketClose    = parseInt(rows.shift().split('=')[1]);
-		header.interval       = parseInt(rows.shift().split('=')[1]);
-		header.columns        = rows.shift().split('=')[1].split(',');
-		header.data           = rows.shift().split('=')[1];
-		header.timezoneOffset = parseInt(rows.shift().split('=')[1]);
-
-		var quotes = [];
-		var date, time;
-
-		if (!isInteger(header.timezoneOffset)) {
-			/*
-			console.log('Invalid header!!!');
-			console.log('--------------------------------');
-			console.log(text);
-			console.log('--------------------------------');
-			*/
-			return quotes;
-		}
-
-		rows.forEach(function(row) {
-			var cols = row.split(',');
-
-			if (cols.length == 6) {
-				var quote = {};
-
-				if (cols[0][0] == 'a') {
-					date = new Date(parseInt(cols[0].substring(1)) * 1000);
-					date = new Date(date.getTime() + 1000 * header.timezoneOffset * 60);
-					time = date;
-				}
-				else {
-					time = new Date(date.getTime() + 1000 * header.interval * parseInt(cols[0]));
-				}
-
-				var dateKey = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-				var timeKey = sprintf('%02d:%02d', time.getUTCHours(), time.getUTCMinutes());
-
-				quote.symbol  = symbol;
-				quote.date    = dateKey;
-				quote.time    = timeKey;
-				quote.close   = parseFloat(cols[1]);
-				quote.high    = parseFloat(cols[2]);
-				quote.low     = parseFloat(cols[3]);
-				quote.open    = parseFloat(cols[4]);
-				quote.volume  = parseInt(cols[5]);
-
-				quotes.push(quote);
+			function round(value) {
+				return parseFloat(value).toFixed(4);
 			}
-		})
 
-		return quotes;
-
-	}
+			var promise = Promise.resolve();
 
 
+			quotes.forEach(function(quote) {
+				promise = promise.then(function() {
+					var row = {};
+					row.date   = quote.date;
+					row.symbol = quote.symbol;
+					row.open   = round(quote.open);
+					row.high   = round(quote.high);
+					row.low    = round(quote.low);
+					row.close  = round(quote.close);
+					row.volume = quote.volume;
 
-
-
-
-	function process(db) {
-
-		return new Promise(function(resolve, reject) {
-			getSymbolsToUpdate(db).then(function(symbols) {
-
-				Promise.each(symbols, function(symbol) {
-					return downloadQuotes(db, symbol).then(function(quotes) {
-					});
-				})
-
-				.then(function() {
-					resolve(symbols);
-				})
-
-				.catch(function(error) {
-					reject(error);
+					return _db.upsert('history', row);
 				});
+			});
 
+			promise.then(function() {
+				resolve(quotes.length);
 			})
 			.catch(function(error) {
 				reject(error);
@@ -266,84 +165,205 @@ var Module = module.exports = function(args) {
 	}
 
 
-	function run() {
-
-		var options = {
-			//host     : '130.211.79.11',
-			// host     : '104.199.47.32',
-			host     : '104.155.92.17',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch'
-		};
-
-		var MySQL = require('../scripts/mysql.js');
-		var mysql = new MySQL(options);
+	function download(symbols, from, to) {
 
 		return new Promise(function(resolve, reject) {
+
+
+			function fetch(symbol, from, to) {
+
+				return new Promise(function(resolve, reject) {
+					var options = {};
+					options.symbol = symbol;
+					options.from   = new Date(from);
+					options.to     = new Date(to);
+
+					yahoo.historical(options, function (error, quotes) {
+						if (error)
+							reject(error);
+						else
+							resolve(quotes);
+					});
+
+				});
+			}
+
+			console.log(sprintf('Fetching historical quotes from %s to %s...', from.toLocaleDateString(), to.toLocaleDateString()));
+
+			if (!isArray(symbols))
+				symbols = [symbols];
+
+			var promise = Promise.resolve();
+
+			symbols.forEach(function(symbol) {
+				promise = promise.then(function() {
+					return fetch(symbol, from, to);
+				})
+				.then(function(quotes) {
+					console.log(sprintf('Updating %d quotes for \'%s\'...', quotes.length, symbol));
+					return upsert(quotes);
+				})
+				.then(function() {
+					return updateStatistics(symbol);
+				})
+			});
+
+			promise.then(function() {
+				resolve(symbols.length);
+			})
+			.catch(function(error) {
+				reject(error);
+			});
+
+		});
+	}
+
+	function process() {
+
+
+		return new Promise(function(resolve, reject) {
+
+			getSymbols().then(function(symbols) {
+				try {
+
+					var startDate = new Date();
+					var endDate = new Date();
+
+					if (_argv.since) {
+
+						startDate = new Date(_argv.since);
+					}
+
+					if (_argv.days) {
+						startDate.setDate(startDate.getDate() - _argv.days);
+					}
+
+					download(symbols, startDate, endDate).then(function() {
+						return Promise.resolve(symbols.length);
+					})
+					.then(function(count) {
+						console.log(sprintf('A total of %d symbol(s) downloaded and updated.', count));
+						resolve();
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				}
+				catch(error) {
+					reject(error);
+
+				}
+
+			});
+		});
+
+	}
+
+
+
+
+	function work() {
+
+		return new Promise(function(resolve, reject) {
+			var mysql = new MySQL();
+
 			mysql.connect().then(function(db) {
 
-				process(db).then(function(symbols) {
-					resolve(symbols);
+				_db = db;
+
+				return process().then(function() {
+					db.end();
+					return Promise.resolve();
 				})
 				.catch(function(error) {
-					reject(error);
-				})
-				.finally(function() {
 					db.end();
-
-				});
+					return Promise.reject(error);
+				})
 			})
-			.catch(function(error) {
-				reject(error);
-			});
 
+			.catch(function(error){
+				console.log(error.stack);
+			});
 		});
-
-
 	}
 
 
-	function schedule() {
-		var delay = undefined;
+	function cron(work) {
 
-		if (args.delay)
-			delay = parseInt(args.delay);
+		try {
+			var Schedule = require('node-schedule');
+			var running  = false;
 
-		if (delay == undefined) {
-			console.log('No --delay specified. Assuming 15 seconds');
-			delay = 15;
-		}
+			console.log(sprintf('Scheduling to run at cron-time "%s"...', _argv.cron));
 
-		if (delay < 1)
-			delay = 1;
+			var job = Schedule.scheduleJob(_argv.cron, function() {
 
-		console.log(sprintf('Fetch count is set to %d every %d second(s) and fetching %d days of quotes.', _fetchCount, delay, _numberOfDays));
-
-
-		function loop() {
-			run().then(function(symbols) {
-				if (symbols.length > 0)
-					setTimeout(loop, delay * 1000);
-				else {
-					console.log('Finished.');
+				console.log('XXXX');
+				if (running) {
+					console.log('Upps! Running already!!');
 				}
-			})
-			.catch(function(error) {
-				setTimeout(loop, 30 * 1000);
-				console.log(error);
+				else {
+					running = true;
+
+					work().then(function() {
+						running = false;
+					})
+					.catch(function(error) {
+						running = false;
+						console.log(error.stack);
+					});
+				}
 			});
 
+			if (job == null) {
+				throw new Error('Invalid cron time.');
+			}
+
+			return Promise.resolve();
 
 		}
-
-		loop();
+		catch(error) {
+			return Promise.reject(error);
+		}
 
 	}
 
 
-	this.run = function() {
-		schedule();
+
+	function run(argv) {
+
+		try {
+			_argv = argv;
+
+			prefixLogs();
+
+			var promise = Promise.resolve();
+
+			if (isString(_argv.cron))
+				promise = cron(work);
+			else
+				promise = work();
+
+			promise.then(function() {
+
+			})
+			.catch(function(error) {
+				console.log(error.stack);
+
+			});
+
+		}
+		catch(error) {
+			console.log(error.stack);
+		}
 	}
+
+	module.exports.command  = ['download-quotes [options]', 'dq [options]'];
+	module.exports.describe = 'Download historical data from Yahoo Finance';
+	module.exports.builder  = defineArgs;
+	module.exports.handler  = run;
+
+
 
 };
