@@ -18,7 +18,7 @@ var Module = new function() {
 		args.option('symbol',    {alias: 's', describe:'Download specified symbol only'});
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
-		args.option('cron',      {alias: 'C', describe:'Schedule job at specified cron date/time format'});
+		args.option('schedule',  {alias: 'C', describe:'Schedule job at specified cron date/time format'});
 		args.help();
 
 		args.wrap(null);
@@ -289,17 +289,16 @@ var Module = new function() {
 	}
 
 
-	function cron(work) {
+	function schedule(cron) {
 
 		try {
 			var Schedule = require('node-schedule');
 			var running  = false;
 
-			console.log(sprintf('Scheduling to run at cron-time "%s"...', _argv.cron));
+			console.log(sprintf('Scheduling to run at cron-time "%s"...', cron));
 
-			var job = Schedule.scheduleJob(_argv.cron, function() {
+			var job = Schedule.scheduleJob(cron, function() {
 
-				console.log('XXXX');
 				if (running) {
 					console.log('Upps! Running already!!');
 				}
@@ -340,8 +339,8 @@ var Module = new function() {
 
 			var promise = Promise.resolve();
 
-			if (isString(_argv.cron))
-				promise = cron(work);
+			if (isString(_argv.schedule))
+				promise = schedule(_argv.schedule);
 			else
 				promise = work();
 
