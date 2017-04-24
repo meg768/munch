@@ -18,7 +18,7 @@ var Module = new function() {
 		args.option('symbol',    {alias: 's', describe:'Download specified symbol only'});
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
-		args.option('schedule',  {alias: 'C', describe:'Schedule job at specified cron date/time format'});
+		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
 		args.help();
 
 		args.wrap(null);
