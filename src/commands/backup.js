@@ -72,7 +72,7 @@ var Module = new function() {
 		var user       = _argv.user;
 
 
-		var datestamp  = sprintf('%04d-%02d-%02d-%02d-%02d', now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());
+		var datestamp  = sprintf('%04d-%02d-%02d-%02d-%02d', now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes());
 
 		var tmpPath    = sprintf('%s/%s', __dirname, 'backups');
 		var backupName = sprintf('%s-%s.sql.gz', database, datestamp);
