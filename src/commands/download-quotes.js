@@ -57,7 +57,7 @@ var Module = new function() {
 
 				var sum = 0;
 
-				for (var index = 0; index < days; index++)
+				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].close;
 
 				return (sum / days).toFixed(2);
@@ -69,16 +69,63 @@ var Module = new function() {
 
 				var sum = 0;
 
-				for (var index = 0; index < days; index++)
+				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].volume;
 
 				return (sum / days).toFixed(0);
 			}
 
+			function computeWeekLow(quotes, weeks) {
+
+				var days = weeks * 5;
+
+				if (quotes.length < days)
+					return null;
+
+				var min = undefined;
+
+				for (var index = quotes.length - days; index < quotes.length; index++)
+					min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
+
+				return min;
+			}
+
+			function computeWeekHigh(quotes, weeks) {
+
+				var days = weeks * 5;
+
+				if (quotes.length < days)
+					return null;
+
+				var min = undefined;
+
+				for (var index = quotes.length - days; index < quotes.length; index++)
+					min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
+
+				return min;
+			}
+
+			function computeATR(quotes, days) {
+				if (quotes.length < days)
+					return null;
+
+				var atr = undefined;
+
+				for (var index = quotes.length - days; index < quotes.length; index++) {
+					if (atr == undefined)
+						atr = quotes[index].high - quotes[index].low;
+					else {
+						atr += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
+					}
+				}
+				return (atr / days).toFixed(2);
+
+			}
+
 
 			var query = {};
-			query.sql = 'SELECT * FROM history WHERE symbol = ? ORDER BY date DESC LIMIT 200';
-			query.values = [symbol];
+			query.sql = 'SELECT * FROM history WHERE symbol = ? ORDER BY date DESC LIMIT ?';
+			query.values = [symbol, 51 * 5];
 
 			_db.query(query).then(function(quotes) {
 
@@ -89,6 +136,9 @@ var Module = new function() {
 				row.SMA50  = computeSMA(quotes, 50);
 				row.SMA10  = computeSMA(quotes, 10);
 				row.AV14   = computeAV(quotes, 14);
+				row.WL51   = computeWeekLow(quotes, 51);
+				row.WH51   = computeWeekHigh(quotes, 51);
+				row.ATR14   = computeATR(quotes, 14);
 
 				return _db.upsert('stocks', row);
 			})

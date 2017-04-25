@@ -31,7 +31,7 @@ var Command = new function() {
 		args.option('count',    {alias: 'c', describe:'Number of quotes to fetch per batch', default:10});
 		args.option('days',     {alias: 'd', describe:'Specifies number of days back in time to fetch', default: 5});
 		args.option('pause',    {alias: 'p', describe:'Number of seconds to pause before fetching next batch', default:15});
-		args.option('schedule', {alias: 'x', describe:'Specify cron-style scheduling'});
+		args.option('schedule', {alias: 'x', describe:'Schedule job at specified cron date/time format'});
 		args.help();
 
 		args.wrap(null);
