@@ -102,7 +102,7 @@ var Module = new function() {
 				for (var index = quotes.length - days; index < quotes.length; index++)
 					max = (max == undefined) ? quotes[index].close : Math.max(max, quotes[index].close);
 
-				return min;
+				return max;
 			}
 
 			function computeATR(quotes, days) {
