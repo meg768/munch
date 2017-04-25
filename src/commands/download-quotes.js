@@ -60,7 +60,7 @@ var Module = new function() {
 				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].close;
 
-				return (sum / days).toFixed(2);
+				return sum / days;
 			}
 
 			function computeAV(quotes, days) {
@@ -72,7 +72,7 @@ var Module = new function() {
 				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].volume;
 
-				return (sum / days).toFixed(0);
+				return sum / days;
 			}
 
 			function computeWeekLow(quotes, weeks) {
@@ -105,20 +105,43 @@ var Module = new function() {
 				return max;
 			}
 
-			function computeATR(quotes, days) {
+			function computeATRX(quotes, days) {
 				if (quotes.length < days)
 					return null;
 
-				var atr = undefined;
+				var ATR = 0;
 
-				for (var index = quotes.length - days; index < quotes.length; index++) {
-					if (atr == undefined)
-						atr = quotes[index].high - quotes[index].low;
-					else {
-						atr += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
-					}
+				for (var index = quotes.length - days, count = 0; count < days; count++, index++) {
+					if (count == 0)
+						ATR = quotes[index].high - quotes[index].low;
+					else
+						ATR += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
 				}
-				return (atr / days).toFixed(2);
+
+				return ATR / days;
+			}
+
+			function computeATR(quotes, days) {
+				if (quotes.length < 2 * days)
+					return null;
+
+				var ATR = 0;
+
+				for (var index = quotes.length - 2 * days, count = 0; count < days; count++, index++) {
+					if (count == 0)
+						ATR = quotes[index].high - quotes[index].low;
+					else
+						ATR += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
+				}
+
+				ATR = ATR / days;
+
+				for (var index = quotes.length - days, count = 0; count < days; count++, index++) {
+					var TR = Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
+					ATR = (ATR * (days-1) + TR) / days;
+				}
+
+				return ATR;
 
 			}
 
@@ -132,13 +155,13 @@ var Module = new function() {
 				var row = {};
 
 				row.symbol = symbol;
-				row.SMA200 = computeSMA(quotes, 200);
-				row.SMA50  = computeSMA(quotes, 50);
-				row.SMA10  = computeSMA(quotes, 10);
-				row.AV14   = computeAV(quotes, 14);
-				row.WL51   = computeWeekLow(quotes, 51);
-				row.WH51   = computeWeekHigh(quotes, 51);
-				row.ATR14   = computeATR(quotes, 14);
+				row.SMA200 = computeSMA(quotes, 200).toFixed(2);
+				row.SMA50  = computeSMA(quotes, 50).toFixed(2);
+				row.SMA10  = computeSMA(quotes, 10).toFixed(2);
+				row.AV14   = computeAV(quotes, 14).toFixed(0);
+				row.WL51   = computeWeekLow(quotes, 51).toFixed(2);
+				row.WH51   = computeWeekHigh(quotes, 51).toFixed(2);
+				row.ATR14  = computeATR(quotes, 14).toFixed(2);
 
 				return _db.upsert('stocks', row);
 			})
