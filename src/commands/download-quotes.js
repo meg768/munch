@@ -60,7 +60,7 @@ var Module = new function() {
 				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].close;
 
-				return sum / days;
+				return parseFloat((sum / days).toFixed(2));
 			}
 
 			function computeAV(quotes, days) {
@@ -72,7 +72,7 @@ var Module = new function() {
 				for (var index = quotes.length - days; index < quotes.length; index++)
 					sum += quotes[index].volume;
 
-				return sum / days;
+				return parseInt((sum / days).toFixed(0));
 			}
 
 			function computeWeekLow(quotes, weeks) {
@@ -141,7 +141,7 @@ var Module = new function() {
 					ATR = (ATR * (days-1) + TR) / days;
 				}
 
-				return ATR;
+				return parseFloat(ATR.toFixed(2));
 
 			}
 
@@ -155,13 +155,13 @@ var Module = new function() {
 				var row = {};
 
 				row.symbol = symbol;
-				row.SMA200 = computeSMA(quotes, 200).toFixed(2);
-				row.SMA50  = computeSMA(quotes, 50).toFixed(2);
-				row.SMA10  = computeSMA(quotes, 10).toFixed(2);
-				row.AV14   = computeAV(quotes, 14).toFixed(0);
-				row.WL51   = computeWeekLow(quotes, 51).toFixed(2);
-				row.WH51   = computeWeekHigh(quotes, 51).toFixed(2);
-				row.ATR14  = computeATR(quotes, 14).toFixed(2);
+				row.SMA200 = computeSMA(quotes, 200);
+				row.SMA50  = computeSMA(quotes, 50);
+				row.SMA10  = computeSMA(quotes, 10);
+				row.AV14   = computeAV(quotes, 14);
+				row.WL51   = computeWeekLow(quotes, 51);
+				row.WH51   = computeWeekHigh(quotes, 51);
+				row.ATR14  = computeATR(quotes, 14);
 
 				return _db.upsert('stocks', row);
 			})
