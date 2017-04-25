@@ -97,10 +97,10 @@ var Module = new function() {
 				if (quotes.length < days)
 					return null;
 
-				var min = undefined;
+				var max = undefined;
 
 				for (var index = quotes.length - days; index < quotes.length; index++)
-					min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
+					max = (max == undefined) ? quotes[index].close : Math.max(max, quotes[index].close);
 
 				return min;
 			}
