@@ -49,8 +49,6 @@ var Module = module.exports = function() {
 					resolve(results, fields);
 			});
 
-			console.log(query.sql);
-
 
 		});
 	}
