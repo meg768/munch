@@ -81,19 +81,8 @@ var Module = module.exports = function() {
 
 
 	function init() {
-		/*
-		var options = {
-			host     : '104.155.92.17',
-			user     : 'root',
-			password : 'potatismos',
-			database : 'munch'
-		};
-		*/
-		var options = config.mysql;
-
-		console.log(sprintf('Connecting to %s@%s...', options.database, options.host));
-
-		_connection  = mysql.createConnection(options);
+		console.log(sprintf('Connecting to %s@%s...', config.mysql.database, config.mysql.host));
+		_connection  = mysql.createConnection(config.mysql);
 	}
 
 	init();
