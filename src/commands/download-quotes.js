@@ -105,44 +105,22 @@ var Module = new function() {
 				return max;
 			}
 
-			function computeATRX(quotes, days) {
-				if (quotes.length < days)
-					return null;
-
-				var ATR = 0;
-
-				for (var index = quotes.length - days, count = 0; count < days; count++, index++) {
-					if (count == 0)
-						ATR = quotes[index].high - quotes[index].low;
-					else
-						ATR += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
-				}
-
-				return ATR / days;
-			}
-
 			function computeATR(quotes, days) {
-				if (quotes.length < 2 * days)
+				if (quotes.length < days + 1)
 					return null;
 
-				var ATR = 0;
-
-				for (var index = quotes.length - 2 * days, count = 0; count < days; count++, index++) {
-					if (count == 0)
-						ATR = quotes[index].high - quotes[index].low;
-					else
-						ATR += Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
-				}
-
-				ATR = ATR / days;
+				var sum = 0;
 
 				for (var index = quotes.length - days, count = 0; count < days; count++, index++) {
-					var TR = Math.max(quotes[index].high - quotes[index].low, Math.abs(quotes[index].high - quotes[index-1].close), Math.abs(quotes[index].low - quotes[index-1].close));
-					ATR = (ATR * (days-1) + TR) / days;
+
+					var A = quotes[index].high - quotes[index].low;
+					var B = Math.abs(quotes[index].low  - quotes[index-1].close);
+					var C = Math.abs(quotes[index].high - quotes[index-1].close);
+
+					sum += Math.max(Math.max(A, B), C);
 				}
 
-				return parseFloat(ATR.toFixed(2));
-
+				return parseFloat((sum / days).toFixed(2));
 			}
 
 
@@ -153,6 +131,8 @@ var Module = new function() {
 			_db.query(query).then(function(quotes) {
 
 				var row = {};
+
+				quotes.reverse();
 
 				row.symbol = symbol;
 				row.SMA200 = computeSMA(quotes, 200);
