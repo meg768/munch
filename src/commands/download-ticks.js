@@ -116,7 +116,7 @@ var Command = new function() {
 			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 
 				Promise.each(quotes, function(quote) {
-					return db.upsert('quotes', quote);
+					return db.upsert('ticks', quote);
 				})
 
 				.then(function() {

@@ -15,6 +15,7 @@ var App = function() {
 			args.command(require('./src/commands/download-quotes.js'));
 			args.command(require('./src/commands/download-ticks.js'));
 			args.command(require('./src/commands/backup.js'));
+			args.command(require('./src/commands/test.js'));
 
 			args.help();
 			args.wrap(null);

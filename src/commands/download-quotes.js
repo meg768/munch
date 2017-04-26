@@ -125,7 +125,7 @@ var Module = new function() {
 
 
 			var query = {};
-			query.sql = 'SELECT * FROM history WHERE symbol = ? ORDER BY date DESC LIMIT ?';
+			query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
 			query.values = [symbol, 51 * 5];
 
 			_db.query(query).then(function(quotes) {
@@ -202,7 +202,7 @@ var Module = new function() {
 					row.close  = round(quote.close);
 					row.volume = quote.volume;
 
-					return _db.upsert('history', row);
+					return _db.upsert('quotes', row);
 				});
 			});
 
