@@ -16,6 +16,7 @@ var prefixLogs = require('yow/logs').prefix;
 
 var Gopher  = require('rest-request');
 var MySQL   = require('../scripts/mysql.js');
+var alert   = require('../scripts/alert.js');
 
 var Command = new function() {
 
@@ -330,9 +331,11 @@ var Command = new function() {
 					}
 				})
 				.catch(function(error) {
+					alert(error);
+
 					if (failCount++ < 10) {
-						console.log('Error running batch. Will try again...');
-						console.log(error);
+						console.error('Error running batch. Will try again...');
+						console.error(error);
 						setTimeout(loop, 30 * 1000);
 
 					}
@@ -408,17 +411,16 @@ var Command = new function() {
 					console.log('Finished for today.');
 				})
 				.catch(function(error) {
-					console.log(error);
+					console.error(error);
 				})
-				.finally(function() {
-				});
 
 			}
 
 
 		}
 		catch(error) {
-			console.log(error);
+			alert(error);
+			console.error(error);
 		}
 
 	};

@@ -1,8 +1,8 @@
 var fs       = require('fs');
-var sprintf  = require('yow').sprintf;
-var isString = require('yow').isString;
+var sprintf  = require('yow/sprintf');
+var isString = require('yow/is').isString;
 var mysql    = require('mysql');
-
+var config   = require('./config.js');
 
 
 var Module = module.exports = function() {
@@ -81,12 +81,15 @@ var Module = module.exports = function() {
 
 
 	function init() {
+		/*
 		var options = {
 			host     : '104.155.92.17',
 			user     : 'root',
 			password : 'potatismos',
 			database : 'munch'
 		};
+		*/
+		var options = config.mysql;
 
 		console.log(sprintf('Connecting to %s@%s...', options.database, options.host));
 

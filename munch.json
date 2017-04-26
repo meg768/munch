@@ -1,4 +1,20 @@
 
 {
-	"kalle": "olle"
+	"kalle": "olle",
+
+	"twilio": {
+		"sid"  : "AC6d347f8c4600eb938fe37b692c19f018",
+		"token": "9c1471d846f5ad2e8650cba838daa6b7"
+	},
+
+	"alerts": {
+		"recipients": "0706-291882"
+	},
+
+	"mysql": {
+		"host": "104.155.92.17",
+		"user": "root",
+		"password": "potatismos",
+		"database": "munch"
+	}
 }

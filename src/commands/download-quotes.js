@@ -4,8 +4,9 @@ var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
-var MySQL      = require('../scripts/mysql.js');
 var yahoo      = require('yahoo-finance');
+var MySQL      = require('../scripts/mysql.js');
+var alert      = require('../scripts/alert.js');
 
 
 var Module = new function() {
@@ -184,34 +185,45 @@ var Module = new function() {
 	function upsert(quotes) {
 		return new Promise(function(resolve, reject) {
 
-			function round(value) {
-				return parseFloat(value).toFixed(4);
-			}
+			try {
+				function round(value) {
+					return parseFloat(value).toFixed(4);
+				}
 
-			var promise = Promise.resolve();
+				var promise = Promise.resolve();
 
+				quotes.forEach(function(quote) {
+					promise = promise.then(function() {
+						var row = {};
+						row.date   = quote.date;
+						row.symbol = quote.symbol;
+						row.open   = round(quote.open);
+						row.high   = round(quote.high);
+						row.low    = round(quote.low);
+						row.close  = round(quote.close);
+						row.volume = quote.volume;
 
-			quotes.forEach(function(quote) {
-				promise = promise.then(function() {
-					var row = {};
-					row.date   = quote.date;
-					row.symbol = quote.symbol;
-					row.open   = round(quote.open);
-					row.high   = round(quote.high);
-					row.low    = round(quote.low);
-					row.close  = round(quote.close);
-					row.volume = quote.volume;
+						return _db.upsert('quotes', row);
 
-					return _db.upsert('quotes', row);
+					})
+					.catch(function(error) {
+						console.log('NOOOO');
+						reject(error);
+
+					});
 				});
-			});
 
-			promise.then(function() {
-				resolve(quotes.length);
-			})
-			.catch(function(error) {
+				promise.then(function() {
+					resolve(quotes.length);
+				})
+				.catch(function(error) {
+					reject(error);
+				});
+
+			}
+			catch(error) {
 				reject(error);
-			});
+			}
 
 		});
 
@@ -335,7 +347,8 @@ var Module = new function() {
 				})
 			})
 
-			.catch(function(error){
+			.catch(function(error) {
+				alert(error);
 				console.log(error.stack);
 			});
 		});

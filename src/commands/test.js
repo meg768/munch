@@ -17,8 +17,7 @@ var prefixLogs = require('yow/logs').prefix;
 var Gopher  = require('rest-request');
 var MySQL   = require('../scripts/mysql.js');
 var config  = require('../scripts/config.js');
-
-//var AlertError = require('../scripts/alert-error.js');
+var alert   = require('../scripts/alert.js');
 
 
 var Command = new function() {
@@ -94,17 +93,8 @@ var Command = new function() {
 		try {
 			prefixLogs();
 
-			var fs      = require('fs');
-			var sprintf = require('yow').sprintf;
-			var extend  = require('yow').extend;
 
-			var readJSON = require('yow/fs').readJSON;
-console.log('!!!!!!!!!!!!!!!!!!!');
-
-
-			console.log(config.kalle);
-			return;
-			throw new AlertError('FAN!');
+			throw new Error('OJ!');
 
 			if (isString(args.schedule)) {
 				schedule(args.schedule, runOnce);
@@ -124,6 +114,7 @@ console.log('!!!!!!!!!!!!!!!!!!!');
 
 		}
 		catch(error) {
+			alert(error);
 			console.log(error);
 		}
 
