@@ -1,12 +1,15 @@
 var config  = require('./config.js');
+var twilio  = require('twilio');
 
 module.exports = function(error) {
 
 	var message = "#ERROR#";
 
 	function sendSMS(to, text) {
-		console.log('sedning error');
-		var client = require('twilio')(config.twilio.sid, config.twilio.token);
+
+		text = text.substring(0, 160);
+
+		var client = twilio(config.twilio.sid, config.twilio.token);
 
 		var options  = {};
 		options.to   = to;
@@ -22,8 +25,6 @@ module.exports = function(error) {
 
 	if (error instanceof Error)
 		message = error.message;
-
-	message = message.substring(0, 160);
 
 	return sendSMS(config.alerts.recipients, message);
 
