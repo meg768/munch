@@ -337,19 +337,19 @@ var Module = new function() {
 
 				_db = db;
 
-				return process().then(function() {
+				process().then(function() {
 					db.end();
-					return Promise.resolve();
+					resolve();
 				})
+
 				.catch(function(error) {
 					db.end();
-					return Promise.reject(error);
+					reject(error);
 				})
 			})
 
 			.catch(function(error) {
-				alert(error);
-				console.log(error.stack);
+				reject(error);
 			});
 		});
 	}
@@ -365,19 +365,28 @@ var Module = new function() {
 
 			var job = Schedule.scheduleJob(cron, function() {
 
-				if (running) {
-					console.log('Upps! Running already!!');
-				}
-				else {
-					running = true;
+				try {
+					if (running) {
+						throw new Error('Upps! Running already!!');
+					}
+					else {
+						running = true;
 
-					work().then(function() {
-						running = false;
-					})
-					.catch(function(error) {
-						running = false;
-						console.log(error.stack);
-					});
+						work().then(function() {
+							running = false;
+						})
+						.catch(function(error) {
+							running = false;
+
+							alert(error);
+							console.log(error.stack);
+						});
+					}
+
+				}
+				catch(error) {
+					alert(error);
+					console.log(error.stack);
 				}
 			});
 
