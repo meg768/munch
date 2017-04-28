@@ -335,6 +335,7 @@ var Module = new function() {
 
 			mysql.connect().then(function(db) {
 
+				throw new Error('Kan inte öppna databasen');
 				_db = db;
 
 				return process().then(function() {
