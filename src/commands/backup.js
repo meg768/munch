@@ -18,7 +18,7 @@ var Module = new function() {
 		args.option('database', {alias:'d', describe:'Specifies mysql database', default:config.mysql.database});
 		args.option('bucket',   {alias:'b', describe:'Upload backup to Google bucket', default:'gs://mysql.app-o.se/backups'});
 		args.option('schedule', {alias:'s', describe:'Schedule backup, crontab syntax'});
-		args.option('password', {alias:'p', describe:'Password for mysql', required:true});
+		args.option('password', {alias:'p', describe:'Password for MySQL', default:config.mysql.password});
 		args.option('verbose',  {alias:'V', describe:'Display commands executed', default:true});
 		args.option('user',     {alias:'u', describe:'MySQL user name', default:'root'});
 		args.option('dry-run',  {alias:'n', describe:'Don\'t actually run any commands', default:false});
