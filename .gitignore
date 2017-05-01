@@ -2,7 +2,7 @@ tmp
 stocks
 data
 munch.json
-munch.config
+app.json
 
 # Logs
 logs

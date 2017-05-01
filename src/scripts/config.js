@@ -1,1 +1,1 @@
-module.exports = require('../../munch.json');
+module.exports = require('../../app.json');
