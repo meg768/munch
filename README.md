@@ -1,23 +1,11 @@
 # Munch
 
-## Running with **forever**
+## Install with **pm2**
 
-	$ sudo forever start munch.js {script} [options]
+	$ sudo pm2 start app.js --name munch-download-ticks app.js -- download-ticks --schedule "00 03 * * *"
+	$ sudo pm2 start app.js --name munch-download-quotes app.js -- download-quotes --schedule "00 07 * * *"
+	$ sudo pm2 start app.js --name munch-backup -- " backup --schedule "00 01 * * *"
 
-## Install with **forever-service**
-
-	$ sudo forever-service install munch-download-ticks --script ./munch.js --scriptOptions " download-ticks --schedule '00 03 * * *'" --start
-	$ sudo forever-service install munch-download-quotes --script ./munch.js --scriptOptions " download-quotes --schedule '00 07 * * *'" --start
-	$ sudo forever-service install munch-backup  --script ./munch.js --scriptOptions " backup --schedule '00 01 * * *' --password XXX" --start
-
-## Controlling the service
-	$ sudo service {service-name} stop
-
-## Display running services
-	$ sudo forever list
-
-## Delete service
-	$ sudo forever-service delete {service-name}
 
 ## Personal notes
 	http://superuser.com/questions/476512/how-do-i-permanently-reset-the-time-zone-in-debian
