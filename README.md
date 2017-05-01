@@ -2,9 +2,9 @@
 
 ## Install with **pm2**
 
-	$ sudo pm2 start app.js --name munch-download-ticks app.js -- download-ticks --schedule "00 03 * * *"
-	$ sudo pm2 start app.js --name munch-download-quotes app.js -- download-quotes --schedule "00 07 * * *"
-	$ sudo pm2 start app.js --name munch-backup -- " backup --schedule "00 01 * * *"
+	$ sudo pm2 start app.js --name munch-download-ticks -- download-ticks --schedule "00 03 * * *"
+	$ sudo pm2 start app.js --name munch-download-quotes -- download-quotes --schedule "00 07 * * *"
+	$ sudo pm2 start app.js --name munch-backup -- backup --schedule "00 09 * * 6"
 
 
 ## Personal notes
