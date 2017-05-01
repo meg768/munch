@@ -13,7 +13,7 @@ var Module = new function() {
 
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
-		args.option('database', {alias:'d', describe:'Specifies mysql database', default:'munch'});
+		args.option('database', {alias:'d', describe:'Specifies mysql database', default:'lights'});
 		args.option('bucket',   {alias:'b', describe:'Upload backup to Google bucket', default:'gs://mysql.app-o.se/backups'});
 		args.option('schedule', {alias:'s', describe:'Schedule backup, crontab syntax'});
 		args.option('password', {alias:'p', describe:'Password for mysql', required:true});
@@ -148,7 +148,7 @@ var Module = new function() {
 
 
 	module.exports.command  = 'backup [options]';
-	module.exports.describe = 'Backup Munch database';
+	module.exports.describe = 'Backup MySQL database';
 	module.exports.builder  = defineArgs;
 	module.exports.handler  = run;
 
