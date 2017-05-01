@@ -11,14 +11,16 @@ var Module = new function() {
 
 	function defineArgs(args) {
 
+		var config = require('../scripts/config.js');
+
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
-		args.option('database', {alias:'d', describe:'Specifies mysql database', default:'lights'});
+		args.option('database', {alias:'d', describe:'Specifies mysql database', default:config.mysql.database});
 		args.option('bucket',   {alias:'b', describe:'Upload backup to Google bucket', default:'gs://mysql.app-o.se/backups'});
 		args.option('schedule', {alias:'s', describe:'Schedule backup, crontab syntax'});
 		args.option('password', {alias:'p', describe:'Password for mysql', required:true});
 		args.option('verbose',  {alias:'V', describe:'Display commands executed', default:true});
-		args.option('user',     {alias:'u', describe:'Mysql user name', default:'root'});
+		args.option('user',     {alias:'u', describe:'MySQL user name', default:'root'});
 		args.option('dry-run',  {alias:'n', describe:'Don\'t actually run any commands', default:false});
 
 		args.wrap(null);
@@ -127,7 +129,6 @@ var Module = new function() {
 	}
 
 	function run(argv) {
-
 
 		try {
 			_argv = argv;
