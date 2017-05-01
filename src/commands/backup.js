@@ -20,7 +20,7 @@ var Module = new function() {
 		args.option('schedule', {alias:'s', describe:'Schedule backup, crontab syntax'});
 		args.option('password', {alias:'p', describe:'Password for MySQL', default:config.mysql.password});
 		args.option('verbose',  {alias:'V', describe:'Display commands executed', default:true});
-		args.option('user',     {alias:'u', describe:'MySQL user name', default:'root'});
+		args.option('user',     {alias:'u', describe:'MySQL user name', default:config.mysql.user});
 		args.option('dry-run',  {alias:'n', describe:'Don\'t actually run any commands', default:false});
 
 		args.wrap(null);
