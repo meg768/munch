@@ -125,7 +125,7 @@ var Command = new function() {
 
 					var query = {};
 					query.sql    = 'UPDATE ?? SET ?? = ? WHERE ?? = ?';
-					query.values = ['stocks', 'downloaded', now.toISOString(), 'symbol', symbol];
+					query.values = ['stocks', 'downloaded', now, 'symbol', symbol];
 
 
 					db.query(query).then(function(a, b, c) {

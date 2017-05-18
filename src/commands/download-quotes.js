@@ -136,13 +136,14 @@ var Module = new function() {
 				quotes.reverse();
 
 				row.symbol = symbol;
-				row.SMA200 = computeSMA(quotes, 200);
-				row.SMA50  = computeSMA(quotes, 50);
-				row.SMA10  = computeSMA(quotes, 10);
-				row.AV14   = computeAV(quotes, 14);
-				row.WL51   = computeWeekLow(quotes, 51);
-				row.WH51   = computeWeekHigh(quotes, 51);
-				row.ATR14  = computeATR(quotes, 14);
+				row.SMA200   = computeSMA(quotes, 200);
+				row.SMA50    = computeSMA(quotes, 50);
+				row.SMA10    = computeSMA(quotes, 10);
+				row.AV14     = computeAV(quotes, 14);
+				row.WL51     = computeWeekLow(quotes, 51);
+				row.WH51     = computeWeekHigh(quotes, 51);
+				row.ATR14    = computeATR(quotes, 14);
+				row.updated  = new Date();
 
 				return _db.upsert('stocks', row);
 			})
