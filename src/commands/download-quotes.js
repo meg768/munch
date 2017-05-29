@@ -236,6 +236,12 @@ var Module = new function() {
 		return new Promise(function(resolve, reject) {
 
 
+			function delay(ms) {
+				return new Promise(function(resolve, reject) {
+					setTimeout(resolve, ms);
+				});
+			}
+
 			function fetch(symbol, from, to) {
 
 				return new Promise(function(resolve, reject) {
@@ -260,6 +266,7 @@ var Module = new function() {
 				symbols = [symbols];
 
 			var promise = Promise.resolve();
+			var counter = 0;
 
 			symbols.forEach(function(symbol) {
 				promise = promise.then(function() {
@@ -271,6 +278,17 @@ var Module = new function() {
 				})
 				.then(function() {
 					return updateStatistics(symbol);
+				})
+				.then(function() {
+					counter++;
+
+					if ((counter % 10) == 0) {
+						console.log('Pausing...');
+						return delay(15 * 1000);
+					}
+					else {
+						return delay(0);
+					}
 				})
 			});
 
