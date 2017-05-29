@@ -4,7 +4,7 @@ var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
-var yahoo      = require('yahoo-finance');
+var google      = require('google-finance');
 var MySQL      = require('../scripts/mysql.js');
 var alert      = require('../scripts/alert.js');
 
@@ -244,7 +244,7 @@ var Module = new function() {
 					options.from   = new Date(from);
 					options.to     = new Date(to);
 
-					yahoo.historical(options, function (error, quotes) {
+					google.historical(options, function (error, quotes) {
 						if (error)
 							reject(error);
 						else
@@ -435,7 +435,7 @@ var Module = new function() {
 	}
 
 	module.exports.command  = ['download-quotes [options]', 'dq [options]'];
-	module.exports.describe = 'Download historical data from Yahoo Finance';
+	module.exports.describe = 'Download historical data from Google Finance';
 	module.exports.builder  = defineArgs;
 	module.exports.handler  = run;
 
