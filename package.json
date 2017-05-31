@@ -1,6 +1,6 @@
 {
   "name": "munch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "bugs": {
     "url": "https://github.com/meg768/munch/issues"
   },
+
   "dependencies": {
     "bluebird": "^3.4.0",
     "body-parser": "^1.17.1",
