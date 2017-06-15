@@ -4,7 +4,7 @@ var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
-var google      = require('google-finance');
+var google      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
 var alert      = require('../scripts/alert.js');
 
