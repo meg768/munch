@@ -26,8 +26,6 @@ var Command = new function() {
 	var _delay             = undefined;
 	var _busy              = false;
 
-var nsse = 0;
-
 	function defineArgs(args) {
 
 		args.option('count',    {alias: 'c', describe:'Number of quotes to fetch per batch', default:10});
