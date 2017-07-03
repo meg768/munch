@@ -284,7 +284,7 @@ var Module = new function() {
 
 					if ((counter % 30) == 0) {
 						console.log('Pausing...');
-						return delay(45 * 1000);
+						return delay(30 * 1000);
 					}
 					else {
 						return delay(0);
