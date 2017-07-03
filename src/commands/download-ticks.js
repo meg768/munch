@@ -25,7 +25,8 @@ var Command = new function() {
 	var _numberOfDays      = undefined;
 	var _delay             = undefined;
 	var _busy              = false;
-	
+
+var nsse = 0;
 
 	function defineArgs(args) {
 
