@@ -282,9 +282,9 @@ var Module = new function() {
 				.then(function() {
 					counter++;
 
-					if ((counter % 10) == 0) {
+					if ((counter % 30) == 0) {
 						console.log('Pausing...');
-						return delay(15 * 1000);
+						return delay(30 * 1000);
 					}
 					else {
 						return delay(0);
