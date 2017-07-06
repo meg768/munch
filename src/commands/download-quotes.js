@@ -1,10 +1,12 @@
+var google = require('google-finance');
+var yahoo  = require('yahoo-finance');
+
 var sprintf    = require('yow/sprintf');
 var isArray    = require('yow/is').isArray;
 var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
-var google      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
 var alert      = require('../scripts/alert.js');
 
@@ -20,6 +22,7 @@ var Module = new function() {
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
+		args.option('service',   {alias: 'v', describe:'Google or Yahoo', choices:['google', 'yahoo'], default:'yahoo'});
 		args.help();
 
 		args.wrap(null);
@@ -192,11 +195,12 @@ var Module = new function() {
 				}
 
 				var promise = Promise.resolve();
-
+				//console.log(quotes);
+				
 				quotes.forEach(function(quote) {
 					promise = promise.then(function() {
 						var row = {};
-						row.date   = quote.date;
+						row.date   = new Date(quote.date);
 						row.symbol = quote.symbol;
 						row.open   = round(quote.open);
 						row.high   = round(quote.high);
@@ -244,17 +248,35 @@ var Module = new function() {
 
 			function fetch(symbol, from, to) {
 
+				var service = undefined;
+
+				if (_argv.service == "google")
+					service = google;
+
+				if (_argv.service == "yahoo")
+					service = yahoo;
+
+				if (service == undefined)
+					return Promise.reject(new Error('Invalid service'));
+
+
 				return new Promise(function(resolve, reject) {
+
 					var options = {};
 					options.symbol = symbol;
 					options.from   = new Date(from);
 					options.to     = new Date(to);
 
-					google.historical(options, function (error, quotes) {
+					service.historical(options, function (error, quotes) {
 						if (error)
 							reject(error);
-						else
-							resolve(quotes);
+						else {
+							resolve(quotes.filter(function(quote) {
+								return quote.volume != null;
+
+							}));
+
+						}
 					});
 
 				});
