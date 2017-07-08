@@ -22,6 +22,8 @@ var Module = new function() {
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
+		args.option('batch',     {alias: 'b', describe:'Batch fetch size', default:15});
+		args.option('pause',     {alias: 'p', describe:'Pause between batches in seconds', default:30});
 		args.option('service',   {alias: 'v', describe:'Google or Yahoo', choices:['google', 'yahoo', 'goohoo'], default:'goohoo'});
 		args.help();
 
@@ -195,7 +197,6 @@ var Module = new function() {
 				}
 
 				var promise = Promise.resolve();
-				//console.log(quotes);
 
 				quotes.forEach(function(quote) {
 					promise = promise.then(function() {
@@ -367,9 +368,9 @@ var Module = new function() {
 				.then(function() {
 					counter++;
 
-					if ((counter % 15) == 0) {
-						console.log('Pausing...');
-						return delay(30 * 1000);
+					if ((counter % _argv.batch) == 0) {
+						console.log('Pausing for', _argv.pause, 'seconds...');
+						return delay(_argv.pause * 1000);
 					}
 					else {
 						return delay(0);
