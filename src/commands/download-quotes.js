@@ -22,7 +22,7 @@ var Module = new function() {
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
-		args.option('service',   {alias: 'v', describe:'Google or Yahoo', choices:['google', 'yahoo'], default:'yahoo'});
+		args.option('service',   {alias: 'v', describe:'Google or Yahoo', choices:['google', 'yahoo', 'goohoo'], default:'goohoo'});
 		args.help();
 
 		args.wrap(null);
@@ -196,7 +196,7 @@ var Module = new function() {
 
 				var promise = Promise.resolve();
 				//console.log(quotes);
-				
+
 				quotes.forEach(function(quote) {
 					promise = promise.then(function() {
 						var row = {};
@@ -246,43 +246,106 @@ var Module = new function() {
 				});
 			}
 
+
+
 			function fetch(symbol, from, to) {
 
-				var service = undefined;
+				function fetchFromService(service, symbol, from, to) {
 
-				if (_argv.service == "google")
-					service = google;
+					return new Promise(function(resolve, reject) {
 
-				if (_argv.service == "yahoo")
-					service = yahoo;
+						var options = {};
+						options.symbol = symbol;
+						options.from   = new Date(from);
+						options.to     = new Date(to);
 
-				if (service == undefined)
-					return Promise.reject(new Error('Invalid service'));
+						service.historical(options, function (error, quotes) {
+							if (error)
+								reject(error);
+							else {
+								resolve(quotes.filter(function(quote) {
+									return quote.open != null && quote.high != null && quote.low != null && quote.close != null;
+								}));
 
+							}
+						});
+
+					});
+				}
 
 				return new Promise(function(resolve, reject) {
 
-					var options = {};
-					options.symbol = symbol;
-					options.from   = new Date(from);
-					options.to     = new Date(to);
+					var quotes = [];
 
-					service.historical(options, function (error, quotes) {
-						if (error)
-							reject(error);
-						else {
-							resolve(quotes.filter(function(quote) {
-								return quote.volume != null;
+					Promise.resolve().then(function() {
+						if (_argv.service == 'google' || _argv.service == 'goohoo') {
+							console.log(sprintf('Fetching Google quotes from %s to %s...', from.toLocaleDateString(), to.toLocaleDateString()));
 
-							}));
+							return fetchFromService(google, symbol, from, to).then(function(googleQuotes) {
+								quotes = quotes.concat(googleQuotes);
+							})
 
 						}
+						else {
+							return Promise.resolve();
+						}
+
+					})
+
+					.then(function() {
+						if (_argv.service == 'yahoo' || _argv.service == 'goohoo') {
+							console.log(sprintf('Fetching Yahoo quotes from %s to %s...', from.toLocaleDateString(), to.toLocaleDateString()));
+
+							return fetchFromService(yahoo, symbol, from, to).then(function(yahooQuotes) {
+								quotes = quotes.concat(yahooQuotes);
+							})
+
+						}
+						else {
+							return Promise.resolve();
+						}
+
+					})
+
+					.then(function() {
+						var quoteMap = {};
+						var mergedQuotes = [];
+
+						// Clean up the quotes, making all dates to local timezone
+						quotes = quotes.map(function(quote) {
+							var date = new Date(quote.date);
+
+							var entry = {};
+							entry.date   = new Date(sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate()));
+							entry.symbol = symbol;
+							entry.open   = quote.open;
+							entry.high   = quote.high;
+							entry.low    = quote.low;
+							entry.close  = quote.close;
+							entry.volume = quote.volume;
+
+							return entry;
+						});
+
+						quotes.forEach(function(quote) {
+							quoteMap[quote.date.toDateString()] = quote;
+						});
+
+						for (var key in quoteMap) {
+							mergedQuotes.push(quoteMap[key]);
+						}
+
+
+						resolve(mergedQuotes);
+					})
+					.catch(function(error) {
+						reject(error);
 					});
+
 
 				});
 			}
 
-			console.log(sprintf('Fetching historical quotes from %s to %s...', from.toLocaleDateString(), to.toLocaleDateString()));
 
 			if (!isArray(symbols))
 				symbols = [symbols];
