@@ -1,34 +1,33 @@
-
-var isString   = require('yow/is').isString;
-
+/*
+	See https://pushover.net/api for payload parameters
+*/
 
 var Pushover = function() {
 
-	var _this = this;
+	var _this  = this;
+	var _user  = process.env.PUSHOVER_USER;
+	var _token = process.env.PUSHOVER_TOKEN;
 
-	_this.send = function(message) {
-		/*
-			message.message  = 'Hej';
-			message.title    =  "Well";
-			message.sound    =  'magic';
-			message.device   =  'iphone';
-			message.priority = 0;
-		*/
+	if (_user == undefined || _token == undefined) {
+		console.log('Environment variables PUSHOVER_USER and/or PUSHOVER_TOKEN not defined. Push notifications will not be able to be sent.');
+	}
 
-		if (isString(message)) {
-			message = {message:message};
-		}
+	_this.send = function(payload) {
+		try {
+			if (_user != undefined && _token != undefined) {
+				var Pushover = require('pushover-notifications');
+				var push = new Pushover({user:_user, token:_token});
 
-		var Pushover = require('pushover-notifications');
-		var config = require('./config.js');
-
-		var push = new Pushover({user:config.pushover.user, token:config.pushover.token});
-
-		push.send(message, function(error, result) {
-			if (error) {
-				console.error(error);
+				push.send(payload, function(error, result) {
+					if (error) {
+						console.error(error);
+					}
+				});
 			}
-		});
+		}
+		catch(error) {
+			console.error(error);
+		}
 	};
 
 	_this.notify = function(message) {
@@ -42,7 +41,6 @@ var Pushover = function() {
 	_this.alert = function(error) {
 		return _this.send({priority:1, message:error.message});
 	};
-
 
 };
 
