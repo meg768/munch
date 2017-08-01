@@ -8,7 +8,7 @@ var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
 var MySQL      = require('../scripts/mysql.js');
-var alert      = require('../scripts/alert.js');
+var pushover   = require('../scripts/pushover.js');
 
 
 var Module = new function() {
@@ -259,7 +259,6 @@ var Module = new function() {
 						options.symbol = symbol;
 						options.from   = new Date(from);
 						options.to     = new Date(to);
-
 						service.historical(options, function (error, quotes) {
 							if (error)
 								reject(error);
@@ -483,14 +482,14 @@ var Module = new function() {
 						.catch(function(error) {
 							running = false;
 
-							alert(error);
+							pushover.error(error);
 							console.log(error.stack);
 						});
 					}
 
 				}
 				catch(error) {
-					alert(error);
+					pushover.error(error);
 					console.log(error.stack);
 				}
 			});
@@ -529,12 +528,14 @@ var Module = new function() {
 			})
 			.catch(function(error) {
 				console.log(error.stack);
+				pushover.error(error);
 
 			});
 
 		}
 		catch(error) {
 			console.log(error.stack);
+			pushover.error(error);
 		}
 	}
 

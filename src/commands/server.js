@@ -36,33 +36,6 @@ var Module = new function() {
 	}
 
 	function connect() {
-
-		var mysql = new MySQL();
-
-		return new Promise(function(resolve, reject) {
-			mysql.connect().then(function(db) {
-
-				download(db, sinceDate).then(function(symbols) {
-					resolve(symbols);
-				})
-				.catch(function(error) {
-					reject(error);
-				})
-				.finally(function() {
-					db.end();
-
-				});
-			})
-			.catch(function(error) {
-				reject(error);
-			});
-
-		});
-
-
-	}
-
-	function connect() {
 		return new Promise(function(resolve, reject) {
 			_mysql.getConnection(function(error, connection) {
 				if (!error)
@@ -93,6 +66,10 @@ var Module = new function() {
 
 
 	function defineRoutes(app) {
+		app.get('/hello', function (request, response) {
+			response.status(200).json({status:'OK'});
+		});
+
 		app.get('/hello', function (request, response) {
 			response.status(200).json({status:'OK'});
 		});

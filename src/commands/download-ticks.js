@@ -14,9 +14,9 @@ var mkpath     = require('yow/fs').mkpath;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
 
-var Gopher  = require('rest-request');
-var MySQL   = require('../scripts/mysql.js');
-var alert   = require('../scripts/alert.js');
+var Gopher   = require('rest-request');
+var MySQL    = require('../scripts/mysql.js');
+var pushover = require('../scripts/pushover.js');
 
 var Command = new function() {
 
@@ -330,7 +330,7 @@ var Command = new function() {
 					}
 				})
 				.catch(function(error) {
-					alert(error);
+					pushover.error(error);
 
 					if (failCount++ < 10) {
 						console.error('Error running batch. Will try again...');
@@ -418,7 +418,7 @@ var Command = new function() {
 
 		}
 		catch(error) {
-			alert(error);
+			pushover.error(error);
 			console.error(error);
 		}
 

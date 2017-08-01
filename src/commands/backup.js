@@ -4,6 +4,7 @@ var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
 var prefixLogs = require('yow/logs').prefix;
+var pushover   = require('../scripts/pushover.js');
 
 var Module = new function() {
 
@@ -65,45 +66,53 @@ var Module = new function() {
 
 	function runOnce() {
 
-		var now = new Date();
+		try {
+			var now = new Date();
 
 
-		var database   = _argv.database;
-		var password   = _argv.password;
-		var bucket     = _argv.bucket;
-		var user       = _argv.user;
+			var database   = _argv.database;
+			var password   = _argv.password;
+			var bucket     = _argv.bucket;
+			var user       = _argv.user;
 
 
-		var datestamp  = sprintf('%04d-%02d-%02d-%02d-%02d', now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes());
+			var datestamp  = sprintf('%04d-%02d-%02d-%02d-%02d', now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes());
 
-		var tmpPath    = sprintf('%s/%s', __dirname, 'backups');
-		var backupName = sprintf('%s-%s.sql.gz', database, datestamp);
-		var backupFile = sprintf('%s/%s', tmpPath, backupName);
+			var tmpPath    = sprintf('%s/%s', __dirname, 'backups');
+			var backupName = sprintf('%s-%s.sql.gz', database, datestamp);
+			var backupFile = sprintf('%s/%s', tmpPath, backupName);
 
-		mkpath(tmpPath);
 
-		var commands = [];
-		commands.push(sprintf('rm -f %s/*.gz', tmpPath));
-		commands.push(sprintf('mysqldump --triggers --routines --quick --user %s -p%s %s | gzip > %s', user, password, database, backupFile));
-		commands.push(sprintf('gsutil cp %s %s/%s', backupFile, bucket, backupName));
+			mkpath(tmpPath);
 
-		var promise = Promise.resolve();
+			var commands = [];
+			commands.push(sprintf('rm -f %s/*.gz', tmpPath));
+			commands.push(sprintf('mysqldump --triggers --routines --quick --user %s -p%s %s | gzip > %s', user, password, database, backupFile));
+			commands.push(sprintf('gsutil cp %s %s/%s', backupFile, bucket, backupName));
 
-		console.log('Running backup...');
+			var promise = Promise.resolve();
 
-		commands.forEach(function(cmd) {
-			promise = promise.then(function() {
-				return exec(cmd);
+			console.log('Running backup...');
+
+			commands.forEach(function(cmd) {
+				promise = promise.then(function() {
+					return exec(cmd);
+				});
 			});
-		});
 
-		promise.then(function() {
-			console.log('Finished.');
-		})
-		.catch(function(error) {
-			console.error(error.message);
+			promise.then(function() {
+				console.log('Finished.');
+			})
+			.catch(function(error) {
+				console.error(error);
+				pushover.error(error);
 
-		});
+			});
+
+		}
+		catch(error) {
+			pushover.error(error);
+		}
 
 	}
 
