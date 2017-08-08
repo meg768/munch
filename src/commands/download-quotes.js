@@ -466,6 +466,7 @@ var Module = new function() {
 			var running  = false;
 
 			console.log(sprintf('Scheduling to run at cron-time "%s"...', cron));
+			pushover.notify(sprintf('Scheduling to run at cron-time "%s"...', cron));
 
 			var job = Schedule.scheduleJob(cron, function() {
 
