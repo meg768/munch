@@ -356,7 +356,7 @@ var Command = new function() {
 
 		var busy = false;
 
-		pushover.log(sprintf('Scheduling to start work at cron-time "%s"...', cron));
+		pushover.log(sprintf('Scheduling to download-ticks at cron-time "%s"...', cron));
 
 		var job = Schedule.scheduleJob(cron, function() {
 			if (busy) {
