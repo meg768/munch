@@ -16,12 +16,12 @@ var Module = new function() {
 
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
-		args.option('database', {alias:'d', describe:'Specifies mysql database', default:config.mysql.database});
+		args.option('database', {alias:'d', describe:'Specifies mysql database', default:process.env.MYSQL_DATABASE});
 		args.option('bucket',   {alias:'b', describe:'Upload backup to Google bucket', default:'gs://mysql.app-o.se/backups'});
 		args.option('schedule', {alias:'s', describe:'Schedule backup, crontab syntax'});
-		args.option('password', {alias:'p', describe:'Password for MySQL', default:config.mysql.password});
+		args.option('password', {alias:'p', describe:'Password for MySQL', default:process.env.MYSQL_PASSWORD});
 		args.option('verbose',  {alias:'V', describe:'Display commands executed', default:true});
-		args.option('user',     {alias:'u', describe:'MySQL user name', default:config.mysql.user});
+		args.option('user',     {alias:'u', describe:'MySQL user name', default:process.env.MYSQL_USER});
 		args.option('dry-run',  {alias:'n', describe:'Don\'t actually run any commands', default:false});
 
 		args.wrap(null);
