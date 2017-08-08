@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var fs       = require('fs');
-var Promise  = require('bluebird');
 var Path     = require('path');
 var Schedule = require('node-schedule');
 
@@ -297,7 +296,7 @@ var Command = new function() {
 				.catch(function(error) {
 					reject(error);
 				})
-				.finally(function() {
+				.then(function() {
 					db.end();
 
 				});
@@ -355,24 +354,26 @@ var Command = new function() {
 
 	function schedule(cron) {
 
-		var busy    = false;
+		var busy = false;
 
-		console.log(sprintf('Scheduling to start work at cron-time "%s"...', cron));
+		pushover.log(sprintf('Scheduling to start work at cron-time "%s"...', cron));
 
 		var job = Schedule.scheduleJob(cron, function() {
 			if (busy) {
-				console.log('Busy. Try again later.');
+				pushover.log('Busy. Try again later.');
 			}
 			else {
 				busy = true;
 
+				pushover.log('Started downloading ticks.');
+
 				runOnce().then(function() {
-					console.log('Finished for today.');
+					pushover.log('Finished downloading ticks.');
 				})
 				.catch(function(error) {
-					console.log(error);
+					pushover.error(error);
 				})
-				.finally(function() {
+				.then(function() {
 					busy = false;
 				});
 			}

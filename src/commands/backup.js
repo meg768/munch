@@ -90,7 +90,7 @@ var Module = new function() {
 
 			var promise = Promise.resolve();
 
-			console.log('Running backup...');
+			pushover.notify('Running backup...');
 
 			commands.forEach(function(cmd) {
 				promise = promise.then(function() {
@@ -99,10 +99,9 @@ var Module = new function() {
 			});
 
 			promise.then(function() {
-				console.log('Finished.');
+				pushover.notify('Backup finished.');
 			})
 			.catch(function(error) {
-				console.error(error);
 				pushover.error(error);
 
 			});
@@ -119,7 +118,7 @@ var Module = new function() {
 		var Schedule = require('node-schedule');
 		var running = false;
 
-		console.log(sprintf('Scheduling backup to run at "%s"...', _argv.schedule));
+		pushover.log(sprintf('Scheduling backup to run at "%s"...', _argv.schedule));
 
 		Schedule.scheduleJob(_argv.schedule, function() {
 

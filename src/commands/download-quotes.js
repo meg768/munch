@@ -477,21 +477,23 @@ var Module = new function() {
 					else {
 						running = true;
 
+						pushover.notify('Started downloading quotes.');
+
 						work().then(function() {
-							running = false;
+							pushover.notify('Finished downloading quotes.');
 						})
 						.catch(function(error) {
+							pushover.error(error);
+						})
+						.then(function() {
 							running = false;
 
-							pushover.error(error);
-							console.log(error.stack);
 						});
 					}
 
 				}
 				catch(error) {
 					pushover.error(error);
-					console.log(error.stack);
 				}
 			});
 
