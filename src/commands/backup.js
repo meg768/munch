@@ -12,8 +12,6 @@ var Module = new function() {
 
 	function defineArgs(args) {
 
-		var config = require('../scripts/config.js');
-
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
 		args.option('database', {alias:'d', describe:'Specifies mysql database', default:process.env.MYSQL_DATABASE});
