@@ -2,7 +2,6 @@ var fs       = require('fs');
 var sprintf  = require('yow/sprintf');
 var isString = require('yow/is').isString;
 var mysql    = require('mysql');
-var config   = require('./config.js');
 
 
 var Module = module.exports = function() {
@@ -81,8 +80,15 @@ var Module = module.exports = function() {
 
 
 	function init() {
-		console.log(sprintf('Connecting to %s@%s...', config.mysql.database, config.mysql.host));
-		_connection  = mysql.createConnection(config.mysql);
+		console.log(sprintf('Connecting to %s@%s...', process.env.MYSQL_DATABASE, process.env.MYSQL_HOST));
+
+		var options = {};
+		options.host     = process.env.MYSQL_HOST;
+		options.user     = process.env.MYSQL_USER;
+		options.password = process.env.MYSQL_PASSWORD;
+		options.database = process.env.MYSQL_DATABASE;
+
+		_connection  = mysql.createConnection(options);
 	}
 
 	init();

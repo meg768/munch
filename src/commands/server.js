@@ -10,7 +10,6 @@ var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
 var prefixLogs = require('yow/logs').prefix;
-var config     = require('../scripts/config.js');
 
 var Module = new function() {
 

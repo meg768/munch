@@ -16,7 +16,6 @@ var prefixLogs = require('yow/logs').prefix;
 
 var Gopher   = require('rest-request');
 var MySQL    = require('../scripts/mysql.js');
-var config   = require('../scripts/config.js');
 var pushover = require('../scripts/pushover.js');
 
 
