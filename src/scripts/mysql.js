@@ -41,7 +41,9 @@ var Module = module.exports = function() {
 
 
 		return new Promise(function(resolve, reject) {
+			console.log('SQL', options);
 			var query = _connection.query(options, function(error, results, fields) {
+				console.log('DONE!');
 				if (error)
 					reject(error);
 				else
