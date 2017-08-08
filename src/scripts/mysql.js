@@ -88,9 +88,10 @@ var Module = module.exports = function() {
 		options.password = process.env.MYSQL_PASSWORD;
 		options.database = process.env.MYSQL_DATABASE;
 
-		if (!isString(options.host))
-			throw new Error('MySQL host not specified.');
-			
+		if (!isString(options.host) || !isString(options.user) || !isString(options.password) || !isString(options.database)) {
+			throw new Error('MySQL credentials/database not specified.');
+
+		}
 		_connection  = mysql.createConnection(options);
 	}
 
