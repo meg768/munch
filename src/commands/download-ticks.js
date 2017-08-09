@@ -114,11 +114,15 @@ var Command = new function() {
 		return new Promise(function(resolve, reject) {
 			requestQuotes(symbol, _numberOfDays, 60).then(function(quotes) {
 
-				Promise.each(quotes, function(quote) {
-					return db.upsert('ticks', quote);
-				})
+				var promise = Promise.resolve();
 
-				.then(function() {
+				quotes.forEach(function(quote) {
+					promise = promise.then(function() {
+						return db.upsert('ticks', quote);
+					})
+				});
+
+				promise.then(function() {
 					var now = new Date();
 
 					var query = {};
@@ -260,12 +264,15 @@ var Command = new function() {
 		return new Promise(function(resolve, reject) {
 			getSymbolsToUpdate(db, sinceDate).then(function(symbols) {
 
-				Promise.each(symbols, function(symbol) {
-					return downloadQuotes(db, symbol).then(function(quotes) {
-					});
-				})
+				var promise = Promise.resolve();
 
-				.then(function() {
+				symbols.forEach(function(symbol) {
+					promise = promise.then(function() {
+						return downloadQuotes(db, symbol);
+					});
+				});
+
+				promise.then(function() {
 					resolve(symbols);
 				})
 

@@ -39,7 +39,6 @@ var Module = module.exports = function() {
 			options = {sql:options};
 		}
 
-
 		return new Promise(function(resolve, reject) {
 
 			var query = _connection.query(options, function(error, results, fields) {
