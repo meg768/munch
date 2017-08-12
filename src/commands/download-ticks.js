@@ -267,7 +267,6 @@ var Command = new function() {
 				var promise = Promise.resolve();
 
 				symbols.forEach(function(symbol) {
-					console.log(symbol);
 					promise = promise.then(function() {
 						return downloadQuotes(db, symbol);
 					});
