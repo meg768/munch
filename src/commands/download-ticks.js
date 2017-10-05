@@ -160,7 +160,7 @@ var Command = new function() {
 
 	function requestQuotes(symbol, days, interval) {
 
-		var gopher = new Gopher('http://www.google.com/finance');
+		var gopher = new Gopher('http://finance.google.com/finance');
 
 		return new Promise(function(resolve, reject) {
 			var params = {};
