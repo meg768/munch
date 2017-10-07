@@ -24,6 +24,7 @@ var Command = new function() {
 	var _numberOfDays      = undefined;
 	var _delay             = undefined;
 	var _busy              = false;
+	var _symbol            = undefined;
 
 	function defineArgs(args) {
 
@@ -31,6 +32,7 @@ var Command = new function() {
 		args.option('days',     {alias: 'd', describe:'Specifies number of days back in time to fetch', default: 5});
 		args.option('pause',    {alias: 'p', describe:'Number of seconds to pause before fetching next batch', default:15});
 		args.option('schedule', {alias: 'x', describe:'Schedule job at specified cron date/time format'});
+		args.option('symbol',   {alias: 's', describe:'Symbol to fetch'});
 		args.help();
 
 		args.wrap(null);
@@ -63,6 +65,8 @@ var Command = new function() {
 			query.sql = '';
 			query.sql += sprintf('SELECT symbol from stocks ');
 			query.sql += sprintf('WHERE downloaded = \'\' OR downloaded IS NULL OR downloaded < ? ');
+
+			if (_symbol != undefined) {}
 			query.sql += sprintf('ORDER by downloaded ASC, symbol ASC');
 
 			query.values = [sinceDate.toISOString()];
@@ -401,6 +405,7 @@ var Command = new function() {
 			_fetchCount = parseInt(args.count);
 			_numberOfDays = parseInt(args.days);
 			_delay = parseInt(args.pause);
+			_symbol = args.symbol;
 
 			if (_numberOfDays > 14)
 				_numberOfDays = 14;
