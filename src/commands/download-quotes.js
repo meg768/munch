@@ -4,7 +4,8 @@ var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
 var prefixLogs = require('yow/logs').prefix;
-var google     = require('yahoo-finance');
+var google     = require('google-finance');
+var yahoo      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
 var pushover   = require('../scripts/pushover.js');
 
@@ -13,6 +14,10 @@ var Module = new function() {
 
 	var _db = undefined;
 	var _argv = undefined;
+
+	function debug() {
+		console.log.apply(this, arguments);
+	}
 
 	function defineArgs(args) {
 
@@ -55,6 +60,8 @@ var Module = new function() {
 			function computeSMA(quotes, days) {
 				if (quotes.length < days)
 					return null;
+
+				debug('Computing SMA', days, 'for', symbol, '...');
 
 				var sum = 0;
 
@@ -195,16 +202,7 @@ var Module = new function() {
 
 				quotes.forEach(function(quote) {
 					promise = promise.then(function() {
-						var row = {};
-						row.date   = quote.date;
-						row.symbol = quote.symbol;
-						row.open   = round(quote.open);
-						row.high   = round(quote.high);
-						row.low    = round(quote.low);
-						row.close  = round(quote.close);
-						row.volume = quote.volume;
-
-						return _db.upsert('quotes', row);
+						return _db.upsert('quotes', quote);
 
 					})
 					.catch(function(error) {
@@ -242,21 +240,89 @@ var Module = new function() {
 				});
 			}
 
-			function fetch(symbol, from, to) {
+			function round(value) {
+				return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
+			}
+
+			function fetchFromProvider(provider, symbol, from, to) {
 
 				return new Promise(function(resolve, reject) {
 					var options = {};
 					options.symbol = symbol;
-					options.from   = new Date(from);
-					options.to     = new Date(to);
+					options.from   = from;
+					options.to     = to;
 
-					google.historical(options, function (error, quotes) {
-						if (error)
-							reject(error);
-						else
-							resolve(quotes);
+					provider.historical(options, function (error, quotes) {
+
+						var entries = {};
+
+						quotes.forEach(function(quote) {
+							var entry = {};
+
+							entry.date   = quote.date;
+							entry.symbol = quote.symbol;
+							entry.open   = round(quote.open);
+							entry.high   = round(quote.high);
+							entry.low    = round(quote.low);
+							entry.close  = round(quote.close);
+							entry.volume = quote.volume;
+
+							var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
+							entries[key] = entry;
+						});
+
+						resolve(entries);
 					});
 
+				});
+			}
+
+			function isValidQuote(quote) {
+				return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
+			}
+
+
+			function fetch(symbol, from, to) {
+
+				return new Promise(function(resolve, reject) {
+
+					var googleQuotes = [];
+					var yahooQuotes = [];
+
+					Promise.resolve().then(function(){
+						return fetchFromProvider(google, symbol, from, to);
+					})
+					.then(function(quotes) {
+						googleQuotes = quotes;
+					})
+					.then(function() {
+						return fetchFromProvider(yahoo, symbol, from, to);
+					})
+					.then(function(quotes) {
+						yahooQuotes = quotes;
+					})
+					.then(function() {
+						var quotes = [];
+						var date = new Date(from);
+
+						while (date <= to) {
+							var key = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
+							var googleQuote = googleQuotes[key];
+							var yahooQuote  = yahooQuotes[key];
+
+							if (isValidQuote(yahooQuote))
+								quotes.push(yahooQuote);
+							else if (isValidQuote(googleQuote))
+								quotes.push(googleQuote);
+
+							date.setDate(date.getDate() + 1);
+						}
+
+						resolve(quotes);
+					})
+					.catch(function(error) {
+						reject(error);
+					})
 				});
 			}
 
