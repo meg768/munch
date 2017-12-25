@@ -24,18 +24,35 @@ var Module = new function() {
 		args.option('symbol',    {alias: 's', describe:'Download specified symbol only'});
 		args.option('days',      {alias: 'd', describe:'Specifies number of days back in time to fetch'});
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
+		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
+		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
 		args.help();
 
 		args.wrap(null);
 
 		args.check(function(argv) {
+
+			if ((argv.from && !argv.to) || (!argv.from && argv.to))
+				throw new Error('Must specify both --from and --to.');
+
 			if (argv.days && argv.since)
 				throw new Error('Cannot specify both --since and --days.');
 
 			if (argv.days && !isInteger(argv.days)) {
 				throw new Error(sprintf('Invalid number of days "%s".', argv.days));
 			}
+
+			if (argv.from) {
+				if (!isDate(new Date(argv.from)))
+					throw new Error(sprintf('Invalid date "%s".', argv.from));
+			}
+
+			if (argv.to) {
+				if (!isDate(new Date(argv.to)))
+					throw new Error(sprintf('Invalid date "%s".', argv.to));
+			}
+
 
 			if (argv.since) {
 				if (!isDate(new Date(argv.since)))
@@ -60,8 +77,6 @@ var Module = new function() {
 			function computeSMA(quotes, days) {
 				if (quotes.length < days)
 					return null;
-
-				debug('Computing SMA', days, 'for', symbol, '...');
 
 				var sum = 0;
 
@@ -380,12 +395,16 @@ var Module = new function() {
 					var endDate = new Date();
 
 					if (_argv.since) {
-
 						startDate = new Date(_argv.since);
 					}
 
 					if (_argv.days) {
 						startDate.setDate(startDate.getDate() - _argv.days);
+					}
+
+					if (_argv.from) {
+						startDate = new Date(_argv.from);
+						endDate   = new Date(_argv.to);
 					}
 
 					download(symbols, startDate, endDate).then(function() {
