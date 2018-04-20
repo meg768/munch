@@ -183,12 +183,14 @@ var Module = new function() {
 
 	function getSymbols() {
 
+		var sql = 'SELECT symbol FROM stocks';
+
 		if (isString(_argv.symbol))
-			return Promise.resolve([_argv.symbol]);
+			sql = sprintf('SELECT symbol FROM stocks WHERE symbol LIKE "%s"', _argv.symbol);
 
 		return new Promise(function(resolve, reject) {
 
-			_db.query('SELECT symbol FROM stocks').then(function(rows) {
+			_db.query(sql).then(function(rows) {
 
 				var symbols = [];
 
