@@ -413,8 +413,7 @@ var Module = new function() {
 						return Promise.resolve(symbols.length);
 					})
 					.then(function(count) {
-						pushover.log(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
-						resolve();
+						resolve(count);
 					})
 					.catch(function(error) {
 						reject(error);
@@ -439,23 +438,24 @@ var Module = new function() {
 		return new Promise(function(resolve, reject) {
 			var mysql = new MySQL();
 
-			mysql.connect().then(function(db) {
-
-				_db = db;
-
-				process().then(function() {
-					db.end();
-					resolve();
-				})
-
-				.catch(function(error) {
-					db.end();
-					reject(error);
-				})
+			Promise.resolve().then(function() {
+				return mysql.connect();
 			})
-
+			.then(function(db) {
+				_db = db;
+				return process();
+			})
+			.then(function(count) {
+				pushover.notify(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
+				resolve();
+			})
 			.catch(function(error) {
+				pushover.error(error);
+				console.log(error.stack);
 				reject(error);
+			})
+			.then(function() {
+				_db.end();
 			});
 		});
 	}
@@ -483,9 +483,6 @@ var Module = new function() {
 						})
 						.catch(function(error) {
 							running = false;
-
-							pushover.error(error);
-							console.log(error.stack);
 						});
 					}
 
