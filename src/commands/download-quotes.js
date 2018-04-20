@@ -411,7 +411,7 @@ var Module = new function() {
 						return Promise.resolve(symbols.length);
 					})
 					.then(function(count) {
-						pushover.log(sprintf('A total of %d symbol(s) downloaded and updated.', count));
+						pushover.log(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
 						resolve();
 					})
 					.catch(function(error) {
