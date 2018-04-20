@@ -17,7 +17,6 @@
     "url": "https://github.com/meg768/munch/issues"
   },
   "dependencies": {
-    "bluebird": "^3.4.0",
     "body-parser": "^1.17.1",
     "commander": "^2.9.0",
     "cors": "^2.8.3",

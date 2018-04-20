@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var fs       = require('fs');
-var Promise  = require('bluebird');
 var Path     = require('path');
 var Schedule = require('node-schedule');
 
