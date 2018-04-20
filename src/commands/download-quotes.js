@@ -477,6 +477,7 @@ var Module = new function() {
 						running = true;
 
 						work().then(function() {
+							pushover.notify('Finished downloading quotes.');
 							running = false;
 						})
 						.catch(function(error) {
