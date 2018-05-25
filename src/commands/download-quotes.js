@@ -385,7 +385,7 @@ var Module = new function() {
 					var now = new Date();
 					var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-					if (today - from == 0) {
+					if (today - from <= 0) {
 						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
 						return resolve(null);
 					}
@@ -465,11 +465,12 @@ var Module = new function() {
 					return fetch(symbol, startDate, endDate);
 				})
 				.then(function(quotes) {
-					if (isArray(quotes)) {
+					if (isArray(quotes) && quotes.length > 0) {
 						console.log('Fetched %d quotes for symbol %s.', quotes.length, symbol);
+
 						return upsert(quotes).then(function() {
 							return updateStatistics(symbol);
-						})
+						});
 					}
 					else {
 						return Promise.resolve();
