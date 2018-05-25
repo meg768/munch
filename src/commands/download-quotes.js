@@ -27,7 +27,7 @@ var Module = new function() {
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
-		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:30});
+		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:10});
 		args.help();
 
 		args.wrap(null);
@@ -165,6 +165,8 @@ var Module = new function() {
 				row.ATR14    = computeATR(quotes, 14);
 				row.updated  = new Date();
 
+
+				console.log('Updating statistics for symbol %s', symbol);
 				return _db.upsert('stocks', row);
 			})
 
@@ -247,7 +249,6 @@ var Module = new function() {
 
 					})
 					.catch(function(error) {
-						console.log('NOOOO');
 						reject(error);
 
 					});
@@ -374,10 +375,20 @@ var Module = new function() {
 
 			function fetch(symbol, from, to) {
 
+				from = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+				to = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
 				return new Promise(function(resolve, reject) {
 
 					var googleQuotes = [];
 					var yahooQuotes = [];
+					var now = new Date();
+					var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+					if (today - from == 0) {
+						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
+						return resolve(null);
+					}
 
 					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
 
@@ -423,12 +434,13 @@ var Module = new function() {
 
 			var promise = Promise.resolve();
 			var symbolsUpdated = 0;
-			var fetchCounter = 0;
+			var counter = 0;
+			var now = new Date();
 
 			var startDates = {};
 
 			if (to == undefined)
-				to = new Date();
+				to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 			if (from == undefined) {
 				promise = getStartDates().then(function(dates) {
@@ -437,50 +449,37 @@ var Module = new function() {
 			}
 
 			symbols.forEach(function(symbol) {
-				var quotesUpdated = 0;
 
 				promise = promise.then(function() {
 					var startDate = from;
 					var endDate   = to;
-					var now       = new Date();
 
 					if (startDate == undefined)
 						startDate = startDates[symbol];
 
 					if (startDate == undefined) {
-						startDate = new Date();
+						startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 						startDate.setDate(startDate.getDate() - 365);
 					}
 
-					if (now - startDate < (60 * 60 * 1000 * 24))
-						return Promise.resolve([]);
-					else {
-						fetchCounter++;
-						return fetch(symbol, startDate, endDate);
-
-					}
+					return fetch(symbol, startDate, endDate);
 				})
 				.then(function(quotes) {
-					quotesUpdated = quotes.length;
-
-					if (quotesUpdated == 0)
+					if (isArray(quotes)) {
+						console.log('Fetched %d quotes for symbol %s.', quotes.length, symbol);
+						return upsert(quotes).then(function() {
+							return updateStatistics(symbol);
+						})
+					}
+					else {
 						return Promise.resolve();
-
-					console.log(sprintf('Updating %d quotes for \'%s\'...', quotesUpdated, symbol));
-
-					return upsert(quotes);
+					}
 				})
 				.then(function() {
-					console.log(sprintf('Updating statistics for \'%s\'...', symbol));
-					return updateStatistics(symbol);
-				})
-				.then(function() {
-					if (quotesUpdated == 0)
-						return delay(0);
 
-					symbolsUpdated++;
+					return delay(0);
 
-					if ((fetchCounter % 15) == 0) {
+					if ((++counter % 10) == 0) {
 						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
@@ -517,8 +516,8 @@ var Module = new function() {
 					}
 
 					if (_argv.days) {
-						from = new Date();
-						from.setDate(now.getDate() - _argv.days);
+						from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+						from.setDate(from.getDate() - _argv.days);
 					}
 
 					if (_argv.from) {
@@ -530,7 +529,7 @@ var Module = new function() {
 					}
 
 					if (to == undefined)
-						to = new Date();
+						to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 					download(symbols, from, to).then(function(count) {
 						resolve(count);
@@ -567,15 +566,14 @@ var Module = new function() {
 			})
 			.then(function(count) {
 				pushover.notify(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
-				resolve();
 			})
 			.catch(function(error) {
 				pushover.error(error);
 				console.log(error.stack);
-				reject(error);
 			})
 			.then(function() {
 				_db.end();
+				resolve();
 			});
 		});
 	}
@@ -608,7 +606,6 @@ var Module = new function() {
 
 				}
 				catch(error) {
-					pushover.error(error);
 					console.log(error.stack);
 				}
 			});
@@ -616,12 +613,9 @@ var Module = new function() {
 			if (job == null) {
 				throw new Error('Invalid cron time.');
 			}
-
-			return Promise.resolve();
-
 		}
 		catch(error) {
-			return Promise.reject(error);
+			console.log(error.stack);
 		}
 
 	}
@@ -642,10 +636,7 @@ var Module = new function() {
 			else
 				promise = work();
 
-			promise.then(function() {
-
-			})
-			.catch(function(error) {
+			promise.catch(function(error) {
 				console.log(error.stack);
 
 			});

@@ -14,7 +14,6 @@ var Pushover = function() {
 
 	_this.send = function(payload) {
 		try {
-			console.log(payload.message);
 
 			if (_user != undefined && _token != undefined) {
 				var Pushover = require('pushover-notifications');
