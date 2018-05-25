@@ -261,42 +261,83 @@ var Module = new function() {
 				return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
 			}
 
-			function fetchFromProvider(service, provider, symbol, from, to) {
+			function fetchFromGoogle(options) {
 
 				return new Promise(function(resolve, reject) {
-					var options = {};
-					options.symbol = symbol;
-					options.from   = from;
-					options.to     = to;
-
 					try {
-						provider.historical(options, function (error, quotes) {
+						google.historical(options, function (error, quotes) {
 
-							var entries = {};
-
-							quotes.forEach(function(quote) {
-								var entry = {};
-
-								entry.date   = quote.date;
-								entry.symbol = quote.symbol;
-								entry.open   = round(quote.open);
-								entry.high   = round(quote.high);
-								entry.low    = round(quote.low);
-								entry.close  = round(quote.close);
-								entry.volume = quote.volume;
-
-								var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
-								entries[key] = entry;
-							});
-
-							resolve(entries);
+							if (error) {
+								reject(new Error(sprintf('Failed to fetch quotes from Google for symbol %s. %s', options.symbol, error.message)));
+							}
+							else {
+								resolve(quotes);
+							}
 						});
 
 					}
 					catch(error) {
-						console.log('Error fetching quotes from %s, symbol %s', service, symbol);
-						resolve([]);
+						reject(new Error(sprintf('Failed to fetch quotes from Google for symbol %s. %s', options.symbol, error.message)));
 					}
+
+				});
+			}
+
+			function fetchFromYahoo(options) {
+				return new Promise(function(resolve, reject) {
+
+					try {
+						yahoo.historical(options).then(function(quotes) {
+							resolve(quotes);
+						})
+						.catch(function(error) {
+							reject(new Error(sprintf('Failed to fetch quotes from Yahoo for symbol %s. %s', options.symbol, error.message)));
+						})
+
+					}
+					catch(error) {
+						reject(new Error(sprintf('Failed to fetch quotes from Yahoo for symbol %s. %s', options.symbol, error.message)));
+
+					}
+				});
+
+			}
+
+			function fetchFromProvider(provider, symbol, from, to) {
+
+				return new Promise(function(resolve, reject) {
+					var options = {};
+
+					options.symbol = symbol;
+					options.from   = from;
+					options.to     = to;
+
+					provider(options).then(function(quotes) {
+
+						var entries = {};
+
+						quotes.forEach(function(quote) {
+							var entry = {};
+
+							entry.date   = quote.date;
+							entry.symbol = quote.symbol;
+							entry.open   = round(quote.open);
+							entry.high   = round(quote.high);
+							entry.low    = round(quote.low);
+							entry.close  = round(quote.close);
+							entry.volume = quote.volume;
+
+							var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
+							entries[key] = entry;
+						});
+
+						resolve(entries);
+					})
+					.catch(function(error) {
+						console.log(error.message);
+						resolve([]);
+					})
+
 
 				});
 			}
@@ -315,13 +356,13 @@ var Module = new function() {
 					var yahooQuotes = [];
 
 					Promise.resolve().then(function(){
-						return fetchFromProvider('Google', google, symbol, from, to);
+						return fetchFromProvider(fetchFromGoogle, symbol, from, to);
 					})
 					.then(function(quotes) {
 						googleQuotes = quotes;
 					})
 					.then(function() {
-						return fetchFromProvider('Yahoo', yahoo, symbol, from, to);
+						return fetchFromProvider(fetchFromYahoo, symbol, from, to);
 					})
 					.then(function(quotes) {
 						yahooQuotes = quotes;
@@ -373,7 +414,7 @@ var Module = new function() {
 				.then(function() {
 					counter++;
 
-					if ((counter % 15) == 0) {
+					if ((counter % 15) == -1) {
 						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
