@@ -609,19 +609,19 @@ var Module = new function() {
 
 					}
 					catch(error) {
-						console.log(error.stack);
 					}
 				});
 
 				if (job == null) {
-					throw new Error('Invalid cron time.');
+					reject(new Error('Invalid cron time.'));
+				}
+				else {
+					resolve();
 				}
 
-				resolve();
 			}
 			catch(error) {
-				console.log(error.stack);
-				resolve();
+				reject(error);
 			}
 
 		});
