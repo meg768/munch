@@ -385,6 +385,8 @@ var Module = new function() {
 					var now = new Date();
 					var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+					console.log(from, to);
+					
 					if (today - from <= 0) {
 						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
 						return resolve(null);
