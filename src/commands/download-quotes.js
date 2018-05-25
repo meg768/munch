@@ -295,6 +295,7 @@ var Module = new function() {
 					}
 					catch(error) {
 						console.log('Error fetching quotes from symbol %s', symbol);
+						resolve([]);
 					}
 
 				});
