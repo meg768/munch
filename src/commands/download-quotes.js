@@ -27,6 +27,7 @@ var Module = new function() {
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
+		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:30});
 		args.help();
 
 		args.wrap(null);
@@ -367,7 +368,7 @@ var Module = new function() {
 
 					if ((counter % 15) == 0) {
 						console.log('Pausing...');
-						return delay(30 * 1000);
+						return delay(_argv.pause * 1000);
 					}
 					else {
 						return delay(0);
