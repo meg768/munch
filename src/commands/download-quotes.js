@@ -583,7 +583,7 @@ var Module = new function() {
 
 	function schedule(cron) {
 
-		return new Promise(function(resolve, reject)) {
+		return new Promise(function(resolve, reject) {
 			try {
 				var Schedule = require('node-schedule');
 				var running  = false;
