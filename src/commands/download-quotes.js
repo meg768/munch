@@ -583,41 +583,47 @@ var Module = new function() {
 
 	function schedule(cron) {
 
-		try {
-			var Schedule = require('node-schedule');
-			var running  = false;
+		return new Promise(function(resolve, reject)) {
+			try {
+				var Schedule = require('node-schedule');
+				var running  = false;
 
-			console.log(sprintf('Scheduling to run at cron-time "%s"...', cron));
+				console.log(sprintf('Scheduling to run at cron-time "%s"...', cron));
 
-			var job = Schedule.scheduleJob(cron, function() {
+				var job = Schedule.scheduleJob(cron, function() {
 
-				try {
-					if (running) {
-						throw new Error('Upps! Running already!!');
+					try {
+						if (running) {
+							throw new Error('Upps! Running already!!');
+						}
+						else {
+							running = true;
+
+							work().then(function() {
+								running = false;
+							})
+							.catch(function(error) {
+								running = false;
+							});
+						}
+
 					}
-					else {
-						running = true;
-
-						work().then(function() {
-							running = false;
-						})
-						.catch(function(error) {
-							running = false;
-						});
+					catch(error) {
+						console.log(error.stack);
 					}
+				});
 
+				if (job == null) {
+					throw new Error('Invalid cron time.');
 				}
-				catch(error) {
-					console.log(error.stack);
-				}
-			});
 
-			if (job == null) {
-				throw new Error('Invalid cron time.');
+				resolve();
 			}
-		}
-		catch(error) {
-			console.log(error.stack);
+			catch(error) {
+				console.log(error.stack);
+				resolve();
+			}
+
 		}
 
 	}
