@@ -254,7 +254,7 @@ var Module = new function() {
 				});
 
 				promise.then(function() {
-					resolve(quotes.length);
+					resolve(quotes);
 				})
 				.catch(function(error) {
 					reject(error);
@@ -422,7 +422,7 @@ var Module = new function() {
 				symbols = [symbols];
 
 			var promise = Promise.resolve();
-			var counter = 0;
+			var symbolsUpdated = 0;
 
 			var startDates = {};
 
@@ -436,6 +436,8 @@ var Module = new function() {
 			}
 
 			symbols.forEach(function(symbol) {
+				var quotesUpdated = 0;
+
 				promise = promise.then(function() {
 					var startDate = from;
 					var endDate   = to;
@@ -444,8 +446,10 @@ var Module = new function() {
 					if (startDate == undefined)
 						startDate = startDates[symbol];
 
-					if (startDate == undefined)
-						startDate = new Date(now.getDate() - 365);
+					if (startDate == undefined) {
+						startDate = new Date();
+						startDate.setDate(startDate.getDate() - 365);
+					}
 
 					if (now - startDate < (60 * 60 * 1000 * 24))
 						return Promise.resolve([]);
@@ -453,16 +457,28 @@ var Module = new function() {
 						return fetch(symbol, startDate, endDate);
 				})
 				.then(function(quotes) {
-					console.log(sprintf('Updating %d quotes for \'%s\'...', quotes.length, symbol));
+					quotesUpdated = quotes.length;
+
+					if (quotesUpdated == 0)
+						return Promise.resolve();
+
+					console.log(sprintf('Updating %d quotes for \'%s\'...', quotesUpdated, symbol));
+
 					return upsert(quotes);
 				})
 				.then(function() {
+					if (quotesUpdated == 0)
+						return Promise.resolve();
+
 					return updateStatistics(symbol);
 				})
 				.then(function() {
-					counter++;
+					if (quotesUpdated == 0)
+						return delay(0);
 
-					if ((counter % 15) == 0) {
+					symbolsUpdated++;
+
+					if ((symbolsUpdated % 15) == 0) {
 						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
@@ -473,7 +489,7 @@ var Module = new function() {
 			});
 
 			promise.then(function() {
-				resolve(symbols.length);
+				resolve(symbolsUpdated);
 			})
 			.catch(function(error) {
 				reject(error);
@@ -514,10 +530,7 @@ var Module = new function() {
 					if (to == undefined)
 						to = new Date();
 
-					download(symbols, from, to).then(function() {
-						return Promise.resolve(symbols.length);
-					})
-					.then(function(count) {
+					download(symbols, from, to).then(function(count) {
 						resolve(count);
 					})
 					.catch(function(error) {
