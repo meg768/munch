@@ -471,7 +471,7 @@ var Module = new function() {
 					return upsert(quotes);
 				})
 				.then(function() {
-					console.log(sprintf('Updating statistics for \'%s\'...', quotesUpdated, symbol));
+					console.log(sprintf('Updating statistics for \'%s\'...', symbol));
 					return updateStatistics(symbol);
 				})
 				.then(function() {
