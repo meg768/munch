@@ -185,10 +185,6 @@ var Module = new function() {
 	function getSymbols() {
 
 		var sql = 'SELECT symbol FROM stocks';
-		var regex = isString(_argv.symbol) ? new RegExp(_argv.symbol) : null;
-
-		//7if (isString(_argv.symbol))
-			//sql = sprintf('SELECT symbol FROM stocks WHERE symbol LIKE "%s"', _argv.symbol);
 
 		return new Promise(function(resolve, reject) {
 
@@ -202,9 +198,7 @@ var Module = new function() {
 					}
 				});
 
-				console.log(symbols);
-				resolve([]);
-//				resolve(symbols);
+				resolve(symbols);
 			})
 			.catch(function(error) {
 				reject(error);
