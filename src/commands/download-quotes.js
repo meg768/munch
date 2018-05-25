@@ -61,9 +61,6 @@ var Module = new function() {
 
 			}
 
-			if (!argv.days && !argv.since)
-				argv.days = 20;
-
 			return true;
 		});
 
@@ -180,6 +177,33 @@ var Module = new function() {
 
 		});
 
+	}
+
+	function getStartDates() {
+
+		var sql = 'SELECT symbol, MAX(date) as date FROM quotes GROUP BY symbol';
+
+		return new Promise(function(resolve, reject) {
+
+			console.log('Fetching last quote dates...');
+
+			_db.query(sql).then(function(rows) {
+
+				var dates = {};
+				rows.forEach(function(row) {
+					var date = new Date(row.date);
+					date.setDate(date.getDate() + 1);
+
+					dates[row.symbol] = date;
+				});
+
+				resolve(dates);
+			})
+			.catch(function(error) {
+				reject(error);
+
+			});
+		});
 	}
 
 	function getSymbols() {
@@ -355,6 +379,8 @@ var Module = new function() {
 					var googleQuotes = [];
 					var yahooQuotes = [];
 
+					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
+
 					Promise.resolve().then(function(){
 						return fetchFromProvider(fetchFromGoogle, symbol, from, to);
 					})
@@ -392,17 +418,39 @@ var Module = new function() {
 				});
 			}
 
-			console.log(sprintf('Fetching historical quotes from %s to %s...', from.toLocaleDateString(), to.toLocaleDateString()));
-
 			if (!isArray(symbols))
 				symbols = [symbols];
 
 			var promise = Promise.resolve();
 			var counter = 0;
 
+			var startDates = {};
+
+			if (to == undefined)
+				to = new Date();
+
+			if (from == undefined) {
+				promise = getStartDates().then(function(dates) {
+					startDates = dates;
+				});
+			}
+
 			symbols.forEach(function(symbol) {
 				promise = promise.then(function() {
-					return fetch(symbol, from, to);
+					var startDate = from;
+					var endDate   = to;
+					var now       = new Date();
+
+					if (startDate == undefined)
+						startDate = startDates[symbol];
+
+					if (startDate == undefined)
+						startDate = new Date(now.getDate() - 365);
+
+					if (now - startDate < (60 * 60 * 1000 * 24))
+						return Promise.resolve([]);
+					else
+						return fetch(symbol, startDate, endDate);
 				})
 				.then(function(quotes) {
 					console.log(sprintf('Updating %d quotes for \'%s\'...', quotes.length, symbol));
@@ -442,23 +490,31 @@ var Module = new function() {
 			getSymbols().then(function(symbols) {
 				try {
 
-					var startDate = new Date();
-					var endDate = new Date();
+					var from = undefined;
+					var to = undefined;
+					var now = new Date();
 
 					if (_argv.since) {
-						startDate = new Date(_argv.since);
+						from = new Date(_argv.since);
 					}
 
 					if (_argv.days) {
-						startDate.setDate(startDate.getDate() - _argv.days);
+						from = new Date();
+						from.setDate(now.getDate() - _argv.days);
 					}
 
 					if (_argv.from) {
-						startDate = new Date(_argv.from);
-						endDate   = new Date(_argv.to);
+						from = new Date(_argv.from);
 					}
 
-					download(symbols, startDate, endDate).then(function() {
+					if (_argv.to) {
+						to = new Date(_argv.to);
+					}
+
+					if (to == undefined)
+						to = new Date();
+
+					download(symbols, from, to).then(function() {
 						return Promise.resolve(symbols.length);
 					})
 					.then(function(count) {
