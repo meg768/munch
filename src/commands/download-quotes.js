@@ -269,27 +269,33 @@ var Module = new function() {
 					options.from   = from;
 					options.to     = to;
 
-					provider.historical(options, function (error, quotes) {
+					try {
+						provider.historical(options, function (error, quotes) {
 
-						var entries = {};
+							var entries = {};
 
-						quotes.forEach(function(quote) {
-							var entry = {};
+							quotes.forEach(function(quote) {
+								var entry = {};
 
-							entry.date   = quote.date;
-							entry.symbol = quote.symbol;
-							entry.open   = round(quote.open);
-							entry.high   = round(quote.high);
-							entry.low    = round(quote.low);
-							entry.close  = round(quote.close);
-							entry.volume = quote.volume;
+								entry.date   = quote.date;
+								entry.symbol = quote.symbol;
+								entry.open   = round(quote.open);
+								entry.high   = round(quote.high);
+								entry.low    = round(quote.low);
+								entry.close  = round(quote.close);
+								entry.volume = quote.volume;
 
-							var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
-							entries[key] = entry;
+								var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
+								entries[key] = entry;
+							});
+
+							resolve(entries);
 						});
 
-						resolve(entries);
-					});
+					}
+					catch(error) {
+						console.log('Error fetching quotes from symbol %s', symbol);
+					}
 
 				});
 			}
@@ -297,6 +303,7 @@ var Module = new function() {
 			function isValidQuote(quote) {
 				return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
 			}
+
 
 
 			function fetch(symbol, from, to) {
