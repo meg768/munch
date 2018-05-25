@@ -261,7 +261,7 @@ var Module = new function() {
 				return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
 			}
 
-			function fetchFromProvider(provider, symbol, from, to) {
+			function fetchFromProvider(service, provider, symbol, from, to) {
 
 				return new Promise(function(resolve, reject) {
 					var options = {};
@@ -294,7 +294,7 @@ var Module = new function() {
 
 					}
 					catch(error) {
-						console.log('Error fetching quotes from symbol %s', symbol);
+						console.log('Error fetching quotes from %s, symbol %s', service, symbol);
 						resolve([]);
 					}
 
@@ -315,13 +315,13 @@ var Module = new function() {
 					var yahooQuotes = [];
 
 					Promise.resolve().then(function(){
-						return fetchFromProvider(google, symbol, from, to);
+						return fetchFromProvider('Google', google, symbol, from, to);
 					})
 					.then(function(quotes) {
 						googleQuotes = quotes;
 					})
 					.then(function() {
-						return fetchFromProvider(yahoo, symbol, from, to);
+						return fetchFromProvider('Yahoo', yahoo, symbol, from, to);
 					})
 					.then(function(quotes) {
 						yahooQuotes = quotes;
