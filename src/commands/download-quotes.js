@@ -367,7 +367,7 @@ var Module = new function() {
 					counter++;
 
 					if ((counter % 15) == 0) {
-						console.log('Pausing...');
+						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
 					else {
