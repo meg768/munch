@@ -291,7 +291,6 @@ var Module = new function() {
 				return new Promise(function(resolve, reject) {
 					try {
 						google.historical(options, function (error, quotes) {
-
 							if (error) {
 								reject(new Error(sprintf('Failed to fetch quotes from Google for symbol %s. %s', options.symbol, error.message)));
 							}
@@ -396,12 +395,14 @@ var Module = new function() {
 						return fetchFromProvider(fetchFromGoogle, symbol, from, to);
 					})
 					.then(function(quotes) {
+						//console.log('Google hits:', JSON.stringify(quotes));
 						googleQuotes = quotes;
 					})
 					.then(function() {
 						return fetchFromProvider(fetchFromYahoo, symbol, from, to);
 					})
 					.then(function(quotes) {
+						//console.log('Yahoo hits:', JSON.stringify(quotes));
 						yahooQuotes = quotes;
 					})
 					.then(function() {
