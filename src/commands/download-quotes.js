@@ -480,7 +480,7 @@ var Module = new function() {
 
 					symbolsUpdated++;
 
-					if ((fetchCounter % 15) == -1) {
+					if ((fetchCounter % 15) == 0) {
 						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
