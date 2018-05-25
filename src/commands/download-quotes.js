@@ -197,7 +197,7 @@ var Module = new function() {
 				var symbols = [];
 
 				rows.forEach(function(row) {
-					if (!isString(_argv.symbol) || _argv.symbol.match(row.symbol)) {
+					if (!isString(_argv.symbol) || row.symbol.match(_argv.symbol)) {
 						symbols.push(row.symbol);
 					}
 				});
