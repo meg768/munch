@@ -423,6 +423,7 @@ var Module = new function() {
 
 			var promise = Promise.resolve();
 			var symbolsUpdated = 0;
+			var fetchCounter = 0;
 
 			var startDates = {};
 
@@ -453,8 +454,11 @@ var Module = new function() {
 
 					if (now - startDate < (60 * 60 * 1000 * 24))
 						return Promise.resolve([]);
-					else
+					else {
+						fetchCounter++;
 						return fetch(symbol, startDate, endDate);
+
+					}
 				})
 				.then(function(quotes) {
 					quotesUpdated = quotes.length;
@@ -467,9 +471,7 @@ var Module = new function() {
 					return upsert(quotes);
 				})
 				.then(function() {
-					if (quotesUpdated == 0)
-						return Promise.resolve();
-
+					console.log(sprintf('Updating statistics for \'%s\'...', quotesUpdated, symbol));
 					return updateStatistics(symbol);
 				})
 				.then(function() {
@@ -478,7 +480,7 @@ var Module = new function() {
 
 					symbolsUpdated++;
 
-					if ((symbolsUpdated % 15) == 0) {
+					if ((fetchCounter % 15) == -1) {
 						console.log('Pausing for %s seconds...', _argv.pause);
 						return delay(_argv.pause * 1000);
 					}
