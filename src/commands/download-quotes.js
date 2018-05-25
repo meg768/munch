@@ -27,7 +27,7 @@ var Module = new function() {
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
-		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:30});
+		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:60});
 		args.help();
 
 		args.wrap(null);
@@ -185,9 +185,10 @@ var Module = new function() {
 	function getSymbols() {
 
 		var sql = 'SELECT symbol FROM stocks';
+		var regex = isString(_argv.symbol) ? new RegExp(_argv.symbol) : null;
 
-		if (isString(_argv.symbol))
-			sql = sprintf('SELECT symbol FROM stocks WHERE symbol LIKE "%s"', _argv.symbol);
+		//7if (isString(_argv.symbol))
+			//sql = sprintf('SELECT symbol FROM stocks WHERE symbol LIKE "%s"', _argv.symbol);
 
 		return new Promise(function(resolve, reject) {
 
@@ -196,10 +197,14 @@ var Module = new function() {
 				var symbols = [];
 
 				rows.forEach(function(row) {
-					symbols.push(row.symbol);
+					if (regex == null || regex.match(row.symbol)) {
+						symbols.push(row.symbol);
+					}
 				});
 
-				resolve(symbols);
+				console.log(symbols);
+				resolve([]);
+//				resolve(symbols);
 			})
 			.catch(function(error) {
 				reject(error);
