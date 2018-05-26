@@ -469,6 +469,8 @@ var Module = new function() {
 					if (isArray(quotes) && quotes.length > 0) {
 						console.log('Fetched %d quotes for symbol %s.', quotes.length, symbol);
 
+						symbolsUpdated++;
+
 						return upsert(quotes).then(function() {
 							return updateStatistics(symbol);
 						});
