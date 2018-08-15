@@ -1,3 +1,4 @@
+var util    = require('util');
 var methods = ['log', 'info', 'warn', 'error'];
 var output  = {};
 
@@ -17,9 +18,6 @@ var pushoverConsole = module.exports = function(options) {
 		output.warn('Environment variables PUSHOVER_USER and/or PUSHOVER_TOKEN not defined. Push notifications will not be able to be sent.');
 	}
 	else {
-		function formatArgs(args){
-		    return util.format.apply(util.format, Array.prototype.slice.call(args));
-		}
 
 		function send(payload) {
 			try {
@@ -45,8 +43,10 @@ var pushoverConsole = module.exports = function(options) {
 				var method = output[name];
 
 				console[name] = function() {
-					send({priority:name == 'info' ? 0 : 1, message:formatArgs(arguments)});
-				    return method.apply(console, arguments);
+					var text = util.format.apply(util.format, arguments);
+
+					send({priority:name == 'info' ? 0 : 1, message:text});
+				    return method.apply(console, [text]);
 				};
 			}
 		});

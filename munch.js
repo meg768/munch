@@ -3,8 +3,8 @@
 require('dotenv').config();
 
 
-require('./src/scripts/prefix-console');
 require('./src/scripts/pushover-console');
+require('./src/scripts/prefix-console');
 
 var App = function() {
 
@@ -22,6 +22,8 @@ var App = function() {
 			args.command(require('./src/commands/backup.js'));
 			args.command(require('./src/commands/server.js'));
 			args.command(require('./src/commands/test.js'));
+
+			throw new Error('KAS');
 
 			args.help();
 			args.wrap(null);
