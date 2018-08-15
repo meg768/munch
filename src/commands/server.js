@@ -9,7 +9,6 @@ var mysql = require('mysql');
 var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
-var prefixLogs = require('yow/logs').prefix;
 
 var Module = new function() {
 
@@ -101,8 +100,6 @@ var Module = new function() {
 
 		_argv = argv;
 
-
-		prefixLogs();
 
 		Promise.resolve().then(function() {
 

@@ -3,7 +3,6 @@
 var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
-var prefixLogs = require('yow/logs').prefix;
 
 var Module = new function() {
 
@@ -137,8 +136,6 @@ var Module = new function() {
 
 		try {
 			_argv = argv;
-
-			prefixLogs();
 
 			if (isString(argv.schedule))
 				schedule();

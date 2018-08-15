@@ -3,7 +3,6 @@ var isArray    = require('yow/is').isArray;
 var isString   = require('yow/is').isString;
 var isDate     = require('yow/is').isDate;
 var isInteger  = require('yow/is').isInteger;
-var prefixLogs = require('yow/logs').prefix;
 var google     = require('google-finance');
 var yahoo      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
@@ -635,8 +634,6 @@ var Module = new function() {
 
 		try {
 			_argv = argv;
-
-			//prefixLogs();
 
 			var promise = Promise.resolve();
 

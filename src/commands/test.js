@@ -11,7 +11,6 @@ var fileExists = require('yow/fs').fileExists;
 var mkdir      = require('yow/fs').mkdir;
 var mkpath     = require('yow/fs').mkpath;
 var isInteger  = require('yow/is').isInteger;
-var prefixLogs = require('yow/logs').prefix;
 
 var Gopher   = require('rest-request');
 var MySQL    = require('../scripts/mysql.js');
