@@ -1,5 +1,6 @@
 
 var sprintf = require('yow/sprintf');
+var util    = require('util');
 var methods = ['log', 'info', 'warn', 'error'];
 var output  = {};
 
@@ -30,8 +31,9 @@ var prefixConsole = module.exports = function(options) {
 		var method = output[name];
 
 		console[name] = function() {
-			Array.prototype.unshift.call(arguments, typeof options.prefix == 'function' ? options.prefix() : options.prefix);
-		    return method.apply(console, arguments);
+			var prefix = typeof options.prefix == 'function' ? options.prefix() : options.prefix;
+			var text   = util.format.apply(util.format, arguments);
+		    return method.apply(console, [prefix, text]);
 		};
 
 	});

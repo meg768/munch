@@ -4,7 +4,7 @@ require('dotenv').config();
 
 
 require('./src/scripts/prefix-console');
-require('./src/scripts/pushover-console');
+//require('./src/scripts/pushover-console');
 
 var App = function() {
 
