@@ -7,8 +7,6 @@ var prefixLogs = require('yow/logs').prefix;
 var google     = require('google-finance');
 var yahoo      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
-var pushover   = require('../scripts/pushover.js');
-
 
 var Module = new function() {
 
@@ -561,6 +559,8 @@ var Module = new function() {
 		return new Promise(function(resolve, reject) {
 			var mysql = new MySQL();
 
+			console.info('Downloading quotes.');
+
 			Promise.resolve().then(function() {
 				return mysql.connect();
 			})
@@ -569,11 +569,10 @@ var Module = new function() {
 				return process();
 			})
 			.then(function(count) {
-				pushover.notify(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
+				console.info(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
 			})
 			.catch(function(error) {
-				pushover.error(error);
-				console.log(error.stack);
+				console.error(error.stack);
 			})
 			.then(function() {
 				_db.end();
@@ -637,7 +636,7 @@ var Module = new function() {
 		try {
 			_argv = argv;
 
-			prefixLogs();
+			//prefixLogs();
 
 			var promise = Promise.resolve();
 
@@ -647,13 +646,13 @@ var Module = new function() {
 				promise = work();
 
 			promise.catch(function(error) {
-				console.log(error.stack);
+				console.error(error);
 
 			});
 
 		}
 		catch(error) {
-			console.log(error.stack);
+			console.error(error);
 		}
 	}
 

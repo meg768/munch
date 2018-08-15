@@ -4,7 +4,6 @@ var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
 var prefixLogs = require('yow/logs').prefix;
-var pushover   = require('../scripts/pushover.js');
 
 var Module = new function() {
 
@@ -90,7 +89,7 @@ var Module = new function() {
 
 			var promise = Promise.resolve();
 
-			pushover.notify('Running backup...');
+			console.info('Running backup...');
 
 			commands.forEach(function(cmd) {
 				promise = promise.then(function() {
@@ -99,16 +98,16 @@ var Module = new function() {
 			});
 
 			promise.then(function() {
-				pushover.notify('Backup finished.');
+				console.info('Backup finished.');
 			})
 			.catch(function(error) {
-				pushover.error(error);
+				console.error(error);
 
 			});
 
 		}
 		catch(error) {
-			pushover.error(error);
+			console.error(error);
 		}
 
 	}
@@ -118,7 +117,7 @@ var Module = new function() {
 		var Schedule = require('node-schedule');
 		var running = false;
 
-		pushover.log(sprintf('Scheduling backup to run at "%s"...', _argv.schedule));
+		console.info(sprintf('Scheduling backup to run at "%s"...', _argv.schedule));
 
 		Schedule.scheduleJob(_argv.schedule, function() {
 

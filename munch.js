@@ -2,11 +2,14 @@
 
 require('dotenv').config();
 
+
+require('./src/scripts/prefix-console');
+require('./src/scripts/pushover-console');
+
 var App = function() {
 
 
 	this.fileName = __filename;
-
 
 	function run() {
 		try {
@@ -33,8 +36,8 @@ var App = function() {
 
 		}
 		catch(error) {
-			console.log(error.stack);
-			process.exit(-1);
+			console.error(error);
+			//process.exit(-1);
 		}
 
 	};

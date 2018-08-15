@@ -15,7 +15,7 @@ var prefixLogs = require('yow/logs').prefix;
 
 var Gopher   = require('rest-request');
 var MySQL    = require('../scripts/mysql.js');
-var pushover = require('../scripts/pushover.js');
+
 
 var Command = new function() {
 
@@ -340,7 +340,7 @@ var Command = new function() {
 					}
 				})
 				.catch(function(error) {
-					pushover.error(error);
+					console.error(error);
 
 					if (failCount++ < 10) {
 						console.error('Error running batch. Will try again...');
@@ -367,22 +367,22 @@ var Command = new function() {
 
 		var busy = false;
 
-		pushover.log(sprintf('Scheduling to download-ticks at cron-time "%s"...', cron));
+		console.info(sprintf('Scheduling to download-ticks at cron-time "%s"...', cron));
 
 		var job = Schedule.scheduleJob(cron, function() {
 			if (busy) {
-				pushover.log('Busy. Try again later.');
+				console.warn('Busy. Try again later.');
 			}
 			else {
 				busy = true;
 
-				pushover.log('Started downloading ticks.');
+				console.info('Started downloading ticks.');
 
 				runOnce().then(function() {
-					pushover.log('Finished downloading ticks.');
+					console.info('Finished downloading ticks.');
 				})
 				.catch(function(error) {
-					pushover.error(error);
+					console.error(error);
 				})
 				.then(function() {
 					busy = false;
@@ -431,7 +431,6 @@ var Command = new function() {
 
 		}
 		catch(error) {
-			pushover.error(error);
 			console.error(error);
 		}
 

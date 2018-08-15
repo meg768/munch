@@ -15,7 +15,6 @@ var prefixLogs = require('yow/logs').prefix;
 
 var Gopher   = require('rest-request');
 var MySQL    = require('../scripts/mysql.js');
-var pushover = require('../scripts/pushover.js');
 
 
 var Command = new function() {
@@ -112,7 +111,6 @@ var Command = new function() {
 
 		}
 		catch(error) {
-			pushover.error(error);
 			console.log(error);
 		}
 
