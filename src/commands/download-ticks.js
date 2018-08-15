@@ -12,7 +12,7 @@ var mkdir      = require('yow/fs').mkdir;
 var mkpath     = require('yow/fs').mkpath;
 var isInteger  = require('yow/is').isInteger;
 
-var Gopher   = require('rest-request');
+var Gopher   = require('yow/request');
 var MySQL    = require('../scripts/mysql.js');
 
 
