@@ -588,7 +588,7 @@ var Module = new function() {
 				var Schedule = require('node-schedule');
 				var running  = false;
 
-				console.log(sprintf('Scheduling to run at cron-time "%s"...', cron));
+				console.info(sprintf('Scheduling to run download-quotes at cron-time "%s"...', cron));
 
 				var job = Schedule.scheduleJob(cron, function() {
 

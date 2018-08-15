@@ -366,7 +366,7 @@ var Command = new function() {
 
 		var busy = false;
 
-		console.info(sprintf('Scheduling to download-ticks at cron-time "%s"...', cron));
+		console.info(sprintf('Scheduling to run download-ticks at cron-time "%s"...', cron));
 
 		var job = Schedule.scheduleJob(cron, function() {
 			if (busy) {
