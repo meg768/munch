@@ -87,10 +87,6 @@ var Command = new function() {
 	function run(args) {
 
 		try {
-			prefixLogs();
-
-
-			throw new Error('OJ!');
 
 			if (isString(args.schedule)) {
 				schedule(args.schedule, runOnce);

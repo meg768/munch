@@ -399,8 +399,6 @@ var Command = new function() {
 	function run(args) {
 
 		try {
-			prefixLogs();
-
 			_fetchCount = parseInt(args.count);
 			_numberOfDays = parseInt(args.days);
 			_delay = parseInt(args.pause);
