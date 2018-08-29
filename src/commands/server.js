@@ -17,7 +17,6 @@ var Module = new function() {
 
 	function defineArgs(args) {
 
-		var config = require('../scripts/config.js');
 
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
@@ -72,6 +71,34 @@ var Module = new function() {
 			response.status(200).json({status:'OK'});
 		});
 
+		app.get('/query', function (request, response) {
+			connect().then(function(db) {
+
+				var options = Object.assign({}, request.body, request.query);
+
+				if (isString(options)) {
+					options = {sql:options};
+				}
+
+				return query(db, options).then(function(rows) {
+					db.release();
+					return Promise.resolve(rows);
+				})
+				.catch(function(error) {
+					db.release();
+					throw error;
+				})
+			})
+			.then(function(rows) {
+				response.status(200).json(rows);
+			})
+			.catch(function(error) {
+				console.error(error);
+				response.status(404).json(error);
+
+			});
+		});
+
 		app.get('/stocks', function (request, response) {
 			connect().then(function(db) {
 
@@ -106,10 +133,10 @@ var Module = new function() {
 			console.log('Connecting to MySQL...');
 
 			var options = {};
-			options.host = config.mysql.host;
-			options.user = config.mysql.user;
-			options.password = config.mysql.password;
-			options.database = config.mysql.database;
+			options.host = process.env.MYSQL_HOST;
+			options.user = process.env.MYSQL_USER;
+			options.password = process.env.MYSQL_PASSWORD;
+			options.database = process.env.MYSQL_DATABASE;
 
 			_mysql = mysql.createPool(options);
 
