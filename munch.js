@@ -4,7 +4,7 @@ require('dotenv').config();
 
 
 require('./src/scripts/prefix-console');
-require('./src/scripts/pushover-console');
+require('pushover-console');
 
 var App = function() {
 
@@ -36,8 +36,7 @@ var App = function() {
 
 		}
 		catch(error) {
-			console.error(error.message);
-			//process.exit(-1);
+			console.error(error);
 		}
 
 	};

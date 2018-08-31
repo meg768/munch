@@ -28,6 +28,7 @@
     "mysql": "^2.11.1",
     "node-schedule": "^1.2.0",
     "progress": "^1.1.8",
+    "pushover-console": "^1.0.0",
     "pushover-notifications": "^0.2.4",
     "rest-request": "^1.0.0",
     "sqlite3": "^3.1.4",
