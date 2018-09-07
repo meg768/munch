@@ -9,6 +9,7 @@ var mysql = require('mysql');
 var sprintf    = require('yow/sprintf');
 var isString   = require('yow/is').isString;
 var mkpath     = require('yow/fs').mkpath;
+var yahoo      = require('yahoo-finance');
 
 var Module = new function() {
 
@@ -69,6 +70,34 @@ var Module = new function() {
 
 		app.get('/hello', function (request, response) {
 			response.status(200).json({status:'OK'});
+		});
+
+		app.get('/lookup', function (request, response) {
+			var options = Object.assign({}, request.body, request.query);
+
+			if (isString(options)) {
+				options = {symbol:options};
+			}
+
+			var yahooOptions = {};
+
+			yahooOptions.symbol = options.symbol;
+			yahooOptions.modules = ['price', 'summaryProfile'];
+
+			yahoo.quote(yahooOptions).then((data) => {
+				var json = {};
+				json.symbol = data.price.symbol;
+				json.name = data.price.longName ? data.price.longName : data.price.shortName;
+				json.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
+				json.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
+				json.exchange = data.price.exchangeName;
+
+				response.status(200).json(json);
+			})
+			.catch((error) => {
+				response.status(404).json(error);
+			});
+
 		});
 
 		app.get('/query', function (request, response) {

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 
 require('./src/scripts/prefix-console');
-require('pushover-console');
+//require('../scripts/format-console.js');
 
 var App = function() {
 
@@ -21,7 +21,6 @@ var App = function() {
 			args.command(require('./src/commands/download-ticks.js'));
 			args.command(require('./src/commands/backup.js'));
 			args.command(require('./src/commands/server.js'));
-			args.command(require('./src/commands/test.js'));
 
 			args.help();
 			args.wrap(null);
@@ -36,7 +35,7 @@ var App = function() {
 
 		}
 		catch(error) {
-			console.error(error);
+			console.error(error.message);
 		}
 
 	};
