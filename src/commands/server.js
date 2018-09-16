@@ -128,26 +128,108 @@ var Module = new function() {
 			});
 		});
 
-		app.get('/stocks', function (request, response) {
-			connect().then(function(db) {
+		app.get('/stock/:symbol', (request, response) => {
+			connect().then((db) => {
 
-				return query(db, 'SELECT * FROM stocks').then(function(rows) {
-					db.release();
-					return Promise.resolve(rows);
-				})
-				.catch(function(error) {
-					db.release();
+				try {
+					var options = {};
+					options.sql = 'SELECT * FROM stocks WHERE symbol = ?';
+					options.values = [request.params.symbol];
+
+					return query(db, options).then((rows) => {
+						return rows.length > 0 ? rows[0] : {};
+					})
+					.catch((error) => {
+						throw error;
+					});
+				}
+				catch(error) {
 					throw error;
-				})
+				}
+				finally {
+					db.release();
+				}
 			})
-			.then(function(rows) {
-				response.status(200).json(rows);
+			.then((result) => {
+				response.status(200).json(result);
 			})
-			.catch(function(error) {
-				console.error(error);
-				response.status(404).json(error);
-
+			.catch((error) => {
+				response.status(404).json({error:error.stack});
 			});
+
+		});
+
+		app.get('/stock', (request, response) => {
+			connect().then((db) => {
+
+				try {
+					var args = Object.assign({}, request.body, request.query);
+
+					if (!isString(args.symbol)) {
+						throw new Error('Symbol needed.');
+					}
+
+					var options = {};
+					options.sql = 'SELECT * FROM stocks WHERE symbol = ?';
+					options.values = [args.symbol];
+
+					return query(db, options).then((rows) => {
+						return rows.length > 0 ? rows[0] : {};
+					})
+					.catch((error) => {
+						throw error;
+					});
+
+				}
+				catch(error) {
+					throw error;
+				}
+
+				finally {
+					db.release();
+				}
+			})
+			.then((result) => {
+				response.status(200).json(result);
+			})
+			.catch((error) => {
+				response.status(404).json({error:error.stack});
+			});
+
+		});
+
+		app.get('/stocks', function (request, response) {
+			connect().then((db) => {
+
+				try {
+					var args = Object.assign({}, request.body, request.query);
+
+					var options = {};
+					options.sql = 'SELECT * FROM stocks';
+
+					return query(db, options).then((rows) => {
+						return rows;
+					})
+					.catch((error) => {
+						throw error;
+					});
+
+				}
+				catch(error) {
+					throw error;
+				}
+
+				finally {
+					db.release();
+				}
+			})
+			.then((result) => {
+				response.status(200).json(result);
+			})
+			.catch((error) => {
+				response.status(404).json({error:error.stack});
+			});
+
 		});
 
 	}
