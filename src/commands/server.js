@@ -94,6 +94,9 @@ var Module = new function() {
 				json.exchange = data.price.exchangeName;
 				json.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
+				// Fix some stuff
+				json.name = json.name.replace(/&amp;/g, '&');
+
 				response.status(200).json(json);
 			})
 			.catch((error) => {
