@@ -1,8 +1,4 @@
-tmp
-stocks
-data
-munch.json
-app.json
+.DS_Store
 
 # Logs
 logs
