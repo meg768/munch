@@ -474,6 +474,7 @@ var Module = new function() {
 					})
 					.catch((error) => {
 						if (error.message.search('Failed to get crumb') >= 0) {
+							console.warn(sprintf('Failed to fetch quotes for symbol %s from Yahoo. Removing symbol.', symbol));
 							return deleteSymbol(symbol);
 						}
 						else {
