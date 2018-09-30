@@ -90,10 +90,6 @@ var Module = new function() {
 			response.status(200).json({status:'OK'});
 		});
 
-		app.get('/hello', function (request, response) {
-			response.status(200).json({status:'OK'});
-		});
-
 		app.get('/lookup', function (request, response) {
 			var options = Object.assign({}, request.body, request.query);
 
