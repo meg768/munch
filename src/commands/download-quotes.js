@@ -717,13 +717,13 @@ var Module = new function() {
 				promise = work();
 
 			promise.catch(function(error) {
-				console.error(error);
+				console.error(error.stack);
 
 			});
 
 		}
 		catch(error) {
-			console.error(error);
+			console.error(error.stack);
 		}
 	}
 
