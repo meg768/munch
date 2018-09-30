@@ -191,15 +191,17 @@ var Module = new function() {
 
 						var stock = {};
 
-						quotes.reverse();
+						if (quotes.length > 0) {
+							quotes.reverse();
 
-						stock.SMA200   = computeSMA(quotes, 200);
-						stock.SMA50    = computeSMA(quotes, 50);
-						stock.SMA10    = computeSMA(quotes, 10);
-						stock.AV14     = computeAV(quotes, 14);
-						stock.WL51     = computeWeekLow(quotes, 51);
-						stock.WH51     = computeWeekHigh(quotes, 51);
-						stock.ATR14    = computeATR(quotes, 14);
+							stock.SMA200   = computeSMA(quotes, 200);
+							stock.SMA50    = computeSMA(quotes, 50);
+							stock.SMA10    = computeSMA(quotes, 10);
+							stock.AV14     = computeAV(quotes, 14);
+							stock.WL51     = computeWeekLow(quotes, 51);
+							stock.WH51     = computeWeekHigh(quotes, 51);
+							stock.ATR14    = computeATR(quotes, 14);
+						}
 
 						return stock;
 					})
@@ -215,7 +217,7 @@ var Module = new function() {
 
 			}
 
-			var stock = {symbol:symbol, updated:new Date()};
+			var stock = {};
 
 			Promise.resolve().then(() => {
 				return getGeneralInformation(symbol);
@@ -230,6 +232,9 @@ var Module = new function() {
 				stock = Object.assign({}, stock, data);
 			})
 			.then(() => {
+				stock.symbol  = symbol;
+				stock.updated = new Date();
+
 				return _db.upsert('stocks', stock);
 			})
 			.then(() => {
@@ -281,7 +286,7 @@ var Module = new function() {
 				query.values = ['stocks', 'symbol', symbol];
 
 				_db.query(query).then(() => {
-					resolve([]);
+					resolve(null);
 				})
 				.catch(function(error) {
 					reject(error);
@@ -299,7 +304,7 @@ var Module = new function() {
 				query.values = ['quotes', 'symbol', symbol];
 
 				_db.query(query).then(() => {
-					resolve([]);
+					resolve(null);
 				})
 				.catch(function(error) {
 					reject(error);
@@ -311,8 +316,6 @@ var Module = new function() {
 
 		return new Promise(function(resolve, reject) {
 
-			console.warn('Deleting symbol', symbol, '...');
-
 			Promise.resolve().then(() => {
 				return deleteFromStocks(symbol);
 			})
@@ -320,10 +323,10 @@ var Module = new function() {
 				return deleteFromQuotes(symbol);
 			})
 			.then(() => {
-				resolve([]);
+				resolve(null);
 			})
 			.catch((error) => {
-				resolve([]);
+				resolve(null);
 			})
 		});
 
@@ -533,11 +536,14 @@ var Module = new function() {
 						return upsert(quotes);
 					}
 					else {
-						return Promise.resolve();
+						return Promise.resolve(quotes);
 					}
 				})
-				.then(() => {
-					return updateStock(symbol);
+				.then((quotes) => {
+					if (quotes)
+						return updateStock(symbol);
+					else
+						return Promise.resolve(quotes);
 
 				})
 				.then(() => {
