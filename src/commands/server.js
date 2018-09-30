@@ -62,6 +62,28 @@ var Module = new function() {
 		});
 	}
 
+	function upsert(db, table, row) {
+
+		var values = [];
+		var columns = [];
+
+		Object.keys(row).forEach(function(column) {
+			columns.push(column);
+			values.push(row[column]);
+		});
+
+		var sql = '';
+
+		sql += db.format('INSERT INTO ?? (??) VALUES (?) ', [table, columns, values]);
+		sql += db.format('ON DUPLICATE KEY UPDATE ');
+
+		sql += columns.map(function(column) {
+			return db.format('?? = VALUES(??)', [column, column]);
+		}).join(',');
+
+		return query(db, sql);
+	}
+
 
 	function defineRoutes(app) {
 		app.get('/hello', function (request, response) {
@@ -106,6 +128,10 @@ var Module = new function() {
 		});
 
 		app.get('/query', function (request, response) {
+
+
+			console.warn('Method /query depricated. Please use /mysql instead. Mvh MEG.');
+
 			connect().then(function(db) {
 
 				var options = Object.assign({}, request.body, request.query);
@@ -133,6 +159,36 @@ var Module = new function() {
 			});
 		});
 
+		app.get('/mysql', function (request, response) {
+			connect().then(function(db) {
+
+				var options = Object.assign({}, request.body, request.query);
+
+				if (isString(options)) {
+					options = {sql:options};
+				}
+
+				return query(db, options).then(function(rows) {
+					db.release();
+					return Promise.resolve(rows);
+				})
+				.catch(function(error) {
+					db.release();
+					throw error;
+				})
+			})
+			.then(function(rows) {
+				response.status(200).json(rows);
+			})
+			.catch(function(error) {
+				console.error(error);
+				response.status(404).json(error);
+
+			});
+		});
+
+
+
 		app.get('/stock/:symbol', (request, response) => {
 			connect().then((db) => {
 
@@ -142,6 +198,44 @@ var Module = new function() {
 					options.values = [request.params.symbol];
 
 					return query(db, options).then((rows) => {
+						return rows.length > 0 ? rows[0] : {};
+					})
+					.catch((error) => {
+						throw error;
+					});
+				}
+				catch(error) {
+					throw error;
+				}
+				finally {
+					db.release();
+				}
+			})
+			.then((result) => {
+				response.status(200).json(result);
+			})
+			.catch((error) => {
+				response.status(404).json({error:error.stack});
+			});
+
+		});
+
+		app.post('/stock', (request, response) => {
+			connect().then((db) => {
+
+				try {
+					var args = Object.assign({}, request.body, request.query);
+
+					return upsert(db, 'stocks', args).then((result) => {
+						return Promise.resolve();
+					})
+					.then(() => {
+						var options = {};
+						options.sql = 'SELECT * FROM ?? WHERE ?? = ?';
+						options.values = ['stocks', 'symbol', args.symbol];
+						return query(db, options);
+					})
+					.then((rows) => {
 						return rows.length > 0 ? rows[0] : {};
 					})
 					.catch((error) => {
