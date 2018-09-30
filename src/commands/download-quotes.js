@@ -65,9 +65,10 @@ var Module = new function() {
 
 
 
-	function updateStatistics(symbol) {
+	function updateStock(symbol) {
 
 		return new Promise(function(resolve, reject) {
+
 
 			function computeSMA(quotes, days) {
 				if (quotes.length < days)
@@ -141,34 +142,91 @@ var Module = new function() {
 				return parseFloat((sum / days).toFixed(2));
 			}
 
+			function getGeneralInformation(symbol) {
+				return new Promise((resolve, reject) => {
+					var options = {};
 
-			var query = {};
-			query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
-			query.values = [symbol, 51 * 5];
+					options.symbol = symbol;
+					options.modules = ['price', 'summaryProfile'];
 
-			_db.query(query).then(function(quotes) {
+					yahoo.quote(options).then((data) => {
+						var stock = {};
+						stock.symbol = data.price.symbol;
+						stock.name = data.price.longName ? data.price.longName : data.price.shortName;
+						stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
+						stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
+						stock.exchange = data.price.exchangeName;
+						stock.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
-				var row = {};
+						// Fix some stuff
+						stock.name = stock.name.replace(/&amp;/g, '&');
 
-				quotes.reverse();
+						resolve(stock);
 
-				row.symbol = symbol;
-				row.SMA200   = computeSMA(quotes, 200);
-				row.SMA50    = computeSMA(quotes, 50);
-				row.SMA10    = computeSMA(quotes, 10);
-				row.AV14     = computeAV(quotes, 14);
-				row.WL51     = computeWeekLow(quotes, 51);
-				row.WH51     = computeWeekHigh(quotes, 51);
-				row.ATR14    = computeATR(quotes, 14);
-				row.updated  = new Date();
+					})
+					.catch((error) => {
+						reject(error);
+					});
 
+				});
+			}
 
-				console.log('Updating statistics for symbol %s', symbol);
-				return _db.upsert('stocks', row);
+			function getStatistics(symbol) {
+				return new Promise((resolve, reject) => {
+
+					var query = {};
+					query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
+					query.values = [symbol, 51 * 5];
+
+					_db.query(query).then(function(quotes) {
+
+						var stock = {};
+
+						quotes.reverse();
+
+						stock.symbol   = symbol;
+						stock.SMA200   = computeSMA(quotes, 200);
+						stock.SMA50    = computeSMA(quotes, 50);
+						stock.SMA10    = computeSMA(quotes, 10);
+						stock.AV14     = computeAV(quotes, 14);
+						stock.WL51     = computeWeekLow(quotes, 51);
+						stock.WH51     = computeWeekHigh(quotes, 51);
+						stock.ATR14    = computeATR(quotes, 14);
+						stock.updated  = new Date();
+
+						return stock;
+					})
+
+					.then((stock) => {
+						resolve(stock);
+					})
+					.catch(function(error) {
+						reject(error);
+					});
+
+				});
+
+			}
+
+			var stock = {};
+
+			Promise.resolve().then(() => {
+				return getGeneralInformation(symbol);
 			})
-
-			.then(function(row) {
-				resolve();
+			.then((data) => {
+				stock = Object.assign({}, stock, data);
+			})
+			.then(() => {
+				return getStatistics(symbol);
+			})
+			.then((data) => {
+				stock = Object.assign({}, stock, data);
+			})
+			.then(() => {
+				return _db.upsert('stocks', stock);
+			})
+			.then(() => {
+				resolve(stock);
 			})
 			.catch(function(error) {
 				reject(error);
@@ -389,6 +447,7 @@ var Module = new function() {
 					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
 
 					Promise.resolve().then(function(){
+						return Promise.resolve([]);
 						return fetchFromProvider(fetchFromGoogle, symbol, from, to);
 					})
 					.then(function(quotes) {
@@ -469,7 +528,7 @@ var Module = new function() {
 						symbolsUpdated++;
 
 						return upsert(quotes).then(function() {
-							return updateStatistics(symbol);
+							return updateStock(symbol);
 						});
 					}
 					else {
