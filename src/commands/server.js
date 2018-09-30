@@ -103,19 +103,19 @@ var Module = new function() {
 			yahooOptions.modules = ['price', 'summaryProfile'];
 
 			yahoo.quote(yahooOptions).then((data) => {
-				console.log(data);
-				var json = {};
-				json.symbol = data.price.symbol;
-				json.name = data.price.longName ? data.price.longName : data.price.shortName;
-				json.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
-				json.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
-				json.exchange = data.price.exchangeName;
-				json.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+
+				var stock = {};
+				stock.symbol   = data.price.symbol;
+				stock.name     = data.price.longName ? data.price.longName : data.price.shortName;
+				stock.sector   = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
+				stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
+				stock.exchange = data.price.exchangeName;
+				stock.type     = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
 				// Fix some stuff
-				json.name = json.name.replace(/&amp;/g, '&');
+				stock.name = stock.name.replace(/&amp;/g, '&');
 
-				response.status(200).json(json);
+				response.status(200).json(stock);
 			})
 			.catch((error) => {
 				response.status(404).json(error);
