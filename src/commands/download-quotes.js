@@ -7,6 +7,8 @@ var google     = require('google-finance');
 var yahoo      = require('yahoo-finance');
 var MySQL      = require('../scripts/mysql.js');
 
+require('pushover-console');
+
 var Module = new function() {
 
 	var _db = undefined;
@@ -63,6 +65,13 @@ var Module = new function() {
 
 	}
 
+	function dateToString(date) {
+		if (!date)
+			date = new Date();
+
+		return sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
+
+	}
 
 
 	function updateStock(symbol) {
@@ -151,7 +160,6 @@ var Module = new function() {
 
 					yahoo.quote(options).then((data) => {
 						var stock = {};
-						stock.symbol = data.price.symbol;
 						stock.name = data.price.longName ? data.price.longName : data.price.shortName;
 						stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
 						stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
@@ -165,7 +173,8 @@ var Module = new function() {
 
 					})
 					.catch((error) => {
-						reject(error);
+						console.warn('Could not get general information about symbol', symbol, '.');
+						resolve({});
 					});
 
 				});
@@ -184,7 +193,6 @@ var Module = new function() {
 
 						quotes.reverse();
 
-						stock.symbol   = symbol;
 						stock.SMA200   = computeSMA(quotes, 200);
 						stock.SMA50    = computeSMA(quotes, 50);
 						stock.SMA10    = computeSMA(quotes, 10);
@@ -192,7 +200,6 @@ var Module = new function() {
 						stock.WL51     = computeWeekLow(quotes, 51);
 						stock.WH51     = computeWeekHigh(quotes, 51);
 						stock.ATR14    = computeATR(quotes, 14);
-						stock.updated  = new Date();
 
 						return stock;
 					})
@@ -208,7 +215,7 @@ var Module = new function() {
 
 			}
 
-			var stock = {};
+			var stock = {symbol:symbol, updated:new Date()};
 
 			Promise.resolve().then(() => {
 				return getGeneralInformation(symbol);
@@ -262,6 +269,67 @@ var Module = new function() {
 			});
 		});
 	}
+
+
+	function deleteSymbol(symbol) {
+
+		function deleteFromStocks(symbol) {
+			return new Promise(function(resolve, reject) {
+
+				var query = {};
+				query.sql = 'DELETE FROM ?? WHERE ?? = ?';
+				query.values = ['stocks', 'symbol', symbol];
+
+				_db.query(query).then(() => {
+					resolve([]);
+				})
+				.catch(function(error) {
+					reject(error);
+
+				});
+			});
+
+		}
+
+		function deleteFromQuotes(symbol) {
+			return new Promise(function(resolve, reject) {
+
+				var query = {};
+				query.sql = 'DELETE FROM ?? WHERE ?? = ?';
+				query.values = ['quotes', 'symbol', symbol];
+
+				_db.query(query).then(() => {
+					resolve([]);
+				})
+				.catch(function(error) {
+					reject(error);
+
+				});
+			});
+
+		}
+
+		return new Promise(function(resolve, reject) {
+
+			console.warn('Deleting symbol', symbol, '...');
+
+			Promise.resolve().then(() => {
+				return deleteFromStocks(symbol);
+			})
+			.then(() => {
+				return deleteFromQuotes(symbol);
+			})
+			.then(() => {
+				resolve([]);
+			})
+			.catch((error) => {
+				resolve([]);
+			})
+		});
+
+	}
+
+
 
 	function getSymbols() {
 
@@ -341,48 +409,7 @@ var Module = new function() {
 				return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
 			}
 
-			function fetchFromGoogle(options) {
-
-				return new Promise(function(resolve, reject) {
-					try {
-						google.historical(options, function (error, quotes) {
-							if (error) {
-								reject(new Error(sprintf('Failed to fetch quotes from Google for symbol %s. %s', options.symbol, error.message)));
-							}
-							else {
-								resolve(quotes);
-							}
-						});
-
-					}
-					catch(error) {
-						reject(new Error(sprintf('Failed to fetch quotes from Google for symbol %s. %s', options.symbol, error.message)));
-					}
-
-				});
-			}
-
-			function fetchFromYahoo(options) {
-				return new Promise(function(resolve, reject) {
-
-					try {
-						yahoo.historical(options).then(function(quotes) {
-							resolve(quotes);
-						})
-						.catch(function(error) {
-							reject(new Error(sprintf('Failed to fetch quotes from Yahoo for symbol %s. %s', options.symbol, error.message)));
-						})
-
-					}
-					catch(error) {
-						reject(new Error(sprintf('Failed to fetch quotes from Yahoo for symbol %s. %s', options.symbol, error.message)));
-
-					}
-				});
-
-			}
-
-			function fetchFromProvider(provider, symbol, from, to) {
+			function fetchFromYahoo(symbol, from, to) {
 
 				return new Promise(function(resolve, reject) {
 					var options = {};
@@ -391,30 +418,28 @@ var Module = new function() {
 					options.from   = from;
 					options.to     = to;
 
-					provider(options).then(function(quotes) {
+					var quotes = [];
 
-						var entries = {};
+					yahoo.historical(options).then(function(items) {
 
-						quotes.forEach(function(quote) {
-							var entry = {};
+						items.forEach(function(item) {
+							var quote = {};
 
-							entry.date   = quote.date;
-							entry.symbol = quote.symbol;
-							entry.open   = round(quote.open);
-							entry.high   = round(quote.high);
-							entry.low    = round(quote.low);
-							entry.close  = round(quote.close);
-							entry.volume = quote.volume;
+							quote.date   = item.date;
+							quote.symbol = item.symbol;
+							quote.open   = round(item.open);
+							quote.high   = round(item.high);
+							quote.low    = round(item.low);
+							quote.close  = round(item.close);
+							quote.volume = item.volume;
 
-							var key = sprintf('%04d-%02d-%02d', entry.date.getFullYear(), entry.date.getMonth() + 1, entry.date.getDate());
-							entries[key] = entry;
+							quotes.push(quote);
 						});
 
-						resolve(entries);
+						resolve(quotes);
 					})
-					.catch(function(error) {
-						console.log(error.message);
-						resolve([]);
+					.catch((error) => {
+						reject(error);
 					})
 
 
@@ -434,53 +459,31 @@ var Module = new function() {
 
 				return new Promise(function(resolve, reject) {
 
-					var googleQuotes = [];
-					var yahooQuotes = [];
 					var now = new Date();
 					var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 					if (today - from <= 0) {
-						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
+						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
 						return resolve(null);
 					}
 
-					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, from.toLocaleDateString(), to.toLocaleDateString()));
+					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
 
-					Promise.resolve().then(function(){
-						return Promise.resolve([]);
-						return fetchFromProvider(fetchFromGoogle, symbol, from, to);
+					Promise.resolve().then(() => {
+						return fetchFromYahoo(symbol, from, to);
 					})
-					.then(function(quotes) {
-						//console.log('Google hits:', JSON.stringify(quotes));
-						googleQuotes = quotes;
-					})
-					.then(function() {
-						return fetchFromProvider(fetchFromYahoo, symbol, from, to);
-					})
-					.then(function(quotes) {
-						//console.log('Yahoo hits:', JSON.stringify(quotes));
-						yahooQuotes = quotes;
-					})
-					.then(function() {
-						var quotes = [];
-						var date = new Date(from);
-
-						while (date <= to) {
-							var key = sprintf('%04d-%02d-%02d', date.getFullYear(), date.getMonth() + 1, date.getDate());
-							var googleQuote = googleQuotes[key];
-							var yahooQuote  = yahooQuotes[key];
-
-							if (isValidQuote(yahooQuote))
-								quotes.push(yahooQuote);
-							else if (isValidQuote(googleQuote))
-								quotes.push(googleQuote);
-
-							date.setDate(date.getDate() + 1);
+					.catch((error) => {
+						if (error.message.search('Failed to get crumb') >= 0) {
+							return deleteSymbol(symbol);
 						}
-
+						else {
+							return Promise.resolve([]);
+						}
+					})
+					.then((quotes) => {
 						resolve(quotes);
 					})
-					.catch(function(error) {
+					.catch((error) => {
 						reject(error);
 					})
 				});
@@ -500,14 +503,14 @@ var Module = new function() {
 				to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 			if (from == undefined) {
-				promise = getStartDates().then(function(dates) {
+				promise = getStartDates().then((dates) => {
 					startDates = dates;
 				});
 			}
 
 			symbols.forEach(function(symbol) {
 
-				promise = promise.then(function() {
+				promise = promise.then(() => {
 					var startDate = from;
 					var endDate   = to;
 
@@ -521,21 +524,22 @@ var Module = new function() {
 
 					return fetch(symbol, startDate, endDate);
 				})
-				.then(function(quotes) {
+				.then((quotes) => {
 					if (isArray(quotes) && quotes.length > 0) {
-						console.log('Fetched %d quotes for symbol %s.', quotes.length, symbol);
-
 						symbolsUpdated++;
+						console.log('Fetched %d quote(s) for symbol %s.', quotes.length, symbol);
 
-						return upsert(quotes).then(function() {
-							return updateStock(symbol);
-						});
+						return upsert(quotes);
 					}
 					else {
 						return Promise.resolve();
 					}
 				})
-				.then(function() {
+				.then(() => {
+					return updateStock(symbol);
+
+				})
+				.then(() => {
 
 					return delay(0);
 
@@ -566,6 +570,10 @@ var Module = new function() {
 
 			getSymbols().then(function(symbols) {
 				try {
+
+					if (symbols.length == 0) {
+						throw new Error('No symbols found.');
+					}
 
 					var from = undefined;
 					var to = undefined;
