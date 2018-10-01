@@ -153,29 +153,60 @@ var Module = new function() {
 
 			function getGeneralInformation(symbol) {
 				return new Promise((resolve, reject) => {
-					var options = {};
 
-					options.symbol = symbol;
-					options.modules = ['price', 'summaryProfile'];
 
-					yahoo.quote(options).then((data) => {
-						var stock = {};
-						stock.name = data.price.longName ? data.price.longName : data.price.shortName;
-						stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
-						stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
-						stock.exchange = data.price.exchangeName;
-						stock.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+					Promise.resolve().then(() => {
+						var query = {};
+						query.sql = 'SELECT * FROM stocks WHERE ?? = ?';
+						query.values = ['symbol', symbol];
 
-						// Fix some stuff
-						stock.name = stock.name.replace(/&amp;/g, '&');
-
-						resolve(stock);
+						return _db.query(query);
 
 					})
+					.then((stocks) => {
+						if (stocks.length == 1)
+							return Promise.resolve(stocks[0]);
+						else {
+							return Promise.resolve({});
+						}
+
+					})
+					.then((stock) => {
+						if (stock.type == '' || stock.exchange == '' || stock.sector == '' || stock.industry == '') {
+							var options = {};
+
+							options.symbol = symbol;
+							options.modules = ['price', 'summaryProfile'];
+
+							console.log(sprintf('Fetching summary profile from Yahoo for symbol %s.', symbol));
+
+							yahoo.quote(options).then((data) => {
+								stock = {};
+								stock.name = data.price.longName ? data.price.longName : data.price.shortName;
+								stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
+								stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
+								stock.exchange = data.price.exchangeName;
+								stock.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+
+								// Fix some stuff
+								stock.name = stock.name.replace(/&amp;/g, '&');
+
+								resolve(stock);
+
+							})
+							.catch((error) => {
+								console.log(sprintf('Could not get general information about symbol %s. %s', symbol, error.message));
+								resolve({});
+							});
+						}
+						else {
+							resolve({});
+						}
+					})
 					.catch((error) => {
-						console.warn('Could not get general information about symbol', symbol, '.');
+						console.log(sprintf('Something happend for symbol %s. %s', symbol, error.message));
 						resolve({});
-					});
+					})
 
 				});
 			}
@@ -543,7 +574,7 @@ var Module = new function() {
 					if (quotes)
 						return updateStock(symbol);
 					else
-						return Promise.resolve(quotes);
+						return Promise.resolve();
 
 				})
 				.then(() => {
