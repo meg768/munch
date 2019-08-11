@@ -225,6 +225,8 @@ var Module = new function() {
 						if (quotes.length > 0) {
 							quotes.reverse();
 
+							stock.symbol   = symbol;
+							stock.updated  = new Date();
 							stock.SMA200   = computeSMA(quotes, 200);
 							stock.SMA50    = computeSMA(quotes, 50);
 							stock.SMA10    = computeSMA(quotes, 10);
@@ -249,6 +251,7 @@ var Module = new function() {
 			}
 
 			var stock = {};
+			var statistics = {};
 
 			Promise.resolve().then(() => {
 				return getGeneralInformation(symbol);
@@ -260,13 +263,15 @@ var Module = new function() {
 				return getStatistics(symbol);
 			})
 			.then((data) => {
+				statistics = Object.assign({}, statistics, data);
 				stock = Object.assign({}, stock, data);
 			})
 			.then(() => {
-				stock.symbol  = symbol;
-				stock.updated = new Date();
-
-				return _db.upsert('statistics', stock);
+				if (statistics.symbol) {
+					return _db.upsert('statistics', statistics);
+				}
+				else
+					return Promise.resolve();
 			})
 			.then(() => {
 				return _db.upsert('stocks', stock);
