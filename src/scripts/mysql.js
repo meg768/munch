@@ -39,8 +39,8 @@ var Module = module.exports = function() {
 			options = {sql:options};
 		}
 
-		console.log(options);
-		
+		console.log('Query:', options);
+
 		return new Promise(function(resolve, reject) {
 
 			var query = _connection.query(options, function(error, results, fields) {
@@ -77,7 +77,7 @@ var Module = module.exports = function() {
 			return _this.format('?? = VALUES(??)', [column, column]);
 		}).join(',');
 
-		console.log(sql);
+		console.log('Upsert:', sql);
 		return _this.query(sql);
 	}
 
