@@ -594,11 +594,7 @@ var Module = new function() {
 				.then(() => {
 					var now = new Date();
 					console.log('Symbol %s finished in %d seconds.', (time - now) / 1000);
-
-					if (quotes)
-						return updateStock(symbol);
-					else
-						return Promise.resolve();
+					return Promise.resolve();
 
 				})
 				.then(() => {
