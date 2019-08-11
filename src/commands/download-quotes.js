@@ -267,6 +267,8 @@ var Module = new function() {
 				stock.updated = new Date();
 
 				return _db.upsert('statistics', stock);
+			})
+			.then(() => {
 				return _db.upsert('stocks', stock);
 			})
 			.then(() => {
