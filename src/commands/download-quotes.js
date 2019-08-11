@@ -557,6 +557,8 @@ var Module = new function() {
 
 			symbols.forEach(function(symbol) {
 
+				var time = new Date();
+
 				promise = promise.then(() => {
 					var startDate = from;
 					var endDate   = to;
@@ -583,6 +585,16 @@ var Module = new function() {
 					}
 				})
 				.then((quotes) => {
+					if (quotes)
+						return updateStock(symbol);
+					else
+						return Promise.resolve();
+
+				})
+				.then(() => {
+					var now = new Date();
+					console.log('Symbol %s finished in %d seconds.', (timestamp - now) / 1000);
+					
 					if (quotes)
 						return updateStock(symbol);
 					else
