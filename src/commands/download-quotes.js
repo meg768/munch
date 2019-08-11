@@ -555,7 +555,7 @@ var Module = new function() {
 
 					if (startDate == undefined) {
 						startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-						startDate.setDate(startDate.getDate() - 365);
+						startDate.setDate(startDate.getDate() - 380);
 					}
 
 					return fetch(symbol, startDate, endDate);
