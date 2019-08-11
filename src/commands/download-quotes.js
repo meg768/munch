@@ -182,6 +182,7 @@ var Module = new function() {
 
 							yahoo.quote(options).then((data) => {
 								stock = {};
+								stock.updated = new Date();
 								stock.name = data.price.longName ? data.price.longName : data.price.shortName;
 								stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
 								stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
