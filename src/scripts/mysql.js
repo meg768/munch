@@ -75,6 +75,7 @@ var Module = module.exports = function() {
 			return _this.format('?? = VALUES(??)', [column, column]);
 		}).join(',');
 
+		console.log(sql);
 		return _this.query(sql);
 	}
 
