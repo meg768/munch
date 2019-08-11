@@ -557,9 +557,11 @@ var Module = new function() {
 
 			symbols.forEach(function(symbol) {
 
-				var time = new Date();
+				var time = undefined;
 
 				promise = promise.then(() => {
+					time = new Date();
+
 					var startDate = from;
 					var endDate   = to;
 
