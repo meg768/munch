@@ -594,8 +594,10 @@ var Module = new function() {
 
 				})
 				.then(() => {
-					var now = new Date();
-					console.log(sprintf('Symbol %s finished in %.1f seconds.', symbol, (now - time) / 1000));
+					if (time != undefined) {
+						var now = new Date();
+						console.log(sprintf('Symbol %s finished in %.1f seconds.', symbol, (now - time) / 1000));	
+					}
 					return Promise.resolve();
 
 				})
