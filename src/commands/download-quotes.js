@@ -266,6 +266,7 @@ var Module = new function() {
 				stock.symbol  = symbol;
 				stock.updated = new Date();
 
+				return _db.upsert('statistics', stock);
 				return _db.upsert('stocks', stock);
 			})
 			.then(() => {
