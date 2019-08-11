@@ -593,7 +593,7 @@ var Module = new function() {
 				})
 				.then(() => {
 					var now = new Date();
-					console.log('Symbol %s finished in %d seconds.', (time - now) / 1000);
+					console.log('Symbol %s finished in %d seconds.', (now.getTime() - time.getTime()) / 1000);
 					return Promise.resolve();
 
 				})
