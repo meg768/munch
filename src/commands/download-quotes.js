@@ -274,7 +274,10 @@ var Module = new function() {
 					return Promise.resolve();
 			})
 			.then(() => {
-				return _db.upsert('stocks', stock);
+				if (stocks.symbol)
+					return _db.upsert('stocks', stock);
+				else
+					return Promise.resolve();
 			})
 			.then(() => {
 				resolve(stock);
