@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "download": "node app.js --download"
+    "git-commit": "git add -A && git commit -m '-' && git push"
   },
   "repository": {
     "type": "git",
@@ -30,8 +30,6 @@
     "progress": "^1.1.8",
     "pushover-console": "^1.0.0",
     "pushover-notifications": "^0.2.4",
-    "rest-request": "^1.0.0",
-    "sqlite3": "^3.1.4",
     "twilio-console": "^1.0.5",
     "yahoo-finance": "^0.3.5",
     "yargs": "^8.0.1",
