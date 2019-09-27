@@ -469,17 +469,20 @@ var Module = new function() {
 					yahoo.historical(options).then(function(items) {
 
 						items.forEach(function(item) {
-							var quote = {};
+							if (isValidQuote(item)) {
+								var quote = {};
 
-							quote.date   = item.date;
-							quote.symbol = item.symbol;
-							quote.open   = round(item.open);
-							quote.high   = round(item.high);
-							quote.low    = round(item.low);
-							quote.close  = round(item.close);
-							quote.volume = item.volume;
-
-							quotes.push(quote);
+								quote.date   = item.date;
+								quote.symbol = item.symbol;
+								quote.open   = round(item.open);
+								quote.high   = round(item.high);
+								quote.low    = round(item.low);
+								quote.close  = round(item.close);
+								quote.volume = item.volume;
+	
+								quotes.push(quote);
+	
+							}
 						});
 
 						resolve(quotes);
