@@ -6,9 +6,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mysql = require('mysql');
 
-var sprintf    = require('yow/sprintf');
-var isString   = require('yow/is').isString;
-var mkpath     = require('yow/fs').mkpath;
+var isString   = require('yow/isString');
 var yahoo      = require('yahoo-finance');
 
 var Module = new function() {

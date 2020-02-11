@@ -33,7 +33,7 @@
     "twilio-console": "^1.0.5",
     "yahoo-finance": "^0.3.5",
     "yargs": "^8.0.1",
-    "yow": "^1.0.4"
+    "yow": "^1.0.108"
   },
   "devDependencies": {}
 }

@@ -1,16 +1,10 @@
 #!/usr/bin/env node
 
-var fs       = require('fs');
-var Path     = require('path');
 var Schedule = require('node-schedule');
 
 var sprintf    = require('yow/sprintf');
-var extend     = require('yow/extend');
-var isString   = require('yow/is').isString;
-var fileExists = require('yow/fs').fileExists;
-var mkdir      = require('yow/fs').mkdir;
-var mkpath     = require('yow/fs').mkpath;
-var isInteger  = require('yow/is').isInteger;
+var isString   = require('yow/isString');
+var isInteger  = require('yow/isInteger');
 
 var Gopher   = require('yow/request');
 var MySQL    = require('../scripts/mysql.js');

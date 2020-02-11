@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 var sprintf    = require('yow/sprintf');
-var isString   = require('yow/is').isString;
-var mkpath     = require('yow/fs').mkpath;
+var isString   = require('yow/isString');
+var mkpath     = require('yow/mkpath');
 
 var Module = new function() {
 
