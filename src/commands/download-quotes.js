@@ -85,8 +85,10 @@ var Module = new function() {
 
 				var sum = 0;
 
-				for (var index = quotes.length - days; index < quotes.length; index++)
+				for (var index = 0; index < days; index++) {
 					sum += quotes[index].close;
+
+				}
 
 				return parseFloat((sum / days).toFixed(2));
 			}
@@ -97,7 +99,7 @@ var Module = new function() {
 
 				var sum = 0;
 
-				for (var index = quotes.length - days; index < quotes.length; index++)
+				for (var index = 0; index < days; index++)
 					sum += quotes[index].volume;
 
 				return parseInt((sum / days).toFixed(0));
@@ -112,7 +114,7 @@ var Module = new function() {
 
 				var min = undefined;
 
-				for (var index = quotes.length - days; index < quotes.length; index++)
+				for (var index = 0; index < days; index++)
 					min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
 
 				return min;
@@ -127,7 +129,7 @@ var Module = new function() {
 
 				var max = undefined;
 
-				for (var index = quotes.length - days; index < quotes.length; index++)
+				for (var index = 0; index < days; index++)
 					max = (max == undefined) ? quotes[index].close : Math.max(max, quotes[index].close);
 
 				return max;
@@ -139,11 +141,11 @@ var Module = new function() {
 
 				var sum = 0;
 
-				for (var index = quotes.length - days, count = 0; count < days; count++, index++) {
+				for (var index = 0; index < days; index++) {
 
 					var A = quotes[index].high - quotes[index].low;
-					var B = Math.abs(quotes[index].low  - quotes[index-1].close);
-					var C = Math.abs(quotes[index].high - quotes[index-1].close);
+					var B = Math.abs(quotes[index].low  - quotes[index+1].close);
+					var C = Math.abs(quotes[index].high - quotes[index+1].close);
 
 					sum += Math.max(Math.max(A, B), C);
 				}
@@ -172,7 +174,7 @@ var Module = new function() {
 
 					})
 					.then((stock) => {
-						if (stock.type == '' || stock.exchange == '' || stock.sector == '' || stock.industry == '') {
+						if (stock.type == '' || stock.type == null || stock.exchange == '' || stock.exchange == null || stock.sector == '' || stock.sector == null || stock.industry == '' || stock.industry == null) {
 							var options = {};
 
 							options.symbol = symbol;
@@ -224,8 +226,6 @@ var Module = new function() {
 						var stock = {};
 
 						if (quotes.length > 0) {
-							quotes.reverse();
-
 							stock.symbol   = symbol;
 							stock.updated  = new Date();
 							stock.SMA200   = computeSMA(quotes, 200);
