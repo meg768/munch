@@ -192,6 +192,7 @@ var Module = new function() {
 								stock.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
 								// Fix some stuff
+								stock.name = stock.name == null ? 'n/a' : stock.name;
 								stock.name = stock.name.replace(/&amp;/g, '&');
 
 								resolve(stock);
