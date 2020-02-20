@@ -27,6 +27,7 @@ var Module = new function() {
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:10});
+		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.help();
 
 		args.wrap(null);
@@ -441,6 +442,40 @@ var Module = new function() {
 
 	}
 
+	function refresh(symbols) {
+
+		return new Promise(function(resolve, reject) {
+
+			if (!isArray(symbols))
+				symbols = [symbols];
+
+			function loop(index) {
+                if (index < symbols.length) {
+					var symbol = symbols[index];
+					var then = new Date();
+
+					updateStock(symbol).then(() => {
+						var now = new Date();
+						console.log(sprintf('Statistics updated for %s in %.1f seconds.', symbol, (now - then) / 1000));	
+                        loop(index + 1);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
+        
+                }
+                else {
+                    resolve(symbols.length);
+                }
+    
+            };
+    
+            loop(0);
+
+
+		});
+	}
+
 
 	function download(symbols, from, to) {
 
@@ -642,36 +677,49 @@ var Module = new function() {
 						throw new Error('No symbols found.');
 					}
 
-					var from = undefined;
-					var to = undefined;
-					var now = new Date();
+					if (_argv.refresh) {
+						refresh(symbols).then(function(count) {
+							resolve(count);
+						})
+						.catch(function(error) {
+							reject(error);
+						});
 
-					if (_argv.since) {
-						from = new Date(_argv.since);
 					}
-
-					if (_argv.days) {
-						from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-						from.setDate(from.getDate() - _argv.days);
+					else {
+						var from = undefined;
+						var to = undefined;
+						var now = new Date();
+	
+						if (_argv.since) {
+							from = new Date(_argv.since);
+						}
+	
+						if (_argv.days) {
+							from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+							from.setDate(from.getDate() - _argv.days);
+						}
+	
+						if (_argv.from) {
+							from = new Date(_argv.from);
+						}
+	
+						if (_argv.to) {
+							to = new Date(_argv.to);
+						}
+	
+						if (to == undefined)
+							to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	
+						download(symbols, from, to).then(function(count) {
+							resolve(count);
+						})
+						.catch(function(error) {
+							reject(error);
+						});
+	
+	
 					}
-
-					if (_argv.from) {
-						from = new Date(_argv.from);
-					}
-
-					if (_argv.to) {
-						to = new Date(_argv.to);
-					}
-
-					if (to == undefined)
-						to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-					download(symbols, from, to).then(function(count) {
-						resolve(count);
-					})
-					.catch(function(error) {
-						reject(error);
-					});
 
 				}
 				catch(error) {
@@ -692,7 +740,7 @@ var Module = new function() {
 		return new Promise(function(resolve, reject) {
 			var mysql = new MySQL();
 
-			console.info('Downloading quotes.');
+			console.info('Connecting to SQL server...');
 
 			Promise.resolve().then(function() {
 				return mysql.connect();
@@ -702,7 +750,7 @@ var Module = new function() {
 				return process();
 			})
 			.then(function(count) {
-				console.info(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and updated.', count));
+				console.info(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and/or updated.', count));
 			})
 			.catch(function(error) {
 				console.error(error.stack);
