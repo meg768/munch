@@ -278,8 +278,10 @@ var Module = new function() {
 					return Promise.resolve();
 			})
 			.then(() => {
-				if (stock.symbol)
+				if (stock.symbol) {
 					return _db.upsert('stocks', stock);
+
+				}
 				else
 					return Promise.resolve();
 			})
