@@ -90,6 +90,7 @@ var Module = module.exports = function() {
 		options.user     = process.env.MYSQL_USER;
 		options.password = process.env.MYSQL_PASSWORD;
 		options.database = process.env.MYSQL_DATABASE;
+		options.port     = process.env.MYSQL_PORT;
 
 		if (!isString(options.host) || !isString(options.user) || !isString(options.password) || !isString(options.database)) {
 			throw new Error('MySQL credentials/database not specified.');
