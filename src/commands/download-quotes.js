@@ -25,7 +25,7 @@ var Module = new function() {
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
-		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:10});
+		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.help();
 
