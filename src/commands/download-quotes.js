@@ -3,8 +3,7 @@ var isArray    = require('yow/isArray');
 var isString   = require('yow/isString');
 var isDate     = require('yow/isDate');
 var isInteger  = require('yow/isInteger');
-var google     = require('google-finance');
-var yahoo      = require('yahoo-finance');
+var yahoo      = require('yahoo-finance2').default;
 var MySQL      = require('../scripts/mysql.js');
 
 require('pushover-console');

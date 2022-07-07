@@ -7,7 +7,7 @@ var cors = require('cors');
 var mysql = require('mysql');
 
 var isString   = require('yow/isString');
-var yahoo      = require('yahoo-finance');
+var yahoo      = require('yahoo-finance2').default;
 
 var Module = new function() {
 
