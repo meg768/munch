@@ -498,20 +498,24 @@ var Module = new function() {
 				return new Promise(function(resolve, reject) {
 					var options = {};
 
+                    /*
 					options.symbol = symbol;
 					options.from   = from;
 					options.to     = to;
+                    */
+					options.period1   = from;
+					options.period2   = to;
 
 					var quotes = [];
 
-					yahoo.historical(options).then(function(items) {
+					yahoo.historical(symbol, options).then(function(items) {
 
 						items.forEach(function(item) {
 							if (isValidQuote(item)) {
 								var quote = {};
 
 								quote.date   = item.date;
-								quote.symbol = item.symbol;
+								quote.symbol = symbol;
 								quote.open   = round(item.open);
 								quote.high   = round(item.high);
 								quote.low    = round(item.low);
