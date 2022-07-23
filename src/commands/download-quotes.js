@@ -498,11 +498,6 @@ var Module = new function() {
 				return new Promise(function(resolve, reject) {
 					var options = {};
 
-                    /*
-					options.symbol = symbol;
-					options.from   = from;
-					options.to     = to;
-                    */
 					options.period1   = from;
 					options.period2   = to;
 
@@ -564,8 +559,8 @@ var Module = new function() {
 						return fetchFromYahoo(symbol, from, to);
 					})
 					.catch((error) => {
-						if (error.message.search('Failed to get crumb') >= 0) {
-							console.warn(sprintf('Failed to fetch quotes for symbol %s from Yahoo. Removing symbol.', symbol));
+						if (error.code == 404) {
+							console.warn(sprintf('Failed to fetch quotes for symbol %s from Yahoo. Probably delisted. Removing ticker.', symbol));
 							return deleteSymbol(symbol);
 						}
 						else {
