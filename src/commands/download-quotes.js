@@ -74,766 +74,465 @@ var Module = new function() {
 	}
 
 
-	function updateStock(symbol) {
-
-		return new Promise(function(resolve, reject) {
+	async function updateStock(symbol) {
 
 
-			function computeSMA(quotes, days) {
-				if (quotes.length < days)
-					return null;
+        function computeSMA(quotes, days) {
+            if (quotes.length < days)
+                return null;
 
-				var sum = 0;
+            var sum = 0;
 
-				for (var index = 0; index < days; index++) {
-					sum += quotes[index].close;
+            for (var index = 0; index < days; index++) {
+                sum += quotes[index].close;
 
-				}
+            }
 
-				return parseFloat((sum / days).toFixed(2));
-			}
+            return parseFloat((sum / days).toFixed(2));
+        }
 
-			function computeAV(quotes, days) {
-				if (quotes.length < days)
-					return null;
+        function computeAV(quotes, days) {
+            if (quotes.length < days)
+                return null;
 
-				var sum = 0;
+            var sum = 0;
 
-				for (var index = 0; index < days; index++)
-					sum += quotes[index].volume;
+            for (var index = 0; index < days; index++)
+                sum += quotes[index].volume;
 
-				return parseInt((sum / days).toFixed(0));
-			}
+            return parseInt((sum / days).toFixed(0));
+        }
 
-			function computeWeekLow(quotes, weeks) {
+        function computeWeekLow(quotes, weeks) {
 
-				var days = weeks * 5;
+            var days = weeks * 5;
 
-				if (quotes.length < days)
-					return null;
+            if (quotes.length < days)
+                return null;
 
-				var min = undefined;
+            var min = undefined;
 
-				for (var index = 0; index < days; index++)
-					min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
+            for (var index = 0; index < days; index++)
+                min = (min == undefined) ? quotes[index].close : Math.min(min, quotes[index].close);
 
-				return min;
-			}
+            return min;
+        }
 
-			function computeWeekHigh(quotes, weeks) {
+        function computeWeekHigh(quotes, weeks) {
 
-				var days = weeks * 5;
+            var days = weeks * 5;
 
-				if (quotes.length < days)
-					return null;
+            if (quotes.length < days)
+                return null;
 
-				var max = undefined;
+            var max = undefined;
 
-				for (var index = 0; index < days; index++)
-					max = (max == undefined) ? quotes[index].close : Math.max(max, quotes[index].close);
+            for (var index = 0; index < days; index++)
+                max = (max == undefined) ? quotes[index].close : Math.max(max, quotes[index].close);
 
-				return max;
-			}
+            return max;
+        }
 
-			function computeATR(quotes, days) {
-				if (quotes.length < days + 1)
-					return null;
+        function computeATR(quotes, days) {
+            if (quotes.length < days + 1)
+                return null;
 
-				var sum = 0;
+            var sum = 0;
 
-				for (var index = 0; index < days; index++) {
+            for (var index = 0; index < days; index++) {
 
-					var A = quotes[index].high - quotes[index].low;
-					var B = Math.abs(quotes[index].low  - quotes[index+1].close);
-					var C = Math.abs(quotes[index].high - quotes[index+1].close);
+                var A = quotes[index].high - quotes[index].low;
+                var B = Math.abs(quotes[index].low  - quotes[index+1].close);
+                var C = Math.abs(quotes[index].high - quotes[index+1].close);
 
-					sum += Math.max(Math.max(A, B), C);
-				}
+                sum += Math.max(Math.max(A, B), C);
+            }
 
-				return parseFloat((sum / days).toFixed(2));
-			}
+            return parseFloat((sum / days).toFixed(2));
+        }
 
-			function getGeneralInformation(symbol) {
-				return new Promise((resolve, reject) => {
+        async function getGeneralInformation(symbol) {
 
+            function isValidName(name) {
+                return typeof(name) == 'string' && name != 'n/a';
+            }
 
-					Promise.resolve().then(() => {
-						var query = {};
-						query.sql = 'SELECT * FROM stocks WHERE ?? = ?';
-						query.values = ['symbol', symbol];
+            let query = {};
+            query.sql = 'SELECT * FROM stocks WHERE ?? = ?';
+            query.values = ['symbol', symbol];
 
-						return _db.query(query);
+            let stocks = await _db.query(query);
+            let stock = stocks.length == 1 ? stocks[0] : {};
 
-					})
-					.then((stocks) => {
-						if (stocks.length == 1)
-							return Promise.resolve(stocks[0]);
-						else {
-							return Promise.resolve({});
-						}
+            if (stocks.length == 0) {
+                throw new Error(`Symbol not ${symbol} not found.`);
+            }
 
-					})
-					.then((stock) => {
-						if (stock.type == '' || stock.type == null || stock.exchange == '' || stock.exchange == null || stock.sector == '' || stock.sector == null || stock.industry == '' || stock.industry == null) {
-							var options = {};
+            console.log(`Fetching summary profile from Yahoo for symbol ${symbol}.`);
 
-							options.symbol = symbol;
-							options.modules = ['price', 'summaryProfile'];
+            let modules = ['price', 'summaryProfile', 'quoteType', 'assetProfile'];
+            let summary = await yahoo.quoteSummary(symbol, {modules:modules});
 
-							console.log(sprintf('Fetching summary profile from Yahoo for symbol %s.', symbol));
+            stock = {};
 
-							yahoo.quote(options).then((data) => {
-								stock = {};
-								stock.updated = new Date();
-								stock.name = data.price.longName ? data.price.longName : data.price.shortName;
-								stock.sector = data.summaryProfile ? data.summaryProfile.sector : 'n/a';
-								stock.industry = data.summaryProfile ? data.summaryProfile.industry : 'n/a';
-								stock.exchange = data.price.exchangeName;
-								stock.type = data.price.quoteType.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+            stock.name = summary.price.longName ? summary.price.longName : summary.price.shortName;
 
-								// Fix some stuff
-								stock.name = stock.name == null ? 'n/a' : stock.name;
-								stock.name = stock.name.replace(/&amp;/g, '&');
+            stock.sector = summary.assetProfile && isValidName(summary.assetProfile.sector) ?  summary.assetProfile.sector : '';
+            stock.industry = summary.assetProfile && isValidName(summary.assetProfile.industry) ? summary.assetProfile.industry : '';
+            stock.country = summary.assetProfile && isValidName(summary.assetProfile.country) ? summary.assetProfile.country : '';    
 
-								resolve(stock);
+            stock.exchange = isValidName(summary.price.exchangeName) ? summary.price.exchangeName : '';
+            stock.type = isValidName(summary.price.quoteType) ? summary.price.quoteType : ''; 
 
-							})
-							.catch((error) => {
-								console.log(sprintf('Could not get general information about symbol %s. %s', symbol, error.message));
-								resolve({});
-							});
-						}
-						else {
-							resolve({});
-						}
-					})
-					.catch((error) => {
-						console.log(sprintf('Something happend for symbol %s. %s', symbol, error.message));
-						resolve({});
-					})
+            return stock;
+        }
 
-				});
-			}
+        async function getStatistics(symbol) {
 
-			function getStatistics(symbol) {
-				return new Promise((resolve, reject) => {
+            let query = {};
+            query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
+            query.values = [symbol, 51 * 5];
 
-					var query = {};
-					query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
-					query.values = [symbol, 51 * 5];
+            let quotes = await _db.query(query);
+            let stats = {};
 
-					_db.query(query).then(function(quotes) {
+            if (quotes.length > 0) {
+                stats.SMA200   = computeSMA(quotes, 200);
+                stats.SMA50    = computeSMA(quotes, 50);
+                stats.SMA20    = computeSMA(quotes, 20);
+                stats.SMA10    = computeSMA(quotes, 10);
+                stats.AV14     = computeAV(quotes, 14);
+                stats.WL51     = computeWeekLow(quotes, 51);
+                stats.WH51     = computeWeekHigh(quotes, 51);
+                stats.ATR14    = computeATR(quotes, 14);
+            }
 
-						var stock = {};
+            return stats;
 
-						if (quotes.length > 0) {
-							stock.symbol   = symbol;
-							stock.updated  = new Date();
-							stock.SMA200   = computeSMA(quotes, 200);
-							stock.SMA50    = computeSMA(quotes, 50);
-							stock.SMA20    = computeSMA(quotes, 20);
-							stock.SMA10    = computeSMA(quotes, 10);
-							stock.AV14     = computeAV(quotes, 14);
-							stock.WL51     = computeWeekLow(quotes, 51);
-							stock.WH51     = computeWeekHigh(quotes, 51);
-							stock.ATR14    = computeATR(quotes, 14);
-						}
+        }
 
-						return stock;
-					})
+        let info = await getGeneralInformation(symbol);
+        let stats = await getStatistics(symbol);
 
-					.then((stock) => {
-						resolve(stock);
-					})
-					.catch(function(error) {
-						reject(error);
-					});
+        let stock = {symbol:symbol, updated: new Date(), ...info, ...stats};
 
-				});
-
-			}
-
-			var stock = {};
-			var statistics = {};
-
-			Promise.resolve().then(() => {
-				return getGeneralInformation(symbol);
-			})
-			.then((data) => {
-				stock = Object.assign({}, stock, data);
-			})
-			.then(() => {
-				return getStatistics(symbol);
-			})
-			.then((data) => {
-				statistics = Object.assign({}, statistics, data);
-				stock = Object.assign({}, stock, data);
-			})
-			.then(() => {
-				if (statistics.symbol) {
-					return _db.upsert('statistics', statistics);
-				}
-				else
-					return Promise.resolve();
-			})
-			.then(() => {
-				if (stock.symbol) {
-					return _db.upsert('stocks', stock);
-
-				}
-				else
-					return Promise.resolve();
-			})
-			.then(() => {
-				resolve(stock);
-			})
-			.catch(function(error) {
-				reject(error);
-			});
-
-		});
-
+        await _db.upsert('stocks', stock);
 	}
 
-	function getStartDates() {
+	async function getStartDates() {
 
-		var sql = 'SELECT symbol, MAX(date) as date FROM quotes GROUP BY symbol';
+		console.log('Fetching last quote dates...');
 
-		return new Promise(function(resolve, reject) {
-
-			console.log('Fetching last quote dates...');
-
-			_db.query(sql).then(function(rows) {
-
-				var dates = {};
-				rows.forEach(function(row) {
-					var date = new Date(row.date);
-					date.setDate(date.getDate() + 1);
-
-					dates[row.symbol] = date;
-				});
-
-				resolve(dates);
-			})
-			.catch(function(error) {
-				reject(error);
-
-			});
-		});
-	}
-
-
-	function deleteSymbol(symbol) {
-
-		function deleteFromStocks(symbol) {
-			return new Promise(function(resolve, reject) {
-
-				var query = {};
-				query.sql = 'DELETE FROM ?? WHERE ?? = ?';
-				query.values = ['stocks', 'symbol', symbol];
-
-				_db.query(query).then(() => {
-					resolve(null);
-				})
-				.catch(function(error) {
-					reject(error);
-
-				});
-			});
-
-		}
-
-		function deleteFromQuotes(symbol) {
-			return new Promise(function(resolve, reject) {
-
-				var query = {};
-				query.sql = 'DELETE FROM ?? WHERE ?? = ?';
-				query.values = ['quotes', 'symbol', symbol];
-
-				_db.query(query).then(() => {
-					resolve(null);
-				})
-				.catch(function(error) {
-					reject(error);
-
-				});
-			});
-
-		}
-
-		return new Promise(function(resolve, reject) {
-
-			Promise.resolve().then(() => {
-				return deleteFromStocks(symbol);
-			})
-			.then(() => {
-				return deleteFromQuotes(symbol);
-			})
-			.then(() => {
-				resolve(null);
-			})
-			.catch((error) => {
-				resolve(null);
-			})
-		});
-
-	}
-
-
-
-	function getSymbols() {
-
-		var sql = 'SELECT symbol FROM stocks';
-
-		return new Promise(function(resolve, reject) {
-
-			_db.query(sql).then(function(rows) {
-
-				var symbols = [];
-
-				rows.forEach(function(row) {
-					if (!isString(_argv.symbol) || row.symbol.match(_argv.symbol)) {
-						symbols.push(row.symbol);
-					}
-				});
-
-				resolve(symbols);
-			})
-			.catch(function(error) {
-				reject(error);
-
-			});
-		});
-	}
-
-	function upsert(quotes) {
-		return new Promise(function(resolve, reject) {
-
-			try {
-				function round(value) {
-					return parseFloat(value).toFixed(4);
-				}
-
-				var promise = Promise.resolve();
-
-				quotes.forEach(function(quote) {
-					promise = promise.then(function() {
-						return _db.upsert('quotes', quote);
-
-					})
-					.catch(function(error) {
-						reject(error);
-
-					});
-				});
-
-				promise.then(function() {
-					resolve(quotes);
-				})
-				.catch(function(error) {
-					reject(error);
-				});
-
-			}
-			catch(error) {
-				reject(error);
-			}
-
-		});
-
-	}
-
-	function refresh(symbols) {
-
-		return new Promise(function(resolve, reject) {
-
-			if (!isArray(symbols))
-				symbols = [symbols];
-
-			function loop(index) {
-                if (index < symbols.length) {
-					var symbol = symbols[index];
-					var then = new Date();
-
-					updateStock(symbol).then(() => {
-						var now = new Date();
-						console.log(sprintf('Statistics updated for %s in %.1f seconds.', symbol, (now - then) / 1000));	
-                        loop(index + 1);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
+		let sql = 'SELECT symbol, MAX(date) as date FROM quotes GROUP BY symbol';
+        let rows = await _db.query(sql);
+        let dates = {};
         
+        rows.forEach(function(row) {
+            var date = new Date(row.date);
+            date.setDate(date.getDate() + 1);
+
+            dates[row.symbol] = date;
+        });
+
+        return dates;
+	}
+
+
+	async function deleteSymbol(symbol) {
+
+		async function deleteFromStocks(symbol) {
+
+            let query = {};
+            query.sql = 'DELETE FROM ?? WHERE ?? = ?';
+            query.values = ['stocks', 'symbol', symbol];
+
+			await _db.query(query);
+		}
+
+		async function deleteFromQuotes(symbol) {
+
+            let query = {};
+            query.sql = 'DELETE FROM ?? WHERE ?? = ?';
+            query.values = ['quotes', 'symbol', symbol];
+
+            await _db.query(query);
+		}
+
+        await deleteFromStocks(symbol);
+        await deleteFromQuotes(symbol);
+	}
+
+
+
+	async function getSymbols() {
+
+		let sql = 'SELECT symbol FROM stocks';
+        let rows = await _db.query(sql);
+
+        var symbols = [];
+
+        for (let row of rows) {
+            if (!isString(_argv.symbol) || row.symbol.match(_argv.symbol)) {
+                symbols.push(row.symbol);
+            }
+        }
+
+        return symbols;
+	}
+
+	async function upsert(quotes) {
+        for (let quote of quotes) {
+            await _db.upsert('quotes', quote);
+        };
+
+        return quotes;
+	}
+
+	async function refresh(symbols) {
+
+
+        if (!isArray(symbols))
+            symbols = [symbols];
+
+        for(let symbol of symbols) {
+            let then = new Date();
+            await updateStock(symbol);
+            let now = new Date();
+            console.log(sprintf('Statistics updated for %s in %.1f seconds.', symbol, (now - then) / 1000));	
+        }
+
+        return symbols.length;
+
+	}
+
+
+	async function download(symbols, from, to) {
+
+
+        function round(value) {
+            return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
+        }
+
+        async function fetchFromYahoo(symbol, from, to) {
+
+            let quotes = [];
+            let items = await yahoo.historical(symbol, {period1:from, period2:to});
+
+            for (let item of items) {
+                if (isValidQuote(item)) {
+                    var quote = {};
+
+                    quote.date   = item.date;
+                    quote.symbol = symbol;
+                    quote.open   = round(item.open);
+                    quote.high   = round(item.high);
+                    quote.low    = round(item.low);
+                    quote.close  = round(item.close);
+                    quote.volume = item.volume;
+
+                    quotes.push(quote);
+
                 }
-                else {
-                    resolve(symbols.length);
+            }
+
+            return quotes;
+        }
+
+        function isValidQuote(quote) {
+            return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
+        }
+
+
+
+        async function fetch(symbol, from, to) {
+
+            from = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+            to = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
+            let now = new Date();
+            let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (today - from <= 0) {
+                console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
+                return null;
+            }
+
+            return await fetchFromYahoo(symbol, from, to);
+        }
+
+        if (!isArray(symbols))
+            symbols = [symbols];
+
+        let symbolsUpdated = 0;
+        let now = new Date();
+
+        let startDates = {};
+
+        if (to == undefined)
+            to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        if (from == undefined) {
+            startDates = await getStartDates();
+        }
+
+        for (let symbol of symbols) {
+            
+            let startDate = from;
+            let endDate   = to;
+
+            if (startDate == undefined)
+                startDate = startDates[symbol];
+
+            if (startDate == undefined) {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                startDate.setDate(startDate.getDate() - 380);
+            }
+
+            let quotes = await fetch(symbol, startDate, endDate);
+
+            if (isArray(quotes) && quotes.length > 0) {
+                symbolsUpdated++;
+                console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
+
+                await upsert(quotes);
+                await updateStock(symbol);
+            }
+
+        }
+
+        return symbolsUpdated;
+
+    
+	}
+
+	async function process() {
+
+
+        let symbols = await getSymbols();
+
+        if (symbols.length == 0) {
+            throw new Error('No symbols found.');
+        }
+
+        if (_argv.refresh) {
+            return await refresh(symbols);
+        }
+
+        let from = undefined;
+        let to = undefined;
+        let now = new Date();
+
+        if (_argv.since) {
+            from = new Date(_argv.since);
+        }
+
+        if (_argv.days) {
+            from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            from.setDate(from.getDate() - _argv.days);
+        }
+
+        if (_argv.from) {
+            from = new Date(_argv.from);
+        }
+
+        if (_argv.to) {
+            to = new Date(_argv.to);
+        }
+
+        if (to == undefined)
+            to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        return await download(symbols, from, to);
+
+
+	}
+
+
+
+
+	async function work() {
+
+
+        try {
+            console.info('Connecting to SQL server...');
+
+            let mysql = new MySQL();
+            _db = await mysql.connect();
+            let count = await process();
+            console.info(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and/or updated.`);
+        }
+        catch(error) {
+            console.error(error.stack);
+        }
+        finally {
+            if (_db != undefined)
+                _db.end();            
+
+            _db = undefined;
+        }
+	}
+
+
+	async function schedule(cron) {
+
+        try {
+            let Schedule = require('node-schedule');
+            let running  = false;
+
+            console.info(sprintf('Scheduling to run download-quotes at cron-time "%s"...', cron));
+
+            let job = Schedule.scheduleJob(cron, async function() {
+
+                try {
+                    if (running)
+                        throw new Error('Upps! Running already!!');
+    
+                    try {
+                        running = true;
+                        await work();
+                    }
+                    catch(error) {
+                        throw error;
+                    }
+                    finally {
+                        running = false;
+                    }
+    
+                }
+                catch(error) {
+                    console.error(error.stack);
                 }
     
-            };
-    
-            loop(0);
+            });
+
+            if (job == null) {
+                throw new Error('Invalid cron time.');
+            }
 
 
-		});
-	}
-
-
-	function download(symbols, from, to) {
-
-		return new Promise(function(resolve, reject) {
-
-
-			function delay(ms) {
-				return new Promise(function(resolve, reject) {
-					setTimeout(resolve, ms);
-				});
-			}
-
-			function round(value) {
-				return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
-			}
-
-			function fetchFromYahoo(symbol, from, to) {
-
-				return new Promise(function(resolve, reject) {
-					var options = {};
-
-					options.period1   = from;
-					options.period2   = to;
-
-					var quotes = [];
-
-					yahoo.historical(symbol, options).then(function(items) {
-
-						items.forEach(function(item) {
-							if (isValidQuote(item)) {
-								var quote = {};
-
-								quote.date   = item.date;
-								quote.symbol = symbol;
-								quote.open   = round(item.open);
-								quote.high   = round(item.high);
-								quote.low    = round(item.low);
-								quote.close  = round(item.close);
-								quote.volume = item.volume;
-	
-								quotes.push(quote);
-	
-							}
-						});
-
-						resolve(quotes);
-					})
-					.catch((error) => {
-						reject(error);
-					})
-
-
-				});
-			}
-
-			function isValidQuote(quote) {
-				return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
-			}
-
-
-
-			function fetch(symbol, from, to) {
-
-				from = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-				to = new Date(to.getFullYear(), to.getMonth(), to.getDate());
-
-				return new Promise(function(resolve, reject) {
-
-					var now = new Date();
-					var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-					if (today - from <= 0) {
-						console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
-						return resolve(null);
-					}
-
-					console.log(sprintf('Fetching quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
-
-					Promise.resolve().then(() => {
-						return fetchFromYahoo(symbol, from, to);
-					})
-					.catch((error) => {
-						if (error.code == 404) {
-							console.warn(sprintf('Failed to fetch quotes for symbol %s from Yahoo. Probably delisted. Removing ticker.', symbol));
-							return deleteSymbol(symbol);
-						}
-						else {
-							return Promise.resolve([]);
-						}
-					})
-					.then((quotes) => {
-						resolve(quotes);
-					})
-					.catch((error) => {
-						reject(error);
-					})
-				});
-			}
-
-			if (!isArray(symbols))
-				symbols = [symbols];
-
-			var promise = Promise.resolve();
-			var symbolsUpdated = 0;
-			var counter = 0;
-			var now = new Date();
-
-			var startDates = {};
-
-			if (to == undefined)
-				to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-			if (from == undefined) {
-				promise = getStartDates().then((dates) => {
-					startDates = dates;
-				});
-			}
-
-			symbols.forEach(function(symbol) {
-
-				var time = undefined;
-
-				promise = promise.then(() => {
-					time = new Date();
-
-					var startDate = from;
-					var endDate   = to;
-
-					if (startDate == undefined)
-						startDate = startDates[symbol];
-
-					if (startDate == undefined) {
-						startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-						startDate.setDate(startDate.getDate() - 380);
-					}
-
-					return fetch(symbol, startDate, endDate);
-				})
-				.then((quotes) => {
-					if (isArray(quotes) && quotes.length > 0) {
-						symbolsUpdated++;
-						console.log('Fetched %d quote(s) for symbol %s.', quotes.length, symbol);
-
-						return upsert(quotes);
-					}
-					else {
-						return Promise.resolve(quotes);
-					}
-				})
-				.then((quotes) => {
-					if (quotes)
-						return updateStock(symbol);
-					else
-						return Promise.resolve();
-
-				})
-				.then(() => {
-					if (time != undefined) {
-						var now = new Date();
-						console.log(sprintf('Symbol %s finished in %.1f seconds.', symbol, (now - time) / 1000));	
-					}
-					return Promise.resolve();
-
-				})
-				.then(() => {
-
-					return delay(0);
-
-					if ((++counter % 10) == 0) {
-						console.log('Pausing for %s seconds...', _argv.pause);
-						return delay(_argv.pause * 1000);
-					}
-					else {
-						return delay(0);
-					}
-				})
-			});
-
-			promise.then(function() {
-				resolve(symbolsUpdated);
-			})
-			.catch(function(error) {
-				reject(error);
-			});
-
-		});
-	}
-
-	function process() {
-
-
-		return new Promise(function(resolve, reject) {
-
-			getSymbols().then(function(symbols) {
-				try {
-
-					if (symbols.length == 0) {
-						throw new Error('No symbols found.');
-					}
-
-					if (_argv.refresh) {
-						refresh(symbols).then(function(count) {
-							resolve(count);
-						})
-						.catch(function(error) {
-							reject(error);
-						});
-
-					}
-					else {
-						var from = undefined;
-						var to = undefined;
-						var now = new Date();
-	
-						if (_argv.since) {
-							from = new Date(_argv.since);
-						}
-	
-						if (_argv.days) {
-							from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-							from.setDate(from.getDate() - _argv.days);
-						}
-	
-						if (_argv.from) {
-							from = new Date(_argv.from);
-						}
-	
-						if (_argv.to) {
-							to = new Date(_argv.to);
-						}
-	
-						if (to == undefined)
-							to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	
-						download(symbols, from, to).then(function(count) {
-							resolve(count);
-						})
-						.catch(function(error) {
-							reject(error);
-						});
-	
-	
-					}
-
-				}
-				catch(error) {
-					reject(error);
-
-				}
-
-			});
-		});
+        }
+        catch(error) {
+            throw error;
+        }
 
 	}
 
-
-
-
-	function work() {
-
-		return new Promise(function(resolve, reject) {
-			var mysql = new MySQL();
-
-			console.info('Connecting to SQL server...');
-
-			Promise.resolve().then(function() {
-				return mysql.connect();
-			})
-			.then(function(db) {
-				_db = db;
-				return process();
-			})
-			.then(function(count) {
-				console.info(sprintf('Finished downloading quotes. A total of %d symbol(s) downloaded and/or updated.', count));
-			})
-			.catch(function(error) {
-				console.error(error.stack);
-			})
-			.then(function() {
-				_db.end();
-				resolve();
-			});
-		});
-	}
-
-
-	function schedule(cron) {
-
-		return new Promise(function(resolve, reject) {
-			try {
-				var Schedule = require('node-schedule');
-				var running  = false;
-
-				console.info(sprintf('Scheduling to run download-quotes at cron-time "%s"...', cron));
-
-				var job = Schedule.scheduleJob(cron, function() {
-
-					try {
-						if (running) {
-							throw new Error('Upps! Running already!!');
-						}
-						else {
-							running = true;
-
-							work().then(function() {
-								running = false;
-							})
-							.catch(function(error) {
-								running = false;
-							});
-						}
-
-					}
-					catch(error) {
-					}
-				});
-
-				if (job == null) {
-					reject(new Error('Invalid cron time.'));
-				}
-				else {
-					resolve();
-				}
-
-			}
-			catch(error) {
-				reject(error);
-			}
-
-		});
-
-	}
-
-
-
-	function run(argv) {
+	async function run(argv) {
 
 		try {
 			_argv = argv;
 
-			var promise = Promise.resolve();
-
 			if (isString(_argv.schedule))
-				promise = schedule(_argv.schedule);
+				await schedule(_argv.schedule);
 			else
-				promise = work();
-
-			promise.catch(function(error) {
-				console.error(error.stack);
-
-			});
+				await work();
 
 		}
 		catch(error) {
 			console.error(error.stack);
 		}
 	}
+
 
 	module.exports.command  = ['download-quotes [options]', 'dq [options]'];
 	module.exports.describe = 'Download historical data from Google Finance';
