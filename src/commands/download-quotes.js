@@ -65,6 +65,23 @@ var Module = new function() {
 
 	}
 
+
+    async function query(sql) {
+        return await _db.query(sql);
+    }
+
+	async function upsert(table, rows) {
+
+        if (!isArray(rows))
+            rows = [rows];
+
+        for (let row of rows) {
+            await _db.upsert(table, row);
+        };
+
+        return rows;
+	}
+
 	function dateToString(date) {
 		if (!date)
 			date = new Date();
@@ -157,18 +174,16 @@ var Module = new function() {
                 return typeof(name) == 'string' && name != 'n/a';
             }
 
-            let query = {};
-            query.sql = 'SELECT * FROM stocks WHERE ?? = ?';
-            query.values = ['symbol', symbol];
+            let sql = {};
+            sql.sql = 'SELECT * FROM stocks WHERE ?? = ?';
+            sql.values = ['symbol', symbol];
 
-            let stocks = await _db.query(query);
+            let stocks = await query(sql);
             let stock = stocks.length == 1 ? stocks[0] : {};
 
             if (stocks.length == 0) {
                 throw new Error(`Symbol not ${symbol} not found.`);
             }
-
-            console.log(`Fetching summary profile from Yahoo for symbol ${symbol}.`);
 
             let modules = ['price', 'summaryProfile', 'quoteType', 'assetProfile'];
             let summary = await yahoo.quoteSummary(symbol, {modules:modules});
@@ -189,11 +204,11 @@ var Module = new function() {
 
         async function getStatistics(symbol) {
 
-            let query = {};
-            query.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
-            query.values = [symbol, 51 * 5];
+            let sql = {};
+            sql.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
+            sql.values = [symbol, 51 * 5];
 
-            let quotes = await _db.query(query);
+            let quotes = await query(sql);
             let stats = {};
 
             if (quotes.length > 0) {
@@ -216,7 +231,7 @@ var Module = new function() {
 
         let stock = {symbol:symbol, updated: new Date(), ...info, ...stats};
 
-        await _db.upsert('stocks', stock);
+        await upsert('stocks', stock);
 	}
 
 	async function getStartDates() {
@@ -224,7 +239,7 @@ var Module = new function() {
 		console.log('Fetching last quote dates...');
 
 		let sql = 'SELECT symbol, MAX(date) as date FROM quotes GROUP BY symbol';
-        let rows = await _db.query(sql);
+        let rows = await query(sql);
         let dates = {};
         
         rows.forEach(function(row) {
@@ -242,20 +257,20 @@ var Module = new function() {
 
 		async function deleteFromStocks(symbol) {
 
-            let query = {};
-            query.sql = 'DELETE FROM ?? WHERE ?? = ?';
-            query.values = ['stocks', 'symbol', symbol];
+            let sql = {};
+            sql.sql = 'DELETE FROM ?? WHERE ?? = ?';
+            sql.values = ['stocks', 'symbol', symbol];
 
-			await _db.query(query);
+			await query(sql);
 		}
 
 		async function deleteFromQuotes(symbol) {
 
-            let query = {};
-            query.sql = 'DELETE FROM ?? WHERE ?? = ?';
-            query.values = ['quotes', 'symbol', symbol];
+            let sql = {};
+            sql.sql = 'DELETE FROM ?? WHERE ?? = ?';
+            sql.values = ['quotes', 'symbol', symbol];
 
-            await _db.query(query);
+            await query(sql);
 		}
 
         await deleteFromStocks(symbol);
@@ -267,7 +282,7 @@ var Module = new function() {
 	async function getSymbols() {
 
 		let sql = 'SELECT symbol FROM stocks';
-        let rows = await _db.query(sql);
+        let rows = await query(sql);
 
         var symbols = [];
 
@@ -278,14 +293,6 @@ var Module = new function() {
         }
 
         return symbols;
-	}
-
-	async function upsert(quotes) {
-        for (let quote of quotes) {
-            await _db.upsert('quotes', quote);
-        };
-
-        return quotes;
 	}
 
 	async function refresh(symbols) {
@@ -313,7 +320,26 @@ var Module = new function() {
             return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
         }
 
-        async function fetchFromYahoo(symbol, from, to) {
+
+
+        function isValidQuote(quote) {
+            return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
+        }
+
+
+
+        async function fetch(symbol, from, to) {
+
+            from = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+            to = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
+            let now = new Date();
+            let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (today - from <= 0) {
+                console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
+                return null;
+            }
 
             let quotes = [];
             let items = await yahoo.historical(symbol, {period1:from, period2:to});
@@ -335,45 +361,24 @@ var Module = new function() {
                 }
             }
 
+            console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
             return quotes;
-        }
 
-        function isValidQuote(quote) {
-            return quote && quote.open != null && quote.close != null && quote.high != null && quote.low != null;
-        }
-
-
-
-        async function fetch(symbol, from, to) {
-
-            from = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-            to = new Date(to.getFullYear(), to.getMonth(), to.getDate());
-
-            let now = new Date();
-            let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            if (today - from <= 0) {
-                console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
-                return null;
-            }
-
-            return await fetchFromYahoo(symbol, from, to);
         }
 
         if (!isArray(symbols))
             symbols = [symbols];
 
+        let startDates = {};
         let symbolsUpdated = 0;
         let now = new Date();
-
-        let startDates = {};
+        let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         if (to == undefined)
-            to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            to = today;
 
-        if (from == undefined) {
+        if (from == undefined)
             startDates = await getStartDates();
-        }
 
         for (let symbol of symbols) {
             
@@ -384,20 +389,23 @@ var Module = new function() {
                 startDate = startDates[symbol];
 
             if (startDate == undefined) {
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                startDate.setDate(startDate.getDate() - 380);
+                startDate = new Date();
+                startDate.setDate(today.getDate() - 380);
             }
 
-            let quotes = await fetch(symbol, startDate, endDate);
+            try {
+                let quotes = await fetch(symbol, startDate, endDate);
 
-            if (isArray(quotes) && quotes.length > 0) {
-                symbolsUpdated++;
-                console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
-
-                await upsert(quotes);
-                await updateStock(symbol);
+                if (isArray(quotes) && quotes.length > 0) {
+                    symbolsUpdated++;
+    
+                    await upsert('quotes', quotes);
+                    await refresh(symbol);
+                }    
             }
-
+            catch(error) {
+                console.error(`Failed to download symbol ${symbol}. ${error.message}`);
+            }
         }
 
         return symbolsUpdated;
