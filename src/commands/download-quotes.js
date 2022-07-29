@@ -10,7 +10,7 @@ require('pushover-console');
 
 var Module = new function() {
 
-	var _db = undefined;
+	var _db = new MySQL();
 	var _argv = undefined;
 
 	function debug() {
@@ -277,24 +277,33 @@ var Module = new function() {
         await deleteFromQuotes(symbol);
 	}
 
-
-
 	async function getSymbols() {
 
-		let sql = 'SELECT symbol FROM stocks';
+		//let sql = 'SELECT symbol FROM stocks ORDER by updated ASC';
+		let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
         let rows = await query(sql);
-
-        var symbols = [];
-
+        let symbols = [];
+        
         for (let row of rows) {
-            if (!isString(_argv.symbol) || row.symbol.match(_argv.symbol)) {
-                symbols.push(row.symbol);
-            }
-        }
 
+            if (_argv.symbol) {
+                let filters = isArray(_argv.symbol) ? _argv.symbol : [_argv.symbol];
+    
+                for (let filter of filters) {
+                    if (row.symbol.match(`^${filter}$`) != null) {
+                        symbols.push(row.symbol);
+                        break;
+                    }    
+                }
+            }
+            else
+                symbols.push(row.symbol);
+        }
+        
         return symbols;
 	}
 
+    
 	async function refresh(symbols) {
 
 
@@ -312,6 +321,10 @@ var Module = new function() {
 
 	}
 
+
+    async function cleanUp() {
+
+    }
 
 	async function download(symbols, from, to) {
 
@@ -404,7 +417,18 @@ var Module = new function() {
                 }    
             }
             catch(error) {
-                console.error(`Failed to download symbol ${symbol}. ${error.message}`);
+
+                console.error(`Failed to download symbol ${symbol}. ${error}.`);
+
+                if (error.code == 404) {
+                    try {
+                        debug(`Removing symbol ${symbol}...`);
+                        await deleteSymbol(symbol);
+                    }
+                    catch(error) {
+                    }
+                }
+
             }
         }
 
@@ -455,7 +479,43 @@ var Module = new function() {
 
 	}
 
+    function totalTime(now, then) {
+        // get total seconds between the times
+        let delta = Math.abs(now - then) / 1000;
 
+        // calculate (and subtract) whole days
+        let days = Math.floor(delta / 86400);
+        delta -= days * 86400;
+
+        // calculate (and subtract) whole hours
+        let hours = Math.floor(delta / 3600) % 24;
+        delta -= hours * 3600;
+
+        // calculate (and subtract) whole minutes
+        let minutes = Math.floor(delta / 60) % 60;
+        delta -= minutes * 60;
+
+        // what's left is seconds
+        let seconds = Math.round(delta % 60);  // in theory the modulus is not required            
+
+        let text = [];
+
+        if (days > 0)
+            text.push(`${days} days`);
+
+        if (hours > 0)
+            text.push(`${hours} hours`);
+
+        if (minutes > 0)
+            text.push(`${minutes} minutes`);
+
+        if (text.length > 0) 
+            text = `${text.join(text, ',')} and ${seconds} seconds`;
+        else    
+            text = `${seconds} seconds`;
+
+        return text;
+    }
 
 
 	async function work() {
@@ -464,19 +524,18 @@ var Module = new function() {
         try {
             console.info('Connecting to SQL server...');
 
-            let mysql = new MySQL();
-            _db = await mysql.connect();
+            let time = new Date();
+            await _db.connect();
             let count = await process();
-            console.info(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and/or updated.`);
+
+            console.info(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${totalTime(new Date(), time)}.`);
         }
         catch(error) {
             console.error(error.stack);
         }
         finally {
-            if (_db != undefined)
-                _db.end();            
+            _db.disconnect();            
 
-            _db = undefined;
         }
 	}
 
