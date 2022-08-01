@@ -27,6 +27,7 @@ var Module = new function() {
 		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
+		args.option('clean',     {alias: 'l', describe:'Clean out', default:false});
 		args.help();
 
 		args.wrap(null);
@@ -324,6 +325,19 @@ var Module = new function() {
 
     async function cleanUp() {
 
+        let date = new Date();
+        date.setDate(date.getDate() - 60);
+
+        let sql = {};
+        sql.sql = 'SELECT symbol FROM quotes GROUP BY symbol HAVING MAX(date) < ?';
+        sql.values = [date];
+
+        let rows = await query(sql);
+
+        for (let row in rows) {
+            await deleteSymbol(row.symbol);
+        }
+
     }
 
 	async function download(symbols, from, to) {
@@ -420,15 +434,6 @@ var Module = new function() {
 
                 console.error(`Failed to download symbol ${symbol}. ${error}.`);
 
-                if (error.code == 404) {
-                    try {
-                        debug(`Removing symbol ${symbol}...`);
-                        await deleteSymbol(symbol);
-                    }
-                    catch(error) {
-                    }
-                }
-
             }
         }
 
@@ -446,9 +451,14 @@ var Module = new function() {
             throw new Error('No symbols found.');
         }
 
+        if (_argv.clean) {
+            await cleanUp();
+        }
+
         if (_argv.refresh) {
             return await refresh(symbols);
         }
+
 
         let from = undefined;
         let to = undefined;
