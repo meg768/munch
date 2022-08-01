@@ -235,6 +235,9 @@ var Module = new function() {
         await upsert('stocks', stock);
 	}
 
+
+
+    
 	async function getStartDates() {
 
 		console.log('Fetching last quote dates...');
@@ -280,8 +283,8 @@ var Module = new function() {
 
 	async function getSymbols() {
 
-		//let sql = 'SELECT symbol FROM stocks ORDER by updated ASC';
-		let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
+		let sql = 'SELECT symbol FROM stocks ORDER by updated ASC';
+		//let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
         let rows = await query(sql);
         let symbols = [];
         
@@ -384,6 +387,7 @@ var Module = new function() {
                     quote.volume = item.volume;
 
                     quotes.push(quote);
+    
 
                 }
             }
