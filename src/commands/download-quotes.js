@@ -109,6 +109,22 @@ var Module = new function() {
             return parseFloat((sum / days).toFixed(2));
         }
 
+        function computeDOG(quotes, SMA, DOG) {
+            if (quotes.length == 0)
+                return null;
+
+            let now = new Date();
+            let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());    
+            let quote = quotes[0];
+
+            if (quote.close < SMA && DOG == null)
+                return today;
+            else if (quote.close >= SMA)
+                return null;
+            else
+                return DOG;
+        }
+
         function computeAV(quotes, days) {
             if (quotes.length < days)
                 return null;
@@ -121,7 +137,7 @@ var Module = new function() {
             return parseInt((sum / days).toFixed(0));
         }
 
-        function computeWeekLow(quotes, weeks) {
+        function computeWL(quotes, weeks) {
 
             var days = weeks * 5;
 
@@ -136,7 +152,7 @@ var Module = new function() {
             return min;
         }
 
-        function computeWeekHigh(quotes, weeks) {
+        function computeWH(quotes, weeks) {
 
             var days = weeks * 5;
 
@@ -169,7 +185,7 @@ var Module = new function() {
             return parseFloat((sum / days).toFixed(2));
         }
 
-        async function getGeneralInformation(symbol) {
+        async function getStock(symbol) {
 
             function isValidName(name) {
                 return typeof(name) == 'string' && name != 'n/a';
@@ -189,50 +205,44 @@ var Module = new function() {
             let modules = ['price', 'summaryProfile', 'quoteType', 'assetProfile'];
             let summary = await yahoo.quoteSummary(symbol, {modules:modules});
 
-            stock = {};
-
             stock.name = summary.price.longName ? summary.price.longName : summary.price.shortName;
 
             stock.sector = summary.assetProfile && isValidName(summary.assetProfile.sector) ?  summary.assetProfile.sector : '';
             stock.industry = summary.assetProfile && isValidName(summary.assetProfile.industry) ? summary.assetProfile.industry : '';
             stock.country = summary.assetProfile && isValidName(summary.assetProfile.country) ? summary.assetProfile.country : '';    
-
             stock.exchange = isValidName(summary.price.exchangeName) ? summary.price.exchangeName : '';
             stock.type = isValidName(summary.price.quoteType) ? summary.price.quoteType : ''; 
 
             return stock;
         }
 
-        async function getStatistics(symbol) {
-
+        async function getQuotes(symbol) {
             let sql = {};
             sql.sql = 'SELECT * FROM quotes WHERE symbol = ? ORDER BY date DESC LIMIT ?';
             sql.values = [symbol, 51 * 5];
 
-            let quotes = await query(sql);
-            let stats = {};
-
-            if (quotes.length > 0) {
-                stats.SMA200   = computeSMA(quotes, 200);
-                stats.SMA50    = computeSMA(quotes, 50);
-                stats.SMA20    = computeSMA(quotes, 20);
-                stats.SMA10    = computeSMA(quotes, 10);
-                stats.AV14     = computeAV(quotes, 14);
-                stats.WL51     = computeWeekLow(quotes, 51);
-                stats.WH51     = computeWeekHigh(quotes, 51);
-                stats.ATR14    = computeATR(quotes, 14);
-            }
-
-            return stats;
-
+            return await query(sql);
         }
 
-        let info = await getGeneralInformation(symbol);
-        let stats = await getStatistics(symbol);
+        let stock = await getStock(symbol);
+        let quotes = await getQuotes(symbol);
 
-        let stock = {symbol:symbol, updated: new Date(), ...info, ...stats};
+        if (quotes.length > 0) {
+            stock.SMA200   = computeSMA(quotes, 200);
+            stock.SMA50    = computeSMA(quotes, 50);
+            stock.SMA20    = computeSMA(quotes, 20);
+            stock.SMA10    = computeSMA(quotes, 10);
+            stock.AV14     = computeAV(quotes, 14);
+            stock.WL51     = computeWL(quotes, 51);
+            stock.WH51     = computeWH(quotes, 51);
+            stock.ATR14    = computeATR(quotes, 14);
+            stock.DOG200   = computeDOG(quotes, stock.SMA200, stock.DOG200); 
+            stock.updated = new Date();
 
-        await upsert('stocks', stock);
+            await upsert('stocks', stock);
+    
+        }
+
 	}
 
 
