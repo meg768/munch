@@ -24,7 +24,7 @@ var Module = new function() {
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
-		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 60});
+		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 60*3});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.option('clean',     {alias: 'l', describe:'Clean out', default:false});
