@@ -24,7 +24,7 @@ var Module = new function() {
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
-		args.option('schedule',  {alias: 'x', describe:'Schedule job at specified cron date/time format'});
+		args.option('loop',      {alias: 'o', describe:'Run again after X minutes', default: 60});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.option('clean',     {alias: 'l', describe:'Clean out', default:false});
@@ -557,65 +557,33 @@ var Module = new function() {
             console.error(error.stack);
         }
         finally {
-            _db.disconnect();            
+            _db.disconnect();  
+            
 
         }
-	}
 
-
-	async function schedule(cron) {
-
-        try {
-            let Schedule = require('node-schedule');
-            let running  = false;
-
-            console.info(sprintf('Scheduling to run download-quotes at cron-time "%s"...', cron));
-
-            let job = Schedule.scheduleJob(cron, async function() {
-
-                try {
-                    if (running)
-                        throw new Error('Upps! Running already!!');
-    
-                    try {
-                        running = true;
-                        await work();
-                    }
-                    catch(error) {
-                        throw error;
-                    }
-                    finally {
-                        running = false;
-                    }
-    
-                }
-                catch(error) {
-                    console.error(error.stack);
-                }
-    
-            });
-
-            if (job == null) {
-                throw new Error('Invalid cron time.');
-            }
-
+        if (_argv.loop) {
+            await wait(_argv.loop * 1000 * 60);
+            work();
 
         }
-        catch(error) {
-            throw error;
-        }
+    }
 
-	}
+    async function wait(ms) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, ms);
+        })
+   }
+
 
 	async function run(argv) {
 
 		try {
 			_argv = argv;
 
-			if (isString(_argv.schedule))
-				await schedule(_argv.schedule);
-			else
-				await work();
+			await work();
 
 		}
 		catch(error) {
