@@ -110,9 +110,6 @@ var Module = new function() {
         }
 
         function computeDOG(quotes, SMA, DOG) {
-            if (quotes.length == 0)
-                return null;
-
             let now = new Date();
             let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());    
             let quote = quotes[0];
@@ -237,7 +234,7 @@ var Module = new function() {
             stock.WH51     = computeWH(quotes, 51);
             stock.ATR14    = computeATR(quotes, 14);
             stock.DOG200   = computeDOG(quotes, stock.SMA200, stock.DOG200); 
-            stock.updated = new Date();
+            stock.updated  = new Date();
 
             await upsert('stocks', stock);
     
