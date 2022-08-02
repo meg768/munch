@@ -225,16 +225,18 @@ var Module = new function() {
         let quotes = await getQuotes(symbol);
 
         if (quotes.length > 0) {
-            stock.SMA200   = computeSMA(quotes, 200);
-            stock.SMA50    = computeSMA(quotes, 50);
-            stock.SMA20    = computeSMA(quotes, 20);
-            stock.SMA10    = computeSMA(quotes, 10);
-            stock.AV14     = computeAV(quotes, 14);
-            stock.WL51     = computeWL(quotes, 51);
-            stock.WH51     = computeWH(quotes, 51);
-            stock.ATR14    = computeATR(quotes, 14);
-            stock.DOG200   = computeDOG(quotes, stock.SMA200, stock.DOG200); 
-            stock.updated  = new Date();
+            stock = {...stock, ...quotes[0]};
+
+            stock.SMA200    = computeSMA(quotes, 200);
+            stock.SMA50     = computeSMA(quotes, 50);
+            stock.SMA20     = computeSMA(quotes, 20);
+            stock.SMA10     = computeSMA(quotes, 10);
+            stock.AV14      = computeAV(quotes, 14);
+            stock.WL51      = computeWL(quotes, 51);
+            stock.WH51      = computeWH(quotes, 51);
+            stock.ATR14     = computeATR(quotes, 14);
+            stock.DOG200    = computeDOG(quotes, stock.SMA200, stock.DOG200); 
+            stock.timestamp = new Date();
 
             await upsert('stocks', stock);
     
@@ -290,7 +292,7 @@ var Module = new function() {
 
 	async function getSymbols() {
 
-		let sql = 'SELECT symbol FROM stocks ORDER by updated ASC';
+		let sql = 'SELECT symbol FROM stocks ORDER by timestamp ASC';
 		//let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
         let rows = await query(sql);
         let symbols = [];
