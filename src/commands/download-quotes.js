@@ -563,9 +563,12 @@ var Module = new function() {
         }
 
         if (_argv.loop) {
-            console.log(`Waiting for next loop...`);
-            await wait(_argv.loop * 1000 * 60);
-            work();
+            let loop = _argv.loop;
+            console.log(`Waiting for next loop (${loop} minutes)...`);
+
+            setTimeout(() => {
+                work();
+            }, loop * 1000 * 60)
 
         }
     }
