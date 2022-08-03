@@ -24,7 +24,7 @@ var Module = new function() {
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
-		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 60*2});
+		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 60*3});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.option('clean',     {alias: 'l', describe:'Clean out', default:false});
@@ -335,20 +335,12 @@ var Module = new function() {
 	}
 
 
+
     async function cleanUp() {
 
-        let date = new Date();
-        date.setDate(date.getDate() - 60);
-
-        let sql = {};
-        sql.sql = 'SELECT symbol FROM quotes GROUP BY symbol HAVING MAX(date) < ?';
-        sql.values = [date];
-
-        let rows = await query(sql);
-
-        for (let row in rows) {
-            await deleteSymbol(row.symbol);
-        }
+        console.log('Cleaning up...')
+        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 300');
+        await query('DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)');
 
     }
 
@@ -465,7 +457,7 @@ var Module = new function() {
         }
 
         if (_argv.clean) {
-            await cleanUp();
+            return await cleanUp();
         }
 
         if (_argv.refresh) {
@@ -497,8 +489,11 @@ var Module = new function() {
         if (to == undefined)
             to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-        return await download(symbols, from, to);
+        let count =  await download(symbols, from, to);
 
+        await cleanUp();
+
+        return count;
 
 	}
 
