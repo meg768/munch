@@ -339,7 +339,7 @@ var Module = new function() {
     async function cleanUp() {
 
         console.log('Cleaning up...')
-        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 300');
+        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 100');
         await query('DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)');
 
     }
