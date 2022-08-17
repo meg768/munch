@@ -24,7 +24,7 @@ var Module = new function() {
 		args.option('since',     {alias: 'c', describe:'Fetch quotes since the specified date'});
 		args.option('from',      {alias: 'f', describe:'Fetch quotes from the specified date'});
 		args.option('to',        {alias: 't', describe:'Fetch quotes to the specified date'});
-		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 60});
+		args.option('loop',      {alias: 'o', describe:'Run again after specified number of minutes', default: 180});
 		args.option('pause',     {alias: 'p', describe:'Pause for number of seconds between batches', default:0});
 		args.option('refresh',   {alias: 'r', describe:'Refresh statistics', default:false});
 		args.option('clean',     {alias: 'l', describe:'Clean out', default:false});
@@ -266,7 +266,7 @@ var Module = new function() {
 	}
 
 
-	async function deleteSymbol(symbol) {
+	async function removeStock(symbol) {
 
 		async function deleteFromStocks(symbol) {
 
@@ -339,7 +339,7 @@ var Module = new function() {
     async function cleanUp() {
 
         console.log('Cleaning up...')
-        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 30');
+        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 14');
         await query('DELETE FROM stocks WHERE name IS NULL');
         await query('DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)');
 
@@ -369,7 +369,7 @@ var Module = new function() {
             let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
             if (today - from <= 0) {
-                console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
+                //console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
                 return null;
             }
 
@@ -438,7 +438,12 @@ var Module = new function() {
             }
             catch(error) {
 
-                console.error(`Failed to download symbol ${symbol}. ${error}.`);
+                console.error(`Failed to download symbol ${symbol}. ${error.message}.`);
+
+                if (error.code == 404) {
+                    console.log(`Deleting stock ${symbol} since it does not exist.`);
+                    await removeStock(symbol);
+                }
 
             }
         }
@@ -541,13 +546,13 @@ var Module = new function() {
 
 
         try {
-            console.info('Connecting to SQL server...');
+            console.log('Connecting to SQL server...');
 
             let time = new Date();
             await _db.connect();
             let count = await process();
 
-            console.info(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${totalTime(new Date(), time)}.`);
+            console.log(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${totalTime(new Date(), time)}.`);
         }
         catch(error) {
             console.error(error.stack);
