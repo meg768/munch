@@ -8,6 +8,75 @@ var MySQL      = require('../scripts/mysql.js');
 
 require('pushover-console');
 
+class Probe {
+
+    constructor() {
+        this.startTime = null;
+        this.stopTime = null;
+
+        this.start();
+    }
+
+    start() {
+        this.startTime = new Date();
+    }
+
+    stop() {
+        this.stopTime = new Date();
+    }
+
+    toString() {
+        if (this.startTime == null)
+            this.start();
+
+        if (this.stopTime == null)
+            this.stop();
+
+        let then = this.startTime;
+        let now = this.stopTime;
+        
+        // get total seconds between the times
+        let delta = Math.abs(now - then) / 1000;
+
+        // calculate (and subtract) whole days
+        let days = Math.floor(delta / 86400);
+        delta -= days * 86400;
+
+        // calculate (and subtract) whole hours
+        let hours = Math.floor(delta / 3600) % 24;
+        delta -= hours * 3600;
+
+        // calculate (and subtract) whole minutes
+        let minutes = Math.floor(delta / 60) % 60;
+        delta -= minutes * 60;
+
+        // what's left is seconds
+        let seconds = Math.round(delta % 60);  // in theory the modulus is not required            
+
+        let text = [];
+
+        if (days > 0)
+            text.push(`${days} days`);
+
+        if (hours > 0)
+            text.push(`${hours} hours`);
+
+        if (minutes > 0)
+            text.push(`${minutes} minutes`);
+
+        if (text.length > 0) 
+            text = `${text.join(text, ',')} and ${seconds} seconds`;
+        else    
+            text = `${seconds} seconds`;
+
+        return text;
+
+    }
+
+
+}
+
+
 var Module = new function() {
 
 	var _db = new MySQL();
@@ -324,10 +393,7 @@ var Module = new function() {
             symbols = [symbols];
 
         for(let symbol of symbols) {
-            let then = new Date();
             await updateStock(symbol);
-            let now = new Date();
-            console.log(sprintf('Statistics updated for %s in %.1f seconds.', symbol, (now - then) / 1000));	
         }
 
         return symbols.length;
@@ -394,7 +460,7 @@ var Module = new function() {
                 }
             }
 
-            console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
+            //console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
             return quotes;
 
         }
@@ -427,6 +493,7 @@ var Module = new function() {
             }
 
             try {
+                let probe = new Probe();
                 let quotes = await fetch(symbol, startDate, endDate);
 
                 if (isArray(quotes) && quotes.length > 0) {
@@ -434,6 +501,9 @@ var Module = new function() {
     
                     await upsert('quotes', quotes);
                     await refresh(symbol);
+
+                    console.log(`${symbol} updated with ${quotes.length} quote(s) in ${probe.toString()}...`);
+
                 }    
             }
             catch(error) {
@@ -441,7 +511,7 @@ var Module = new function() {
                 console.error(`Failed to download symbol ${symbol}. ${error.message}.`);
 
                 if (error.code == 404) {
-                    console.log(`Deleting stock ${symbol} since it does not exist.`);
+                    console.error(`Deleting stock ${symbol} since it does not exist.`);
                     await removeStock(symbol);
                 }
 
@@ -546,13 +616,13 @@ var Module = new function() {
 
 
         try {
+            let probe = new Probe();
             console.log('Connecting to SQL server...');
 
-            let time = new Date();
             await _db.connect();
             let count = await process();
 
-            console.log(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${totalTime(new Date(), time)}.`);
+            console.log(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${probe.toString()}.`);
         }
         catch(error) {
             console.error(error.stack);
