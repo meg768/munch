@@ -19,7 +19,7 @@ var Module = new function() {
 
 		args.usage('Usage: $0 [options]');
 		args.option('help',     {alias:'h', describe:'Displays this information'});
-		args.option('port',     {alias:'p', describe:'Specifies port', default:3012});
+		args.option('port',     {alias:'p', describe:'Specifies port', default:3000});
 
 		args.wrap(null);
 
