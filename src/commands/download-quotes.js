@@ -507,14 +507,9 @@ var Module = new function() {
                 }    
             }
             catch(error) {
-
-                console.error(`Failed to download symbol ${symbol}. ${error.message}.`);
-/*
-                if (error.code == 404) {
-                    console.error(`Deleting stock ${symbol} since it does not exist.`);
-                    await removeStock(symbol);
-                }
-*/
+                let message = `Failed to download symbol ${symbol}. ${error.message}.`;
+                console.error(message);
+                _db.upsert('log', {message:message});
             }
         }
 
