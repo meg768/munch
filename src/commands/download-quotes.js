@@ -6,6 +6,7 @@ var isInteger  = require('yow/isInteger');
 var yahoo      = require('yahoo-finance2').default;
 var MySQL      = require('../scripts/mysql.js');
 
+
 require('pushover-console');
 
 class Probe {

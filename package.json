@@ -29,9 +29,8 @@
     "pushover-console": "^1.0.0",
     "pushover-notifications": "^0.2.4",
     "twilio-console": "^1.0.5",
-    "yahoo-finance2": "^2.3.4",
+    "yahoo-finance2": "^2.9.0",
     "yargs": "^8.0.1",
     "yow": "^1.0.108"
-  },
-  "devDependencies": {}
+  }
 }
