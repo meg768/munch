@@ -14,7 +14,7 @@ module.exports = class Pushover {
             throw new Error('Environment variables PUSHOVER_USER and/or PUSHOVER_TOKEN not defined.');
         }
 
-        this.pushover = new PushoverNotifications({user:this.user, token:this.token});
+        this.pushover = new PushoverNotifications({user:user, token:token});
     
     }
 
