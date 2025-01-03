@@ -408,7 +408,7 @@ var Module = new function() {
     async function cleanUp() {
 
         console.log('Cleaning up...')
-        await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 14');
+        //await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 14');
         await query('DELETE FROM stocks WHERE name IS NULL');
         await query('DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)');
 
