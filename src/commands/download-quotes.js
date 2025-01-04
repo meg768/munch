@@ -5,9 +5,7 @@ var isDate     = require('yow/isDate');
 var isInteger  = require('yow/isInteger');
 var yahoo      = require('yahoo-finance2').default;
 var MySQL      = require('../scripts/mysql.js');
-var Pushover   = require('./pushover.js')
 
-//require('pushover-console');
 
 class Probe {
 
@@ -82,7 +80,6 @@ var Module = new function() {
 
 	var _db = new MySQL();
 	var _argv = undefined;
-    var _pushover = new Pushover();
 
 	function debug() {
 		console.log.apply(this, arguments);
@@ -511,7 +508,6 @@ var Module = new function() {
             }
             catch(error) {
                 let message = `Failed to download symbol ${symbol}. ${error.message}.`;
-                _pushover.error(message);
                 _db.upsert('log', {message:message});
             }
         }
