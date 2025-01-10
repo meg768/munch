@@ -616,7 +616,9 @@ var Module = new function() {
             await _db.connect();
             let count = await process();
 
-            console.log(`Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${probe.toString()}.`);
+            let message = `Finished downloading quotes. A total of ${count} symbol(s) downloaded and updated in ${probe.toString()}.`;
+            _db.upsert("log", { message: message });
+            console.log(message);
         }
         catch(error) {
             console.error(error.stack);
