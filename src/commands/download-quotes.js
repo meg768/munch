@@ -33,40 +33,12 @@ class Probe {
 
         let then = this.startTime;
         let now = this.stopTime;
-        
-        // get total seconds between the times
-        let delta = Math.abs(now - then) / 1000;
+        let seconds = Math.round((now - then) / 1000 * 10) / 10;
+        let text = `${seconds} seconds`;
 
-        // calculate (and subtract) whole days
-        let days = Math.floor(delta / 86400);
-        delta -= days * 86400;
-
-        // calculate (and subtract) whole hours
-        let hours = Math.floor(delta / 3600) % 24;
-        delta -= hours * 3600;
-
-        // calculate (and subtract) whole minutes
-        let minutes = Math.floor(delta / 60) % 60;
-        delta -= minutes * 60;
-
-        // what's left is seconds
-        let seconds = Math.round(delta % 60);  // in theory the modulus is not required            
-
-        let text = [];
-
-        if (days > 0)
-            text.push(`${days} days`);
-
-        if (hours > 0)
-            text.push(`${hours} hours`);
-
-        if (minutes > 0)
-            text.push(`${minutes} minutes`);
-
-        if (text.length > 0) 
-            text = `${text.join(text, ',')} and ${seconds} seconds`;
-        else    
-            text = `${seconds} seconds`;
+        if (seconds > 60) {
+            text = `${Math.round(seconds / 60)} minute(s)`;
+        }
 
         return text;
 
@@ -361,8 +333,8 @@ var Module = new function() {
 
 	async function getSymbols() {
 
-		let sql = 'SELECT symbol FROM stocks ORDER by timestamp ASC';
-		//let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
+		//let sql = 'SELECT symbol FROM stocks ORDER by timestamp ASC';
+		let sql = 'SELECT symbol FROM stocks ORDER by symbol ASC';
         let rows = await query(sql);
         let symbols = [];
         
@@ -569,38 +541,34 @@ var Module = new function() {
 
     function totalTime(now, then) {
         // get total seconds between the times
-        let delta = Math.abs(now - then) / 1000;
+        let delta = Math.abs(now - then) / 100;
 
         // calculate (and subtract) whole days
         let days = Math.floor(delta / 86400);
-        delta -= days * 86400;
+        delta -= days * 864000;
 
         // calculate (and subtract) whole hours
         let hours = Math.floor(delta / 3600) % 24;
-        delta -= hours * 3600;
+        delta -= hours * 36000;
 
         // calculate (and subtract) whole minutes
         let minutes = Math.floor(delta / 60) % 60;
-        delta -= minutes * 60;
+        delta -= minutes * 600;
 
         // what's left is seconds
-        let seconds = Math.round(delta % 60);  // in theory the modulus is not required            
+        //let seconds = Math.round(delta % 60); // in theory the modulus is not required
+        let seconds = delta; //(delta % 60); // in theory the modulus is not required
 
         let text = [];
 
-        if (days > 0)
-            text.push(`${days} days`);
+        if (days > 0) text.push(`${days} days`);
 
-        if (hours > 0)
-            text.push(`${hours} hours`);
+        if (hours > 0) text.push(`${hours} hours`);
 
-        if (minutes > 0)
-            text.push(`${minutes} minutes`);
+        if (minutes > 0) text.push(`${minutes} minutes`);
 
-        if (text.length > 0) 
-            text = `${text.join(text, ',')} and ${seconds} seconds`;
-        else    
-            text = `${seconds} seconds`;
+        if (text.length > 0) text = `${text.join(text, ",")} and ${seconds} seconds`;
+        else text = `${seconds} seconds`;
 
         return text;
     }
