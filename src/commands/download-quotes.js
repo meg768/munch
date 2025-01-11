@@ -316,6 +316,11 @@ var Module = new (function () {
         await query("DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)");
     }
 
+    function log(message) {
+        _db.upsert("log", { message: message });
+        console.log(message);
+    }
+
     async function download(symbols, from, to) {
         function round(value) {
             return value == null ? null : parseFloat(parseFloat(value).toFixed(4));
@@ -386,7 +391,7 @@ var Module = new (function () {
             try {
                 let probe = new Probe();
                 let quotes = await fetch(symbol, startDate, endDate);
-
+                
                 if (isArray(quotes) && quotes.length > 0) {
                     symbolsUpdated++;
                     quotesUpdated += quotes.length;
@@ -394,7 +399,7 @@ var Module = new (function () {
                     await upsert("quotes", quotes);
                     await refresh(symbol);
 
-                    console.log(`${symbol} updated with ${quotes.length} quote(s) in ${probe.toString()}...`);
+                    log(`${symbol} updated with ${quotes.length} quote(s) in ${probe.toString()}...`);
                 }
             } catch (error) {
                 let message = `Failed to download symbol ${symbol}. ${error.message}.`;
