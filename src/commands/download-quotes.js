@@ -391,7 +391,7 @@ var Module = new (function () {
             try {
                 let probe = new Probe();
                 let quotes = await fetch(symbol, startDate, endDate);
-                
+
                 if (isArray(quotes) && quotes.length > 0) {
                     symbolsUpdated++;
                     quotesUpdated += quotes.length;
@@ -403,7 +403,7 @@ var Module = new (function () {
                 }
             } catch (error) {
                 let message = `Failed to download symbol ${symbol}. ${error.message}.`;
-                _db.upsert("log", { message: message });
+                log(message);
             }
         }
 
