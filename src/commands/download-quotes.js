@@ -457,14 +457,14 @@ var Module = new (function () {
     async function work() {
         try {
             let probe = new Probe();
-            console.log("Connecting to SQL server...");
 
             await _db.connect();
+
+            log(`Starting download.`);
+            
             let { symbols, quotes } = await process();
 
-            let message = `Finished downloading. A total of ${symbols} symbol(s) and ${quotes} quote(s) downloaded and updated in ${probe.toString()}.`;
-            _db.upsert("log", { message: message });
-            console.log(message);
+            log(`Finished downloading. A total of ${symbols} symbol(s) and ${quotes} quote(s) downloaded and updated in ${probe.toString()}.`);
         } catch (error) {
             console.error(error.stack);
         } finally {
