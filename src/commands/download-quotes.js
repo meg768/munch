@@ -399,7 +399,6 @@ var Module = new (function () {
                     await upsert("quotes", quotes);
                     await refresh(symbol);
 
-                    log(`${symbol} updated with ${quotes.length} quote(s) in ${probe.toString()}...`);
                 }
             } catch (error) {
                 let message = `Failed to download symbol ${symbol}. ${error.message}.`;
