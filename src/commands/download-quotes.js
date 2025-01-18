@@ -101,11 +101,7 @@ var Module = new (function () {
         return rows;
     }
 
-    function dateToString(date) {
-        if (!date) date = new Date();
 
-        return sprintf("%04d-%02d-%02d", date.getFullYear(), date.getMonth() + 1, date.getDate());
-    }
 
     async function updateStock(symbol) {
         function computeSMA(quotes, days) {
@@ -256,29 +252,8 @@ var Module = new (function () {
         return dates;
     }
 
-    async function removeStock(symbol) {
-        async function deleteFromStocks(symbol) {
-            let sql = {};
-            sql.sql = "DELETE FROM ?? WHERE ?? = ?";
-            sql.values = ["stocks", "symbol", symbol];
-
-            await query(sql);
-        }
-
-        async function deleteFromQuotes(symbol) {
-            let sql = {};
-            sql.sql = "DELETE FROM ?? WHERE ?? = ?";
-            sql.values = ["quotes", "symbol", symbol];
-
-            await query(sql);
-        }
-
-        await deleteFromStocks(symbol);
-        await deleteFromQuotes(symbol);
-    }
 
     async function getSymbols() {
-        //let sql = 'SELECT symbol FROM stocks ORDER by timestamp ASC';
         let sql = "SELECT symbol FROM stocks ORDER by symbol ASC";
         let rows = await query(sql);
         let symbols = [];
@@ -311,7 +286,6 @@ var Module = new (function () {
 
     async function cleanUp() {
         console.log("Cleaning up...");
-        //await query('DELETE FROM stocks WHERE DATEDIFF(CURDATE(), stocks.date) > 14');
         await query("DELETE FROM stocks WHERE name IS NULL");
         await query("DELETE FROM quotes WHERE quotes.symbol NOT IN (SELECT symbol FROM stocks)");
     }
@@ -338,7 +312,6 @@ var Module = new (function () {
             let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
             if (today - from <= 0) {
-                //console.log(sprintf('Skipping quotes for %s from %s to %s...', symbol, dateToString(from), dateToString(to)));
                 return null;
             }
 
@@ -361,7 +334,6 @@ var Module = new (function () {
                 }
             }
 
-            //console.log('Fetched %d quote(s) for symbol %s from %s to %s.', quotes.length, symbol, dateToString(from), dateToString(to));
             return quotes;
         }
 
@@ -454,21 +426,27 @@ var Module = new (function () {
         return result;
     }
 
+    function connect() {
+        _db.connect();
+    }
+
+    function disconnect() {
+        _db.disconnect();
+    }
+
     async function work() {
         try {
             let probe = new Probe();
 
-            await _db.connect();
-
-            log(`Starting download.`);
+            connect();
             
+            log(`Starting download.`);            
             let { symbols, quotes } = await process();
-
             log(`Finished downloading. A total of ${symbols} symbol(s) and ${quotes} quote(s) downloaded and updated in ${probe.toString()}.`);
         } catch (error) {
             console.error(error.stack);
         } finally {
-            _db.disconnect();
+            disconnect();
         }
 
         if (_argv.loop) {
