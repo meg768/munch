@@ -61,6 +61,7 @@ var Module = new (function () {
         args.help();
 
         args.wrap(null);
+        args.wrap(null);
 
         args.check(function (argv) {
             if ((argv.from && !argv.to) || (!argv.from && argv.to)) throw new Error("Must specify both --from and --to.");
